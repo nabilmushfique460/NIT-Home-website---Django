@@ -25,7 +25,7 @@ class CartAddView(View):
         except (ValueError, TypeError):
             quantity = 1
 
-        quantity = max(1, min(quantity, product.stock_qty))
+        quantity = max(1, min(quantity, min(4, product.stock_qty)))
 
         if product.stock_qty <= 0:
             messages.error(request, f"Sorry, {product.name} is currently out of stock.")
@@ -48,7 +48,7 @@ class CartUpdateView(View):
         current_qty = cart.cart.get(str(product_id), {}).get('quantity', 1)
 
         if action == 'increase':
-            new_qty = current_qty + 1
+            new_qty = min(4, current_qty + 1)
         elif action == 'decrease':
             new_qty = current_qty - 1
         else:
@@ -61,10 +61,10 @@ class CartUpdateView(View):
             cart.remove(product)
             messages.info(request, f"Removed {product.name} from your cart.")
         else:
-            clamped_qty = min(new_qty, product.stock_qty)
+            clamped_qty = max(1, min(new_qty, min(4, product.stock_qty)))
             cart.add(product=product, quantity=clamped_qty, override_quantity=True)
-            if new_qty > product.stock_qty:
-                messages.warning(request, f"Quantity adjusted to available stock ({product.stock_qty}) for {product.name}.")
+            if new_qty > min(4, product.stock_qty):
+                messages.warning(request, f"Maximum allowed quantity is {min(4, product.stock_qty)} for {product.name}.")
             else:
                 messages.success(request, f"Updated quantity for {product.name}.")
 
@@ -98,7 +98,7 @@ class BuyNowView(View):
         except (ValueError, TypeError):
             quantity = 1
 
-        quantity = max(1, min(quantity, product.stock_qty))
+        quantity = max(1, min(quantity, min(4, product.stock_qty)))
 
         if product.stock_qty <= 0:
             messages.error(request, f"Sorry, {product.name} is currently out of stock.")

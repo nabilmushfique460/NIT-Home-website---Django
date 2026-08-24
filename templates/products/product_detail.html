@@ -95,22 +95,45 @@
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-                <!-- Quantity Stepper -->
+                <!-- Quantity Stepper with Clickable Controls -->
                 <div class="quantity-control-group">
                     <label for="id_quantity" class="quantity-label">Select Quantity:</label>
-                    <input 
-                        type="number" 
-                        id="id_quantity" 
-                        name="quantity" 
-                        value="1" 
-                        min="1" 
-                        max="{{ product.stock_qty }}" 
-                        class="qty-input-box"
-                        {% if not product.is_in_stock %}disabled{% endif %}
-                    >
-                    <span style="font-size: 0.85rem; color: var(--slate-500);">
-                        (Max {{ product.stock_qty }} units per order)
-                    </span>
+                    <div class="interactive-qty-picker">
+                        <button 
+                            type="button" 
+                            id="qty-minus-btn" 
+                            class="btn-qty-click" 
+                            aria-label="Decrease quantity"
+                            onclick="changeDetailQty(-1)"
+                            disabled
+                        >−</button>
+                        <input 
+                            type="number" 
+                            id="id_quantity" 
+                            name="quantity" 
+                            value="1" 
+                            min="1" 
+                            max="{% if product.stock_qty < 4 %}{{ product.stock_qty }}{% else %}4{% endif %}" 
+                            class="qty-input-box"
+                            {% if not product.is_in_stock %}disabled{% endif %}
+                            oninput="validateDetailQty(this)"
+                            readonly
+                        >
+                        <button 
+                            type="button" 
+                            id="qty-plus-btn" 
+                            class="btn-qty-click" 
+                            aria-label="Increase quantity"
+                            onclick="changeDetailQty(1)"
+                            {% if not product.is_in_stock or product.stock_qty <= 1 %}disabled{% endif %}
+                        >+</button>
+                    </div>
+
+                    <!-- Selected Quantity Display Indicator -->
+                    <div class="selected-qty-indicator" id="selected-qty-display">
+                        <span class="selected-qty-count" id="selected-qty-num">1</span>
+                        <span class="selected-qty-text" id="selected-qty-label">unit selected</span>
+                    </div>
                 </div>
 
                 <!-- Dual Action Buttons: Add to Cart & Buy Now -->
@@ -496,5 +519,39 @@
     </div>
 </section>
 {% endif %}
+
+<script>
+function changeDetailQty(delta) {
+    const input = document.getElementById('id_quantity');
+    if (!input || input.disabled) return;
+    const current = parseInt(input.value || '1', 10);
+    const max = parseInt(input.getAttribute('max') || '4', 10);
+    const next = Math.max(1, Math.min(current + delta, max));
+    input.value = next;
+    updateSelectedDisplay(next, max);
+}
+
+function validateDetailQty(input) {
+    if (!input) return;
+    const max = parseInt(input.getAttribute('max') || '4', 10);
+    let val = parseInt(input.value, 10);
+    if (isNaN(val) || val < 1) val = 1;
+    if (val > max) val = max;
+    input.value = val;
+    updateSelectedDisplay(val, max);
+}
+
+function updateSelectedDisplay(qty, max) {
+    const numEl = document.getElementById('selected-qty-num');
+    const labelEl = document.getElementById('selected-qty-label');
+    if (numEl) numEl.textContent = qty;
+    if (labelEl) labelEl.textContent = (qty === 1 ? 'unit selected' : 'units selected');
+
+    const minusBtn = document.getElementById('qty-minus-btn');
+    const plusBtn = document.getElementById('qty-plus-btn');
+    if (minusBtn) minusBtn.disabled = (qty <= 1);
+    if (plusBtn) plusBtn.disabled = (qty >= max);
+}
+</script>
 
 {% endblock %}

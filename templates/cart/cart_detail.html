@@ -60,7 +60,7 @@
                                 <form method="post" action="{% url 'cart:cart_update' product_id=item.product.id %}">
                                     {% csrf_token %}
                                     <input type="hidden" name="action" value="increase">
-                                    <button type="submit" class="cart-qty-btn" title="Increase quantity" {% if item.quantity >= item.product.stock_qty %}disabled{% endif %}>+</button>
+                                    <button type="submit" class="cart-qty-btn" title="Increase quantity" {% if item.quantity >= 4 or item.quantity >= item.product.stock_qty %}disabled{% endif %}>+</button>
                                 </form>
                             </div>
                         </td>
