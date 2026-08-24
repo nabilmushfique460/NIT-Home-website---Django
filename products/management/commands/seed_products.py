@@ -1,28 +1,19 @@
 from decimal import Decimal
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
-from products.models import Category, Product, ProductImage, ProductSpecification
+from products.models import Category, Product, ProductImage, ProductSpecification, PromotionBanner, ProductReview
 from accounts.models import Address
 
 class Command(BaseCommand):
-    help = 'Seeds 10 PC Hardware Products, Categories, Specs, Images, and Admin/Demo Users'
+    help = 'Seeds 12 PC Hardware Products (3 RAM, 3 SSD, 3 CPU, 3 GPU from distinct companies), Categories, Specs, Images, and Admin/Demo Users'
 
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting database seeding for N-IT Home...")
 
-        # 1. Create Superuser & Demo User
-        if not User.objects.filter(username='admin').exists():
-            admin_user = User.objects.create_superuser(
-                username='admin',
-                email='admin@nithome.com',
-                password='admin12345',
-                first_name='Admin',
-                last_name='Director'
-            )
-            admin_user.profile.is_verified = True
-            admin_user.profile.phone = '+880 1711-223344'
-            admin_user.profile.save()
-            self.stdout.write(self.style.SUCCESS("Created Superuser: admin / admin12345"))
+        # 1. Ensure Superuser nit-admin is referenced
+        admin_user = User.objects.filter(username='nit-admin').first()
+        if not admin_user:
+            admin_user = User.objects.filter(is_superuser=True).first()
 
         demo_user, created = User.objects.get_or_create(
             username='gamer_pro',
@@ -55,7 +46,7 @@ class Command(BaseCommand):
         # 2. Categories
         categories_data = [
             {'name': 'GPU', 'slug': 'gpu', 'description': 'High-performance graphics cards for 4K gaming, AI inference, and ray tracing.'},
-            {'name': 'CPU', 'slug': 'cpu', 'description': 'Next-gen flagship processors from AMD and Intel for enthusiast workstations.'},
+            {'name': 'CPU', 'slug': 'cpu', 'description': 'Next-gen flagship processors for high-demand enthusiast workstations and gaming rigs.'},
             {'name': 'SSD', 'slug': 'ssd', 'description': 'Ultra-fast PCIe Gen4 & Gen5 NVMe solid state storage drives.'},
             {'name': 'RAM', 'slug': 'ram', 'description': 'High-speed DDR5 & DDR4 desktop memory modules with extreme overclocking support.'},
         ]
@@ -68,9 +59,321 @@ class Command(BaseCommand):
             )
             cat_objs[cat['slug']] = obj
 
-        # 3. 10 PC Hardware Products Data
+        # 3. 12 PC Hardware Products Data (3 RAM, 3 SSD, 3 CPU, 3 GPU each from distinct companies)
         products_data = [
-            # 1. RTX 4090
+            # --- 3 RAM (Corsair, G.Skill, Kingston) ---
+            {
+                'name': 'Corsair Vengeance RGB DDR5 32GB (2x16GB) 6000MHz CL30',
+                'slug': 'corsair-vengeance-rgb-ddr5-32gb-6000mhz-cl30',
+                'category': cat_objs['ram'],
+                'brand': 'Corsair',
+                'price': Decimal('124.99'),
+                'original_price': Decimal('149.99'),
+                'stock_qty': 30,
+                'short_description': 'Optimized for Intel XMP 3.0 & AMD EXPO with tight CL30 timings, panoramic 10-zone RGB lighting, and onboard PMIC regulation.',
+                'long_description': (
+                    'Elevate your PC build aesthetic and gaming frame rates with CORSAIR VENGEANCE RGB DDR5 memory. '
+                    'Delivering 6000MT/s frequency with low CL30 latency, custom performance PCB for extreme signal quality, '
+                    'and hand-sorted memory chips. Ten individual, ultra-bright RGB LEDs per module encased in a panoramic light bar '
+                    'deliver radiant ambient illumination synchronized through Corsair iCUE.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
+                'is_featured': True,
+                'warranty': 'Lifetime Limited Manufacturer Warranty',
+                'rating': Decimal('4.9'),
+                'review_count': 95,
+                'images': [
+                    ('https://images.unsplash.com/photo-1562976540-1502c2145186?w=1600&auto=format&fit=crop&q=90', 'Dual Channel Matched Pair with ARGB Diffuser', 1),
+                    ('https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=1600&auto=format&fit=crop&q=90', 'Solid Aluminum Anodized Heatspreader', 2),
+                    ('https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=1600&auto=format&fit=crop&q=90', 'Onboard Power Management IC (PMIC)', 3),
+                ],
+                'specs': [
+                    ('Kit Capacity', 'Configuration', '32GB (2x 16GB Dual Channel)'),
+                    ('Speed & Timings', 'Tested Speed / Latency', 'DDR5 6000MT/s / CL30-36-36-76'),
+                    ('Voltage', 'Tested Voltage', '1.40V (Onboard PMIC)'),
+                    ('Profile Support', 'Overclocking Standards', 'Intel XMP 3.0 & AMD EXPO Dual Profile'),
+                    ('Lighting', 'RGB Control', '10-Zone Addressable RGB (iCUE Compatible)'),
+                ]
+            },
+            {
+                'name': 'G.Skill Trident Z5 Neo RGB 64GB (2x32GB) DDR5 6000MHz CL30 EXPO',
+                'slug': 'gskill-trident-z5-neo-rgb-64gb-ddr5-6000mhz',
+                'category': cat_objs['ram'],
+                'brand': 'G.Skill',
+                'price': Decimal('219.99'),
+                'original_price': Decimal('249.99'),
+                'stock_qty': 18,
+                'short_description': 'High-capacity 64GB dual-channel DDR5 kit specifically tuned for AMD AM5 Ryzen systems with sleek matte black finish.',
+                'long_description': (
+                    'Trident Z5 Neo RGB series DDR5 memory is engineered for ultra-high overclocked performance on AMD AM5 platforms. '
+                    'Featuring AMD EXPO (EXtended Profiles for Overclocking) technology for effortless memory overclocking in supported BIOS. '
+                    'Featuring a sleek matte black aluminum body paired with a crystalline translucent RGB light bar, '
+                    'the Trident Z5 Neo RGB is the ideal choice for gamers, overclockers, content creators, and PC enthusiasts.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                'is_featured': False,
+                'warranty': 'Lifetime Limited G.Skill Warranty',
+                'rating': Decimal('5.0'),
+                'review_count': 68,
+                'images': [
+                    ('https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=1600&auto=format&fit=crop&q=90', 'Trident Z5 Hypercar-Inspired Matte Black Heatspreader', 1),
+                    ('https://images.unsplash.com/photo-1562976540-1502c2145186?w=1600&auto=format&fit=crop&q=90', 'Crystalline Lightbar with Smooth Gradient Diffusion', 2),
+                    ('https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=1600&auto=format&fit=crop&q=90', 'High-Layer Density Precision Signal PCB', 3),
+                ],
+                'specs': [
+                    ('Capacity', 'Kit Details', '64GB (2x 32GB High Density)'),
+                    ('Speed Rating', 'Frequency / CAS Latency', 'DDR5 6000 MHz / CL30-40-40-96'),
+                    ('Voltage', 'Profile Voltage', '1.40V'),
+                    ('Optimization', 'Overclock Profile', 'AMD EXPO Certified'),
+                    ('Form Factor', 'Module Height', '44 mm (Unbuffered Non-ECC)'),
+                ]
+            },
+            {
+                'name': 'Kingston Fury Beast RGB 32GB (2x16GB) DDR5 5600MHz CL36',
+                'slug': 'kingston-fury-beast-rgb-32gb-ddr5-5600mhz-cl36',
+                'category': cat_objs['ram'],
+                'brand': 'Kingston',
+                'price': Decimal('109.99'),
+                'original_price': Decimal('129.99'),
+                'stock_qty': 24,
+                'short_description': 'Plug N Play automatic overclocking with patented Kingston FURY Infrared Sync Technology and aggressive low-profile heat spreader.',
+                'long_description': (
+                    'Kingston FURY Beast DDR5 RGB lets you overclock in style on next-gen gaming platforms with cutting-edge technology. '
+                    'Experience superior speed advancements of DDR5 with double the banks and double the burst length. '
+                    'Vibrant RGB lighting customizable with Kingston FURY CTRL software and patented Infrared Sync Technology '
+                    'keeps effects aligned across all channels effortlessly.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                'is_featured': False,
+                'warranty': 'Lifetime Kingston Manufacturer Warranty',
+                'rating': Decimal('4.8'),
+                'review_count': 42,
+                'images': [
+                    ('https://images.unsplash.com/photo-1587202372634-32705e3bf49c?w=1600&auto=format&fit=crop&q=90', 'Kingston FURY Low-Profile Aggressive Heat Spreader', 1),
+                    ('https://images.unsplash.com/photo-1562976540-1502c2145186?w=1600&auto=format&fit=crop&q=90', 'Infrared Sync RGB Illumination Bar', 2),
+                    ('https://images.unsplash.com/photo-1541029071515-84cc54f84dc5?w=1600&auto=format&fit=crop&q=90', 'Dual 32-bit Subchannels DDR5 Architecture', 3),
+                ],
+                'specs': [
+                    ('Capacity', 'Kit Details', '32GB (2x 16GB Kit)'),
+                    ('Frequency & Latency', 'Speed / Timings', 'DDR5-5600 / CL36-38-38'),
+                    ('Voltage', 'Operating Voltage', '1.25V'),
+                    ('Profiles', 'Overclocking', 'Intel XMP 3.0 Ready & AMD EXPO Certified'),
+                    ('Sync Technology', 'RGB Sync', 'Kingston Infrared Sync Technology™'),
+                ]
+            },
+
+            # --- 3 SSD (Samsung, Crucial, Western Digital) ---
+            {
+                'name': 'Samsung 990 PRO 2TB PCIe 4.0 NVMe M.2 SSD with Heatsink',
+                'slug': 'samsung-990-pro-2tb-pcie-4-nvme-ssd-heatsink',
+                'category': cat_objs['ssd'],
+                'brand': 'Samsung',
+                'price': Decimal('179.99'),
+                'original_price': Decimal('219.99'),
+                'stock_qty': 25,
+                'short_description': 'Sequential read speeds up to 7,450 MB/s, RGB slim heatsink, and Samsung Magician software optimization.',
+                'long_description': (
+                    'Reach maximum PCIe® 4.0 performance with the Samsung 990 PRO with Heatsink. '
+                    'Featuring Samsung custom in-house controller and V-NAND TLC technology, it delivers sequential read speeds '
+                    'up to 7,450 MB/s and write speeds up to 6,900 MB/s. The integrated futuristic heatsink maintains optimal operating '
+                    'temperatures during extended heavy gaming sessions and PS5 console installation, preventing thermal throttling.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+                'is_featured': True,
+                'warranty': '5 Years Limited Samsung Warranty / 1200 TBW',
+                'rating': Decimal('4.9'),
+                'review_count': 110,
+                'images': [
+                    ('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1600&auto=format&fit=crop&q=90', 'Low-Profile Slim Heatsink with RGB LED', 1),
+                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'M.2 2280 Form Factor Gold Edge Contacts', 2),
+                    ('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&auto=format&fit=crop&q=90', 'Samsung Magician Verified Security Shield', 3),
+                ],
+                'specs': [
+                    ('Speed', 'Sequential Read / Write', '7,450 MB/s / 6,900 MB/s'),
+                    ('IOPS', 'Random Read / Write (4KB)', '1,400K IOPS / 1,550K IOPS'),
+                    ('Interface', 'Protocol', 'PCIe Gen 4.0 x4, NVMe 2.0'),
+                    ('Form Factor', 'Dimensions', 'M.2 2280 with Heatsink (PS5 Compatible)'),
+                    ('Durability', 'Endurance (TBW)', '1,200 TBW'),
+                ]
+            },
+            {
+                'name': 'Crucial T700 2TB PCIe Gen5 NVMe M.2 SSD (12,400 MB/s)',
+                'slug': 'crucial-t700-2tb-pcie-gen5-nvme-ssd',
+                'category': cat_objs['ssd'],
+                'brand': 'Crucial',
+                'price': Decimal('279.99'),
+                'original_price': Decimal('329.99'),
+                'stock_qty': 14,
+                'short_description': 'Blistering Gen5 speed up to 12,400 MB/s with premium aluminum and nickel-plated copper passive heatsink.',
+                'long_description': (
+                    'Experience generational speed with the Crucial T700 PCIe 5.0 NVMe SSD. '
+                    'Harnessing Micron 232-layer 3D TLC NAND and the Phison PS5026-E26 controller, the T700 reaches sequential speeds '
+                    'of up to 12,400 MB/s read and 11,800 MB/s write. Near-instant game asset streaming with Microsoft DirectStorage support '
+                    'and an extruded aluminum heatsink engineered to dissipate heat without noisy active fans.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
+                'is_featured': False,
+                'warranty': '5 Years Crucial Micron Warranty',
+                'rating': Decimal('4.8'),
+                'review_count': 39,
+                'images': [
+                    ('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1600&auto=format&fit=crop&q=90', 'Passive Copper-Core Heatsink Fins', 1),
+                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'Micron 232-Layer TLC NAND Flash View', 2),
+                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'PCIe 5.0 x4 High Bandwidth Bus Interface', 3),
+                ],
+                'specs': [
+                    ('Interface', 'PCIe Standard', 'PCIe Gen 5.0 x4 NVMe 2.0'),
+                    ('Throughput', 'Seq Read / Seq Write', '12,400 MB/s / 11,800 MB/s'),
+                    ('Random 4K IOPS', 'Read / Write', '1,500,000 IOPS / 1,500,000 IOPS'),
+                    ('Technology', 'NAND Flash', 'Micron 232-Layer 3D TLC'),
+                    ('Endurance', 'TBW Rating', '1,200 Terabytes Written'),
+                ]
+            },
+            {
+                'name': 'WD_BLACK SN850X 2TB NVMe PCIe Gen4 M.2 SSD with Heatsink',
+                'slug': 'wd-black-sn850x-2tb-nvme-pcie-gen4-ssd-heatsink',
+                'category': cat_objs['ssd'],
+                'brand': 'Western Digital',
+                'price': Decimal('164.99'),
+                'original_price': Decimal('199.99'),
+                'stock_qty': 20,
+                'short_description': 'Top-tier PCIe Gen4 gaming SSD delivering crushing speeds up to 7,300 MB/s and Game Mode 2.0 predictive loading.',
+                'long_description': (
+                    'Crush load times and slash throttling, slowing, and pop-ins with the WD_BLACK SN850X NVMe SSD. '
+                    'Purpose-built for elite gaming with sequential read speeds up to 7,300 MB/s and write speeds up to 6,600 MB/s. '
+                    'Features custom Western Digital controller, BiCS5 112-layer 3D TLC NAND, and an integrated RGB heatsink '
+                    'that maintains peak thermal dissipation for uninterrupted gameplay.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                'is_featured': True,
+                'warranty': '5 Years Limited Western Digital Warranty',
+                'rating': Decimal('4.9'),
+                'review_count': 88,
+                'images': [
+                    ('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1600&auto=format&fit=crop&q=90', 'WD_BLACK Industrial Armor Heatsink', 1),
+                    ('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&auto=format&fit=crop&q=90', 'WD In-House Multi-Core NVMe Controller', 2),
+                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Customizable RGB Accent Lighting Strip', 3),
+                ],
+                'specs': [
+                    ('Interface', 'Bus Architecture', 'PCIe Gen4 x4, NVMe 1.4'),
+                    ('Performance', 'Seq Read / Write', '7,300 MB/s / 6,600 MB/s'),
+                    ('Random 4K IOPS', 'Read / Write', '1,200,000 IOPS / 1,100,000 IOPS'),
+                    ('Gaming Features', 'Software', 'WD_BLACK Dashboard Game Mode 2.0'),
+                    ('Endurance', 'TBW Rating', '1,200 TBW'),
+                ]
+            },
+
+            # --- 3 CPU (AMD, Intel, Qualcomm) ---
+            {
+                'name': 'AMD Ryzen 7 7800X3D 8-Core 3D V-Cache Gaming Processor',
+                'slug': 'amd-ryzen-7-7800x3d-gaming-processor',
+                'category': cat_objs['cpu'],
+                'brand': 'AMD',
+                'price': Decimal('449.99'),
+                'original_price': Decimal('499.99'),
+                'stock_qty': 20,
+                'short_description': 'The undisputed king of gaming CPUs with 104MB Total Cache, Zen 4 5nm architecture, and 120W TDP efficiency.',
+                'long_description': (
+                    'The AMD Ryzen 7 7800X3D is engineered specifically for world-class gaming performance. '
+                    'Equipped with 2nd generation AMD 3D V-Cache technology stacked directly onto the 8-core Zen 4 compute die, '
+                    'providing a massive 96MB of L3 cache for unmatched low latency and 1% low frame rate consistency in competitive esports '
+                    'and open-world simulations. Operates on the AM5 platform with full support for DDR5 and PCIe 5.0.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
+                'is_featured': True,
+                'warranty': '3 Years AMD Boxed Warranty',
+                'rating': Decimal('5.0'),
+                'review_count': 142,
+                'images': [
+                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Zen 4 Octa-Core Die with 3D V-Cache', 1),
+                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'AM5 Land Grid Array (LGA1718)', 2),
+                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Retail Box with Hologram Security Label', 3),
+                ],
+                'specs': [
+                    ('Architecture', 'Cores / Threads', '8 Cores / 16 Threads (Zen 4 5nm)'),
+                    ('Clock Speed', 'Max Boost / Base Clock', '5.0 GHz / 4.2 GHz'),
+                    ('Cache', 'Total L2 + L3 Cache', '104 MB (96MB L3 3D V-Cache)'),
+                    ('Platform', 'Socket', 'AM5 (AMD B650 / X670 / X870)'),
+                    ('Power Efficiency', 'Default TDP', '120W'),
+                ]
+            },
+            {
+                'name': 'Intel Core i9-14900K 24-Core 6.0GHz Raptor Lake Refresh',
+                'slug': 'intel-core-i9-14900k-24-core-processor',
+                'category': cat_objs['cpu'],
+                'brand': 'Intel',
+                'price': Decimal('549.99'),
+                'original_price': Decimal('589.99'),
+                'stock_qty': 15,
+                'short_description': '24 cores (8 P-cores + 16 E-cores) reaching up to 6.0 GHz Intel Thermal Velocity Boost for extreme multitasking.',
+                'long_description': (
+                    'Take gaming and content creation to uncharted heights with the Intel Core i9-14900K desktop processor. '
+                    'Featuring Intel Performance Hybrid Architecture with 8 Performance-cores and 16 Efficient-cores delivering 32 threads. '
+                    'Reaches up to 6.0 GHz max turbo frequency out of the box. Fully unlocked for overclocking with support for DDR5 '
+                    'memory, PCIe 5.0 lanes, and Intel Application Optimization (APO) for maximum frame rates.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
+                'is_featured': True,
+                'warranty': '3 Years Boxed Intel Warranty',
+                'rating': Decimal('4.9'),
+                'review_count': 92,
+                'images': [
+                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'LGA1700 Integrated Heat Spreader', 1),
+                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Gold Substrate Pins Array', 2),
+                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Intel Special Collector Packaging Box', 3),
+                ],
+                'specs': [
+                    ('Core Architecture', 'Total Cores / Threads', '24 Cores (8P + 16E) / 32 Threads'),
+                    ('Clock Frequencies', 'Max Turbo / Base P-Core', '6.0 GHz Turbo / 3.2 GHz Base'),
+                    ('Cache', 'Intel Smart Cache (L3)', '36 MB'),
+                    ('Socket', 'Motherboard Compatibility', 'LGA1700 (Intel 600/700 Series Chipsets)'),
+                    ('Power', 'Base / Max Turbo Power', '125W / 253W'),
+                ]
+            },
+            {
+                'name': 'Qualcomm Snapdragon X Elite 12-Core Oryon Desktop Computing Processor',
+                'slug': 'qualcomm-snapdragon-x-elite-12-core-oryon-processor',
+                'category': cat_objs['cpu'],
+                'brand': 'Qualcomm',
+                'price': Decimal('499.99'),
+                'original_price': Decimal('549.99'),
+                'stock_qty': 12,
+                'short_description': 'Next-gen 4nm ARM processor with 12 custom Oryon cores up to 4.2 GHz and 45 TOPS integrated Hexagon NPU for native AI workloads.',
+                'long_description': (
+                    'The Qualcomm Snapdragon X Elite represents a revolutionary transformation in desktop and workstation computing. '
+                    'Powered by 12 custom 64-bit Oryon CPU cores fabricated on leading 4nm process technology with dual-core boost up to 4.2 GHz. '
+                    'Features an unrivaled 45 TOPS Hexagon NPU delivering industry-leading on-device Generative AI capabilities, '
+                    'remarkable energy efficiency, and native high-speed LPDDR5x memory architecture.'
+                ),
+                'thumbnail_url': 'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&auto=format&fit=crop&q=80',
+                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+                'is_featured': False,
+                'warranty': '3 Years Qualcomm Enterprise Warranty',
+                'rating': Decimal('4.8'),
+                'review_count': 35,
+                'images': [
+                    ('https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&auto=format&fit=crop&q=90', '4nm Monolithic Silicon Die Architecture', 1),
+                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'Hexagon 45 TOPS AI Neural Processing Unit', 2),
+                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Ultra-Low Thermal Dissipation Substrate', 3),
+                ],
+                'specs': [
+                    ('Core Architecture', 'Total Cores / Threads', '12 Oryon Cores / 12 Threads (4nm Lithography)'),
+                    ('Clock Frequencies', 'All-Core / Dual-Core Boost', '3.8 GHz All-Core / 4.2 GHz Boost'),
+                    ('AI Performance', 'Hexagon NPU', '45 TOPS (Int8/FP16) AI Engine'),
+                    ('Memory Support', 'LPDDR5x Interface', '136 GB/s Memory Bandwidth (8-channel)'),
+                    ('Thermal Efficiency', 'Operating TDP', '45W - 80W Configurable TDP'),
+                ]
+            },
+
+            # --- 3 GPU (NVIDIA, ASUS, Sapphire) ---
             {
                 'name': 'NVIDIA GeForce RTX 4090 24GB Founders Edition',
                 'slug': 'nvidia-geforce-rtx-4090-24gb-founders-edition',
@@ -81,12 +384,10 @@ class Command(BaseCommand):
                 'stock_qty': 8,
                 'short_description': 'The ultimate Ada Lovelace GPU with 24GB G6X memory, DLSS 3 frame generation, and extreme 4K ray tracing performance.',
                 'long_description': (
-                    'The NVIDIA® GeForce RTX™ 4090 is the apex of modern desktop gaming and creative computing. '
+                    'The NVIDIA GeForce RTX 4090 is the apex of modern desktop gaming and creative computing. '
                     'Powered by the ultra-efficient NVIDIA Ada Lovelace architecture, it delivers a monumental leap in performance, '
                     'efficiency, and AI-powered graphics. Experience ultra-high performance gaming with immersive ray tracing, '
-                    'new streaming multiprocessors, 4th Generation Tensor Cores, and 3rd Generation RT Cores. '
-                    'Featuring 24GB of blistering 21 Gbps GDDR6X VRAM, it crunches through 8K rendering, machine learning workflows, '
-                    'and competitive gaming with effortless thermal headroom.'
+                    'new streaming multiprocessors, 4th Generation Tensor Cores, and 3rd Generation RT Cores.'
                 ),
                 'thumbnail_url': 'https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1000&auto=format&fit=crop&q=80',
                 'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
@@ -108,7 +409,6 @@ class Command(BaseCommand):
                     ('Connectivity', 'Display Outputs', '3x DisplayPort 1.4a, 1x HDMI 2.1a'),
                 ]
             },
-            # 2. RTX 4080 Super
             {
                 'name': 'ASUS ROG Strix GeForce RTX 4080 Super 16GB OC Edition',
                 'slug': 'asus-rog-strix-geforce-rtx-4080-super-16gb-oc',
@@ -119,7 +419,7 @@ class Command(BaseCommand):
                 'stock_qty': 12,
                 'short_description': 'Massive 3.5-slot axial-tech cooling with diecast shroud, dual BIOS, and precision factory overclocking.',
                 'long_description': (
-                    'The ASUS ROG Strix GeForce RTX™ 4080 SUPER 16GB brings thermal supremacy to high-framerate 4K gaming. '
+                    'The ASUS ROG Strix GeForce RTX 4080 SUPER 16GB brings thermal supremacy to high-framerate 4K gaming. '
                     'Featuring larger Axial-tech fans spinning on dual-ball bearings that propel 23% more air through the card, '
                     'patented vapor chamber with milled heatspreader, and massive 3.5-slot heatsink fin array. '
                     'Constructed with auto-extreme automated manufacturing and reinforced metal frame with ARGB Aura Sync lighting.'
@@ -144,7 +444,6 @@ class Command(BaseCommand):
                     ('Power', 'Power Connectors', '1x 16-pin (12VHPWR)'),
                 ]
             },
-            # 3. RX 7900 XTX
             {
                 'name': 'Sapphire Nitro+ AMD Radeon RX 7900 XTX 24GB Vapor-X',
                 'slug': 'sapphire-nitro-amd-radeon-rx-7900-xtx-24gb',
@@ -155,7 +454,7 @@ class Command(BaseCommand):
                 'stock_qty': 10,
                 'short_description': 'RDNA 3 chiplet GPU architecture with 24GB GDDR6, full-length ARGB lightbar, and Vapor-X chamber cooling.',
                 'long_description': (
-                    'The Sapphire NITRO+ AMD Radeon™ RX 7900 XTX Vapor-X Graphics Card features pioneering AMD RDNA™ 3 chiplet architecture. '
+                    'The Sapphire NITRO+ AMD Radeon RX 7900 XTX Vapor-X Graphics Card features pioneering AMD RDNA 3 chiplet architecture. '
                     'Equipped with 96 compute units, 96 Ray Accelerators, 24GB of ultra-fast GDDR6 memory, and 2nd generation AMD Infinity Cache. '
                     'The iconic Vapor-X Cooling system uses a surface-mounted vapor chamber and composite heatpipes to ensure silent operating temps.'
                 ),
@@ -177,252 +476,29 @@ class Command(BaseCommand):
                     ('Cache', 'AMD Infinity Cache', '96 MB'),
                     ('Display', 'Outputs', '2x HDMI 2.1a, 2x DisplayPort 2.1 (UHBR13.5)'),
                 ]
-            },
-            # 4. Intel Core i9-14900K
-            {
-                'name': 'Intel Core i9-14900K 24-Core 6.0GHz Raptor Lake Refresh',
-                'slug': 'intel-core-i9-14900k-24-core-processor',
-                'category': cat_objs['cpu'],
-                'brand': 'Intel',
-                'price': Decimal('549.99'),
-                'original_price': Decimal('589.99'),
-                'stock_qty': 15,
-                'short_description': '24 cores (8 P-cores + 16 E-cores) reaching up to 6.0 GHz Intel Thermal Velocity Boost for extreme multitasking.',
-                'long_description': (
-                    'Take gaming and content creation to uncharted heights with the Intel® Core™ i9-14900K desktop processor. '
-                    'Featuring Intel Performance Hybrid Architecture with 8 Performance-cores and 16 Efficient-cores delivering 32 threads. '
-                    'Reaches up to 6.0 GHz max turbo frequency out of the box. Fully unlocked for overclocking with support for both DDR5-5600 '
-                    'and DDR4 memory, PCIe 5.0 lanes, and Intel Application Optimization (APO) for maximum frame rates in modern titles.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyBlazes.mp4',
-                'is_featured': True,
-                'warranty': '3 Years Boxed Intel Warranty',
-                'rating': Decimal('4.9'),
-                'review_count': 92,
-                'images': [
-                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'LGA1700 Integrated Heat Spreader', 1),
-                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Gold Substrate Pins Array', 2),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Intel Special Collector Packaging Box', 3),
-                ],
-                'specs': [
-                    ('Core Architecture', 'Total Cores / Threads', '24 Cores (8P + 16E) / 32 Threads'),
-                    ('Clock Frequencies', 'Max Turbo / Base P-Core', '6.0 GHz Turbo / 3.2 GHz Base'),
-                    ('Cache', 'Intel Smart Cache (L3)', '36 MB'),
-                    ('Socket', 'Motherboard Compatibility', 'LGA1700 (Intel 600/700 Series Chipsets)'),
-                    ('Power', 'Base / Max Turbo Power', '125W / 253W'),
-                ]
-            },
-            # 5. AMD Ryzen 7 7800X3D
-            {
-                'name': 'AMD Ryzen 7 7800X3D 8-Core 3D V-Cache Gaming Processor',
-                'slug': 'amd-ryzen-7-7800x3d-gaming-processor',
-                'category': cat_objs['cpu'],
-                'brand': 'AMD',
-                'price': Decimal('449.99'),
-                'original_price': Decimal('499.99'),
-                'stock_qty': 20,
-                'short_description': 'The undisputed king of gaming CPUs with 104MB Total Cache, Zen 4 5nm architecture, and 120W TDP efficiency.',
-                'long_description': (
-                    'The AMD Ryzen™ 7 7800X3D is engineered specifically for world-class gaming performance. '
-                    'Equipped with 2nd generation AMD 3D V-Cache™ technology stacked directly onto the 8-core Zen 4 compute die, '
-                    'providing a massive 96MB of L3 cache for unmatched low latency and 1% low frame rate consistency in competitive esports '
-                    'and open-world simulations. Operates on the long-lived AM5 platform with full support for DDR5 and PCIe 5.0.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-                'is_featured': True,
-                'warranty': '3 Years AMD Boxed Warranty',
-                'rating': Decimal('5.0'),
-                'review_count': 142,
-                'images': [
-                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Zen 4 Octa-Core Die with 3D V-Cache', 1),
-                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'AM5 Land Grid Array (LGA1718)', 2),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Retail Box with Hologram Security Label', 3),
-                ],
-                'specs': [
-                    ('Architecture', 'Cores / Threads', '8 Cores / 16 Threads (Zen 4 5nm)'),
-                    ('Clock Speed', 'Max Boost / Base Clock', '5.0 GHz / 4.2 GHz'),
-                    ('Cache', 'Total L2 + L3 Cache', '104 MB (96MB L3 3D V-Cache)'),
-                    ('Platform', 'Socket', 'AM5 (AMD B650 / X670 / X870)'),
-                    ('Power Efficiency', 'Default TDP', '120W'),
-                ]
-            },
-            # 6. AMD Ryzen 9 7950X
-            {
-                'name': 'AMD Ryzen 9 7950X 16-Core 32-Thread 5.7GHz Processor',
-                'slug': 'amd-ryzen-9-7950x-16-core-processor',
-                'category': cat_objs['cpu'],
-                'brand': 'AMD',
-                'price': Decimal('529.99'),
-                'original_price': Decimal('599.99'),
-                'stock_qty': 11,
-                'short_description': '16 high-performance Zen 4 cores with 5.7GHz boost clock for massive video rendering, 3D compilation, and productivity.',
-                'long_description': (
-                    'Dominate heavy 3D rendering, software compilation, and 8K video production with the 16-core AMD Ryzen™ 9 7950X. '
-                    'Featuring dual Zen 4 CCDs built on TSMC 5nm lithography, 80MB total cache, and 16 cores capable of turbo speeds up to 5.7 GHz. '
-                    'Integrated AMD Radeon graphics and Precision Boost Overdrive 2 curve optimizer make it the pinnacle workstation workhorse.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                'is_featured': False,
-                'warranty': '3 Years AMD Boxed Warranty',
-                'rating': Decimal('4.8'),
-                'review_count': 63,
-                'images': [
-                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'AM5 Heatspreader Design', 1),
-                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Motherboard Mounted AM5 Socket View', 2),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Official Retail Packaging', 3),
-                ],
-                'specs': [
-                    ('Compute Cores', 'Cores / Threads', '16 Cores / 32 Threads'),
-                    ('Frequency', 'Max Boost Clock', '5.7 GHz'),
-                    ('Cache', 'Total L3 Cache', '64 MB'),
-                    ('Socket', 'Platform Compatibility', 'AM5 DDR5-only'),
-                    ('Thermal', 'Default TDP', '170W (230W PPT)'),
-                ]
-            },
-            # 7. Samsung 990 PRO 2TB SSD
-            {
-                'name': 'Samsung 990 PRO 2TB PCIe 4.0 NVMe M.2 SSD with Heatsink',
-                'slug': 'samsung-990-pro-2tb-pcie-4-nvme-ssd-heatsink',
-                'category': cat_objs['ssd'],
-                'brand': 'Samsung',
-                'price': Decimal('179.99'),
-                'original_price': Decimal('219.99'),
-                'stock_qty': 25,
-                'short_description': 'Sequential read speeds up to 7,450 MB/s, RGB slim heatsink, and Samsung Magician software optimization.',
-                'long_description': (
-                    'Reach maximum PCIe® 4.0 performance with the Samsung 990 PRO with Heatsink. '
-                    'Featuring Samsung\'s custom in-house controller and V-NAND TLC technology, it delivers sequential read speeds '
-                    'up to 7,450 MB/s and write speeds up to 6,900 MB/s. The integrated futuristic heatsink maintains optimal operating '
-                    'temperatures during extended heavy gaming sessions and PS5 console installation, preventing thermal throttling.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
-                'is_featured': True,
-                'warranty': '5 Years Limited Samsung Warranty / 1200 TBW',
-                'rating': Decimal('4.9'),
-                'review_count': 110,
-                'images': [
-                    ('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1600&auto=format&fit=crop&q=90', 'Low-Profile Slim Heatsink with RGB LED', 1),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'M.2 2280 Form Factor Gold Edge Contacts', 2),
-                    ('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&auto=format&fit=crop&q=90', 'Samsung Magician Verified Security Shield', 3),
-                ],
-                'specs': [
-                    ('Speed', 'Sequential Read / Write', '7,450 MB/s / 6,900 MB/s'),
-                    ('IOPS', 'Random Read / Write (4KB)', '1,400K IOPS / 1,550K IOPS'),
-                    ('Interface', 'Protocol', 'PCIe Gen 4.0 x4, NVMe 2.0'),
-                    ('Form Factor', 'Dimensions', 'M.2 2280 with Heatsink (PS5 Compatible)'),
-                    ('Durability', 'Endurance (TBW)', '1,200 TBW'),
-                ]
-            },
-            # 8. Crucial T700 2TB Gen5 SSD
-            {
-                'name': 'Crucial T700 2TB PCIe Gen5 NVMe M.2 SSD (12,400 MB/s)',
-                'slug': 'crucial-t700-2tb-pcie-gen5-nvme-ssd',
-                'category': cat_objs['ssd'],
-                'brand': 'Crucial',
-                'price': Decimal('279.99'),
-                'original_price': Decimal('329.99'),
-                'stock_qty': 14,
-                'short_description': 'Blistering Gen5 speed up to 12,400 MB/s with premium aluminum and nickel-plated copper passive heatsink.',
-                'long_description': (
-                    'Experience generational speed with the Crucial T700 PCIe® 5.0 NVMe® SSD. '
-                    'Harnessing Micron® 232-layer 3D TLC NAND and the Phison PS5026-E26 controller, the T700 reaches sequential speeds '
-                    'of up to 12,400 MB/s read and 11,800 MB/s write. Near-instant game asset streaming with Microsoft DirectStorage support '
-                    'and an extruded aluminum heatsink engineered to dissipate heat without noisy active fans.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
-                'is_featured': False,
-                'warranty': '5 Years Crucial Micron Warranty',
-                'rating': Decimal('4.8'),
-                'review_count': 39,
-                'images': [
-                    ('https://images.unsplash.com/photo-1597872200969-2b65d56bd16b?w=1600&auto=format&fit=crop&q=90', 'Passive Copper-Core Heatsink Fins', 1),
-                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'Micron 232-Layer TLC NAND Flash View', 2),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'PCIe 5.0 x4 High Bandwidth Bus Interface', 3),
-                ],
-                'specs': [
-                    ('Interface', 'PCIe Standard', 'PCIe Gen 5.0 x4 NVMe 2.0'),
-                    ('Throughput', 'Seq Read / Seq Write', '12,400 MB/s / 11,800 MB/s'),
-                    ('Random 4K IOPS', 'Read / Write', '1,500,000 IOPS / 1,500,000 IOPS'),
-                    ('Technology', 'NAND Flash', 'Micron 232-Layer 3D TLC'),
-                    ('Endurance', 'TBW Rating', '1,200 Terabytes Written'),
-                ]
-            },
-            # 9. Corsair Vengeance RGB DDR5 32GB
-            {
-                'name': 'Corsair Vengeance RGB DDR5 32GB (2x16GB) 6000MHz CL30',
-                'slug': 'corsair-vengeance-rgb-ddr5-32gb-6000mhz-cl30',
-                'category': cat_objs['ram'],
-                'brand': 'Corsair',
-                'price': Decimal('124.99'),
-                'original_price': Decimal('149.99'),
-                'stock_qty': 30,
-                'short_description': 'Optimized for Intel XMP 3.0 & AMD EXPO with tight CL30-36-36-76 timings, dynamic ten-zone RGB lighting, and onboard voltage regulation.',
-                'long_description': (
-                    'Elevate your PC build aesthetic and gaming frame rates with CORSAIR VENGEANCE RGB DDR5 memory. '
-                    'Delivering 6000MT/s frequency with low CL30 latency, custom performance PCB for extreme signal quality, '
-                    'and hand-sorted memory chips. Ten individual, ultra-bright RGB LEDs per module encased in a panoramic light bar '
-                    'deliver radiant ambient illumination synchronized through Corsair iCUE.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-                'is_featured': True,
-                'warranty': 'Lifetime Limited Manufacturer Warranty',
-                'rating': Decimal('4.9'),
-                'review_count': 95,
-                'images': [
-                    ('https://images.unsplash.com/photo-1562976540-1502c2145186?w=1600&auto=format&fit=crop&q=90', 'Dual Channel Matched Pair with ARGB Diffuser', 1),
-                    ('https://images.unsplash.com/photo-1587202372775-e229f172b9d7?w=1600&auto=format&fit=crop&q=90', 'Solid Aluminum Anodized Heatspreader', 2),
-                    ('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&auto=format&fit=crop&q=90', 'Onboard Power Management IC (PMIC)', 3),
-                ],
-                'specs': [
-                    ('Kit Capacity', 'Configuration', '32GB (2x 16GB Dual Channel)'),
-                    ('Speed & Timings', 'Tested Speed / Latency', 'DDR5 6000MT/s / CL30-36-36-76'),
-                    ('Voltage', 'Tested Voltage', '1.40V (Onboard PMIC)'),
-                    ('Profile Support', 'Overclocking Standards', 'Intel XMP 3.0 & AMD EXPO Dual Profile'),
-                    ('Lighting', 'RGB Control', '10-Zone Addressable RGB (iCUE Compatible)'),
-                ]
-            },
-            # 10. G.Skill Trident Z5 Neo RGB 64GB
-            {
-                'name': 'G.Skill Trident Z5 Neo RGB 64GB (2x32GB) DDR5 6000MHz CL30 EXPO',
-                'slug': 'gskill-trident-z5-neo-rgb-64gb-ddr5-6000mhz',
-                'category': cat_objs['ram'],
-                'brand': 'G.Skill',
-                'price': Decimal('219.99'),
-                'original_price': Decimal('249.99'),
-                'stock_qty': 18,
-                'short_description': 'High-capacity 64GB dual-channel DDR5 kit specifically tuned for AMD AM5 Ryzen 7000/9000 systems with matte black finish.',
-                'long_description': (
-                    'Trident Z5 Neo RGB series DDR5 memory is engineered for ultra-high overclocked performance on AMD AM5 platforms. '
-                    'Featuring AMD EXPO (EXtended Profiles for Overclocking) technology for effortless memory overclocking in supported BIOS. '
-                    'Featuring a sleek matte black aluminum body paired with a crystalline translucent RGB light bar, '
-                    'the Trident Z5 Neo RGB is the ideal choice for gamers, overclockers, content creators, and PC enthusiasts.'
-                ),
-                'thumbnail_url': 'https://images.unsplash.com/photo-1562976540-1502c2145186?w=1000&auto=format&fit=crop&q=80',
-                'video_url': 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-                'is_featured': False,
-                'warranty': 'Lifetime Limited G.Skill Warranty',
-                'rating': Decimal('5.0'),
-                'review_count': 68,
-                'images': [
-                    ('https://images.unsplash.com/photo-1562976540-1502c2145186?w=1600&auto=format&fit=crop&q=90', 'Trident Z5 Hypercar-Inspired Matte Black Heatspreader', 1),
-                    ('https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=1600&auto=format&fit=crop&q=90', 'Crystalline Lightbar with Smooth Gradient Diffusion', 2),
-                    ('https://images.unsplash.com/photo-1555680202-c86f0e12f086?w=1600&auto=format&fit=crop&q=90', 'High-Layer Density Precision Signal PCB', 3),
-                ],
-                'specs': [
-                    ('Capacity', 'Kit Details', '64GB (2x 32GB High Density)'),
-                    ('Speed Rating', 'Frequency / CAS Latency', 'DDR5 6000 MHz / CL30-40-40-96'),
-                    ('Voltage', 'Profile Voltage', '1.40V'),
-                    ('Optimization', 'Overclock Profile', 'AMD EXPO Certified'),
-                    ('Form Factor', 'Module Height', '44 mm (Unbuffered Non-ECC)'),
-                ]
-            },
+            }
         ]
+
+        # 4. Populate Promotion Banner
+        PromotionBanner.objects.get_or_create(
+            order=0,
+            defaults={
+                'title': 'Unleash Peak Performance with N-IT Home',
+                'title_highlight': 'N-IT Home',
+                'badge_1': 'Next-Gen Components',
+                'badge_2': 'In Stock & Ready to Ship',
+                'lead_text': 'Explore authentic high-performance desktop hardware — flagship NVIDIA & AMD graphics cards, AMD Ryzen & Intel processors, PCIe Gen5 NVMe storage, and low-latency DDR5 memory kits.',
+                'perk_1': 'Official Warranty',
+                'perk_2': 'Same-Day Processing',
+                'perk_3': 'bKash / Nagad / COD',
+                'card_tag': 'TOP SELLING FLAGSHIP',
+                'card_title': 'GeForce RTX 4090 24GB',
+                'card_price': Decimal('1699.99'),
+                'card_link': '/product/nvidia-geforce-rtx-4090-24gb-founders-edition/',
+                'card_button_text': 'View Flagship Hardware →',
+                'is_active': True
+            }
+        )
 
         for pdata in products_data:
             images = pdata.pop('images')
@@ -452,7 +528,21 @@ class Command(BaseCommand):
                     spec_value=spec_value
                 )
 
+            # Verified reviews for trust
+            if not product.reviews.exists():
+                ProductReview.objects.create(
+                    product=product,
+                    user=admin_user,
+                    author_name='Verified PC Builder',
+                    author_email='enthusiast@nithome.com',
+                    rating=5,
+                    title='Outstanding hardware and authentic warranty',
+                    comment=f'100% genuine {product.brand} component with factory seal and official manufacturer warranty.',
+                    is_verified_purchase=True,
+                    is_approved=True
+                )
+
             status_str = "Created" if created else "Updated"
             self.stdout.write(f"  - [{status_str}] {product.name}")
 
-        self.stdout.write(self.style.SUCCESS("All 10 PC Hardware products and accounts seeded successfully!"))
+        self.stdout.write(self.style.SUCCESS("All 12 PC Hardware products and accounts seeded successfully!"))

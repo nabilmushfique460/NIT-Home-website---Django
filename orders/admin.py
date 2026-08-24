@@ -1,10 +1,17 @@
 from django.contrib import admin
 from .models import Order, OrderItem
+from payments.models import Payment
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 0
     readonly_fields = ('product_name', 'unit_price', 'quantity', 'line_total')
+    can_delete = False
+
+class PaymentInline(admin.TabularInline):
+    model = Payment
+    extra = 0
+    readonly_fields = ('transaction_id', 'method', 'amount', 'currency', 'status', 'created_at')
     can_delete = False
 
 @admin.register(Order)
@@ -17,9 +24,9 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('order_number', 'full_name', 'email', 'phone', 'street_address')
     list_editable = ('status', 'is_paid')
     readonly_fields = ('order_number', 'subtotal', 'shipping_fee', 'total_amount', 'created_at', 'updated_at')
-    inlines = [OrderItemInline]
+    inlines = [OrderItemInline, PaymentInline]
     date_hierarchy = 'created_at'
-    actions = ['mark_confirmed', 'mark_shipped', 'mark_delivered', 'mark_paid']
+    actions = ['mark_confirmed', 'mark_shipped', 'mark_delivered', 'mark_paid', 'mark_cancelled']
 
     def mark_confirmed(self, request, queryset):
         queryset.update(status='CONFIRMED')
@@ -36,6 +43,10 @@ class OrderAdmin(admin.ModelAdmin):
     def mark_paid(self, request, queryset):
         queryset.update(is_paid=True)
     mark_paid.short_description = "Mark selected orders as Paid"
+
+    def mark_cancelled(self, request, queryset):
+        queryset.update(status='CANCELLED')
+    mark_cancelled.short_description = "Mark selected orders as Cancelled"
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):

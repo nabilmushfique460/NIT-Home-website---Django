@@ -1,6 +1,10 @@
 from django.contrib import admin
 from .models import Category, Product, ProductImage, ProductSpecification, PromotionBanner, ProductReview
 
+admin.site.site_header = "N-IT Home Management Portal"
+admin.site.site_title = "N-IT Home Admin"
+admin.site.index_title = "Hardware Store Administration & Operations"
+
 @admin.register(PromotionBanner)
 class PromotionBannerAdmin(admin.ModelAdmin):
     """Admin controller for the homepage promotional/advertise banner."""
@@ -56,6 +60,22 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('brand', 'name')}
     inlines = [ProductImageInline, ProductSpecificationInline, ProductReviewInline]
     list_editable = ('price', 'stock_qty', 'is_featured')
+    actions = ['mark_featured', 'unmark_featured', 'set_in_stock']
+
+    def mark_featured(self, request, queryset):
+        queryset.update(is_featured=True)
+        self.message_user(request, "Selected products marked as Featured.")
+    mark_featured.short_description = "Mark selected products as Featured"
+
+    def unmark_featured(self, request, queryset):
+        queryset.update(is_featured=False)
+        self.message_user(request, "Selected products unmarked from Featured.")
+    unmark_featured.short_description = "Unmark selected products from Featured"
+
+    def set_in_stock(self, request, queryset):
+        queryset.update(stock_qty=20)
+        self.message_user(request, "Selected products stock set to 20 units.")
+    set_in_stock.short_description = "Set stock to 20 units for selected products"
 
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):

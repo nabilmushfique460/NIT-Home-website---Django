@@ -29,6 +29,24 @@ class UserAdmin(BaseUserAdmin):
 admin.site.unregister(User)
 admin.site.register(User, UserAdmin)
 
+@admin.register(Profile)
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'phone', 'is_verified', 'created_at', 'updated_at')
+    list_filter = ('is_verified', 'created_at')
+    search_fields = ('user__username', 'user__email', 'phone')
+    list_editable = ('is_verified',)
+    actions = ['verify_profiles', 'unverify_profiles']
+
+    def verify_profiles(self, request, queryset):
+        queryset.update(is_verified=True)
+        self.message_user(request, "Selected profiles marked as verified.")
+    verify_profiles.short_description = "Mark selected profiles as Verified"
+
+    def unverify_profiles(self, request, queryset):
+        queryset.update(is_verified=False)
+        self.message_user(request, "Selected profiles marked as unverified.")
+    unverify_profiles.short_description = "Mark selected profiles as Unverified"
+
 @admin.register(EmailOTP)
 class EmailOTPAdmin(admin.ModelAdmin):
     list_display = ('user', 'code', 'purpose', 'created_at', 'expires_at', 'is_used', 'is_valid_status')
