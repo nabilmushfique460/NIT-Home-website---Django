@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 860px; margin: 20px auto;">
+    <div style="margin-bottom: 32px; text-align: center;">
+        <span class="badge badge-cyan" style="margin-bottom: 8px;">Support &amp; RMA</span>
+        <h1 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+            Get in Touch with N-IT Home
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 600px; margin: 0 auto;">
+            Need help with component compatibility, order tracking, or technical RMA assistance? We're here 24/7.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px;">
+        <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 32px;">
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">Contact Channels</h3>
+            
+            <div style="margin-bottom: 18px;">
+                <div style="color: var(--accent-cyan); font-weight: 700; margin-bottom: 4px;">📍 Headquarters &amp; Experience Center</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">Level 5, N-IT Tech Tower, Banani, Dhaka-1213, Bangladesh</div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <div style="color: var(--accent-emerald); font-weight: 700; margin-bottom: 4px;">📞 Builder Helpline</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">+880 1700-NITHOME (Mon - Sat: 9am - 10pm)</div>
+            </div>
+
+            <div style="margin-bottom: 18px;">
+                <div style="color: var(--accent-purple); font-weight: 700; margin-bottom: 4px;">✉️ Support Email</div>
+                <div style="color: var(--text-muted); font-size: 0.9rem;">support@nit-home.com / rma@nit-home.com</div>
+            </div>
+        </div>
+
+        <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 32px;">
+            <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">Send Support Ticket</h3>
+            <form method="post" action="{% url 'core:contact' %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Your Name</label>
+                    <input type="text" name="name" class="form-input" placeholder="e.g. Shakil Ahmed" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Your Email</label>
+                    <input type="email" name="email" class="form-input" placeholder="shakil@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subject</label>
+                    <input type="text" name="subject" class="form-input" placeholder="e.g. RTX 4090 Compatibility Question" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Message</label>
+                    <textarea name="message" class="form-textarea" rows="3" placeholder="Describe your inquiry..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">
+                    Send Inquiry →
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

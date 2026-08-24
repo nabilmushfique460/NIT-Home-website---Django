@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <div style="font-size: 3rem; margin-bottom: 12px;">✉️</div>
+            <h1 class="auth-title">Verify Your Email</h1>
+            <p class="auth-subtitle">
+                We've generated a 6-digit security OTP for your account 
+                {% if email %}<br><strong style="color: var(--accent-cyan);">{{ email }}</strong>{% endif %}.
+            </p>
+        </div>
+
+        {% if session_otp_hint %}
+            <div style="background: rgba(6, 182, 212, 0.15); border: 1px dashed var(--accent-cyan); border-radius: var(--radius-sm); padding: 12px; margin-bottom: 20px; text-align: center;">
+                <span style="font-size: 0.8rem; color: var(--text-dim);">DEMO OTP SIMULATOR:</span><br>
+                <strong style="font-size: 1.3rem; letter-spacing: 0.2em; font-family: var(--font-mono); color: var(--accent-cyan);">{{ session_otp_hint }}</strong>
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'accounts:verify_otp' %}">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+                <div class="alert alert-error">{{ form.non_field_errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label class="form-label" style="text-align: center;">Enter 6-Digit OTP Code</label>
+                <input 
+                    type="text" 
+                    name="otp" 
+                    class="form-input" 
+                    style="text-align: center; font-size: 1.5rem; letter-spacing: 0.25em; font-family: var(--font-mono); font-weight: 700;" 
+                    placeholder="123456" 
+                    maxlength="6" 
+                    required 
+                    autofocus
+                >
+                {% if form.otp.errors %}<span class="form-error">{{ form.otp.errors.0 }}</span>{% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 10px;">
+                Verify &amp; Activate Account →
+            </button>
+        </form>
+
+        <div style="margin-top: 24px; text-align: center; font-size: 0.85rem; color: var(--text-dim);">
+            Didn't receive the code? Check spam or refresh to resend OTP.
+        </div>
+    </div>
+</div>
+{% endblock %}

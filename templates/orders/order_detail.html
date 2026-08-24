@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px;">
+    <div>
+        <h1 style="font-size: 1.8rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px;">
+            Order Invoice #{{ order.order_number }}
+        </h1>
+        <div style="font-size: 0.85rem; color: var(--text-dim);">
+            Placed on {{ order.created_at|date:"M d, Y - h:i A" }} • Status: <strong style="color: var(--accent-cyan);">{{ order.get_order_status_display }}</strong>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 10px;">
+        <a href="{% url 'orders:order_history' %}" class="btn btn-secondary btn-sm">
+            ← My Orders
+        </a>
+    </div>
+</div>
+
+<!-- Order Lifecycle Tracking Timeline -->
+<div class="invoice-card">
+    <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Delivery Progress</h3>
+    <div class="order-timeline">
+        <div class="timeline-step {% if order.order_status in 'CONFIRMED,PROCESSING,SHIPPED,DELIVERED' %}completed{% else %}current{% endif %}">
+            <div class="timeline-dot">1</div>
+            <span class="timeline-label">Placed</span>
+        </div>
+        <div class="timeline-step {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}completed{% elif order.order_status == 'CONFIRMED' %}current{% endif %}">
+            <div class="timeline-dot">2</div>
+            <span class="timeline-label">Confirmed</span>
+        </div>
+        <div class="timeline-step {% if order.order_status in 'SHIPPED,DELIVERED' %}completed{% elif order.order_status == 'PROCESSING' %}current{% endif %}">
+            <div class="timeline-dot">3</div>
+            <span class="timeline-label">Packaging</span>
+        </div>
+        <div class="timeline-step {% if order.order_status == 'DELIVERED' %}completed{% elif order.order_status == 'SHIPPED' %}current{% endif %}">
+            <div class="timeline-dot">4</div>
+            <span class="timeline-label">In Transit</span>
+        </div>
+        <div class="timeline-step {% if order.order_status == 'DELIVERED' %}completed{% endif %}">
+            <div class="timeline-dot">5</div>
+            <span class="timeline-label">Delivered</span>
+        </div>
+    </div>
+</div>
+
+<!-- Invoice Document Details -->
+<div class="invoice-card">
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--border-subtle);">
+        <div>
+            <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">Shipped To:</h4>
+            <div style="font-weight: 700; font-size: 1.05rem; color: var(--text-main);">{{ order.full_name }}</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; line-height: 1.5;">
+                {{ order.street_address }}<br>
+                {{ order.city }}, {{ order.state_or_division }} {{ order.postal_code }}<br>
+                📞 Phone: {{ order.phone }}<br>
+                ✉️ Email: {{ order.email }}
+            </div>
+        </div>
+
+        <div>
+            <h4 style="font-size: 0.85rem; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px;">Payment Information:</h4>
+            <div style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
+                Method: <strong>{{ order.get_payment_method_display }}</strong><br>
+                Status: 
+                {% if order.payment_status == 'PAID' %}
+                    <span class="badge badge-emerald">PAID</span>
+                {% elif order.payment_status == 'PENDING' %}
+                    <span class="badge badge-amber">PENDING PAYMENT</span>
+                {% else %}
+                    <span class="badge badge-rose">{{ order.get_payment_status_display }}</span>
+                {% endif %}
+                <br>
+                {% if order.payment_set.first %}
+                    Transaction ID: <span style="font-family: var(--font-mono); color: var(--accent-cyan);">{{ order.payment_set.first.transaction_id }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Items Table -->
+    <table class="cart-table" style="margin-bottom: 24px;">
+        <thead>
+            <tr>
+                <th>Item Description</th>
+                <th>Brand / Category</th>
+                <th>Unit Price</th>
+                <th>Qty</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+                <tr>
+                    <td>
+                        <strong style="color: var(--text-main);">{{ item.product_name }}</strong>
+                    </td>
+                    <td>
+                        <span class="badge badge-cyan" style="font-size: 0.75rem;">{{ item.product.category.name|default:'Hardware' }}</span>
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono);">${{ item.unit_price }}</span>
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono); font-weight: 700;">{{ item.quantity }}</span>
+                    </td>
+                    <td>
+                        <span style="font-family: var(--font-mono); font-weight: 800; color: var(--accent-cyan);">${{ item.total_price }}</span>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Totals Breakdown -->
+    <div style="max-width: 320px; margin-left: auto;">
+        <div class="summary-row">
+            <span>Subtotal:</span>
+            <span style="font-family: var(--font-mono); font-weight: 700;">${{ order.subtotal }}</span>
+        </div>
+        <div class="summary-row">
+            <span>Shipping:</span>
+            <span style="font-family: var(--font-mono); font-weight: 700;">${{ order.shipping_fee }}</span>
+        </div>
+        <div class="summary-row total">
+            <span>Total Paid/Due:</span>
+            <span style="color: var(--accent-cyan); font-family: var(--font-mono);">${{ order.total_amount }}</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

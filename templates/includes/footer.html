@@ -1,0 +1,75 @@
+<footer class="site-footer">
+    <div class="container">
+        <div class="footer-grid">
+            <div>
+                <div class="brand-logo" style="margin-bottom: 12px;">
+                    <span class="brand-badge">N-IT</span>
+                    <span>Home</span>
+                </div>
+                <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;">
+                    N-IT Home is your trusted destination for genuine PC components, next-generation gaming GPUs, ultra-fast PCIe Gen5 SSDs, and flagship processors. Engineered for extreme builders and professionals.
+                </p>
+                <div style="display: flex; gap: 8px;">
+                    <span class="badge badge-cyan">✓ 100% Genuine</span>
+                    <span class="badge badge-emerald">✓ Fast Dispatch</span>
+                    <span class="badge badge-purple">✓ Secure Checkout</span>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="footer-col-title">Hardware Categories</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'products:product_list' %}?category=gpu">Graphics Cards (GPU)</a></li>
+                    <li><a href="{% url 'products:product_list' %}?category=cpu">Processors (CPU)</a></li>
+                    <li><a href="{% url 'products:product_list' %}?category=ssd">Solid State Drives (SSD)</a></li>
+                    <li><a href="{% url 'products:product_list' %}?category=ram">Memory Kits (RAM)</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-col-title">Customer Care</h4>
+                <ul class="footer-links">
+                    <li><a href="{% url 'core:about' %}">About N-IT Home</a></li>
+                    <li><a href="{% url 'core:contact' %}">Warranty & Support</a></li>
+                    <li><a href="{% url 'orders:order_history' %}">Track My Order</a></li>
+                    <li><a href="/admin/" target="_blank">Admin Control Panel</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-col-title">Accepted Payment Methods</h4>
+                <p style="font-size: 0.85rem; color: var(--text-dim); margin-bottom: 12px;">
+                    Instant seamless payment processing with verified server-side transaction callback security:
+                </p>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <span class="payment-icon-pill payment-icon-bkash">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 10h20"/></svg>
+                        bKash
+                    </span>
+                    <span class="payment-icon-pill payment-icon-nagad">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Nagad
+                    </span>
+                    <span class="payment-icon-pill payment-icon-cod">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                        Cash on Delivery
+                    </span>
+                </div>
+                <div style="margin-top: 16px; font-size: 0.85rem; color: var(--text-dim); display: flex; align-items: center; gap: 6px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue-accent);"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <span>24/7 Hotline: +880 1700-NITHOME</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div>
+                © 2026 N-IT Home E-Commerce Ltd. Built with Django (Python), HTML5 &amp; CSS3. No JavaScript.
+            </div>
+            <div>
+                <a href="{% url 'core:about' %}" style="color: var(--text-dim); margin-right: 14px;">Privacy Policy</a>
+                <a href="{% url 'core:contact' %}" style="color: var(--text-dim);">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>

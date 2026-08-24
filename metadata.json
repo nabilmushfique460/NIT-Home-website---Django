@@ -1,0 +1,6 @@
+{
+  "name": "N-IT Home",
+  "description": "Full-Stack Django PC Hardware E-Commerce Platform built with pure HTML5 and CSS3.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

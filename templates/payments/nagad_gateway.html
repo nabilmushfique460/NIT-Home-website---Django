@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 480px; margin: 30px auto;">
+    
+    <!-- Nagad Gateway Simulator Card -->
+    <div class="nagad-gateway-box">
+        <div class="nagad-gateway-header">
+            <div class="nagad-logo-text">Nagad</div>
+            <div style="font-size: 0.9rem; opacity: 0.9; margin-top: 4px;">Direct Payment Gateway Simulator</div>
+        </div>
+
+        <div class="nagad-gateway-body">
+            <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 16px; margin-bottom: 20px; text-align: center;">
+                <div style="font-size: 0.85rem; color: #9a3412; font-weight: 600;">Merchant: N-IT Home Hardware Division</div>
+                <div style="font-size: 0.85rem; color: #6b7280; margin: 4px 0;">Order Ref: #{{ order.order_number }}</div>
+                <div style="font-size: 1.8rem; font-weight: 900; color: #c2410c; font-family: var(--font-mono);">
+                    ${{ payment.amount }}
+                </div>
+            </div>
+
+            <form method="post" action="{% url 'payments:nagad_callback' transaction_id=payment.transaction_id %}">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label class="form-label" style="color: #374151;">Nagad Registered Account Number</label>
+                    <input type="text" name="wallet_number" value="01812345678" class="form-input" style="background: #ffffff; color: #111827; border-color: #d1d5db;" placeholder="e.g. 01XXXXXXXXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="color: #374151;">Verification OTP (Simulation: Enter 123456)</label>
+                    <input type="text" name="otp" value="123456" class="form-input" style="background: #ffffff; color: #111827; border-color: #d1d5db;" placeholder="6-digit OTP" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" style="color: #374151;">Nagad PIN (Simulation: Enter 1234)</label>
+                    <input type="password" name="pin" value="1234" class="form-input" style="background: #ffffff; color: #111827; border-color: #d1d5db;" placeholder="4-digit PIN" required>
+                </div>
+
+                <button type="submit" class="nagad-btn-submit">
+                    Authorize Payment ${{ payment.amount }}
+                </button>
+            </form>
+
+            <div style="text-align: center; margin-top: 16px;">
+                <a href="{% url 'orders:order_detail' order_number=order.order_number %}" style="font-size: 0.85rem; color: #6b7280;">Cancel Transaction &amp; Return</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

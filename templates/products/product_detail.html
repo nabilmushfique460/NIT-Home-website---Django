@@ -1,0 +1,500 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Breadcrumb Navigation -->
+<nav style="display: flex; gap: 8px; align-items: center; font-size: 0.85rem; color: var(--slate-500); margin-bottom: 24px;">
+    <a href="{% url 'products:product_list' %}" style="color: var(--slate-600); font-weight: 500;">Home</a>
+    <span style="color: var(--slate-400);">/</span>
+    <a href="{% url 'products:product_list' %}?category={{ product.category.slug }}" style="color: var(--slate-600); font-weight: 500;">{{ product.category.name }}</a>
+    <span style="color: var(--slate-400);">/</span>
+    <span style="color: var(--blue-accent); font-weight: 600;">{{ product.brand }} {{ product.name }}</span>
+</nav>
+
+<!-- Top Section: Clean Image Gallery + Summary / Buy Box -->
+<div class="product-detail-layout">
+    
+    <!-- 1. CSS-Only Image Carousel & Thumbnails -->
+    <div class="gallery-container">
+        <!-- Radio Button Controllers (Pure CSS State) -->
+        <input type="radio" name="gallery-radio" id="gallery-img-1" class="gallery-radio-input" checked>
+        <input type="radio" name="gallery-radio" id="gallery-img-2" class="gallery-radio-input">
+        <input type="radio" name="gallery-radio" id="gallery-img-3" class="gallery-radio-input">
+
+        <!-- Viewport for Slides -->
+        <div class="gallery-viewport">
+            {% for img in display_gallery %}
+                <div class="gallery-slide slide-{{ forloop.counter }}">
+                    <img src="{{ img.display_url }}" alt="{{ product.name }} - View {{ forloop.counter }}">
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Clickable Thumbnails (Labels triggering Radio Hack) -->
+        <div class="gallery-thumbs">
+            {% for img in display_gallery %}
+                <label for="gallery-img-{{ forloop.counter }}" class="gallery-thumb-label" title="Click to view angle {{ forloop.counter }}">
+                    <img src="{{ img.display_url }}" alt="Thumbnail {{ forloop.counter }}">
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- 2. Summary & Buying Actions -->
+    <div class="product-summary-box">
+        <div class="product-meta-header">
+            <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                <span class="badge badge-cyan">{{ product.category.name }}</span>
+                <span class="badge badge-purple">{{ product.brand }}</span>
+                {% if product.discount_percent > 0 %}
+                    <span class="badge badge-rose">-{{ product.discount_percent }}% Special Offer</span>
+                {% endif %}
+            </div>
+
+            <h1 class="product-detail-title">{{ product.name }}</h1>
+
+            <div class="product-ratings-row">
+                <span class="star-rating">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                    {{ product.rating }} / 5.0
+                </span>
+                <span>•</span>
+                <span>{{ product.review_count }} Customer Reviews</span>
+                <span>•</span>
+                <span style="color: var(--emerald-600); font-weight: 600;">In Stock: {{ product.stock_qty }} Units</span>
+            </div>
+        </div>
+
+        <!-- Price Display Hero -->
+        <div class="product-price-hero">
+            <div class="price-box-left">
+                <span class="price-main">${{ product.price }}</span>
+                {% if product.original_price %}
+                    <span class="price-strike">${{ product.original_price }}</span>
+                {% endif %}
+            </div>
+            <div>
+                {% if product.is_in_stock %}
+                    <span class="badge badge-emerald" style="padding: 6px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 4px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        Available for Dispatch
+                    </span>
+                {% else %}
+                    <span class="badge badge-rose" style="padding: 6px 12px; font-size: 0.85rem;">Out of Stock</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Short Description Highlights -->
+        <p style="font-size: 0.975rem; color: var(--slate-600); line-height: 1.6; margin-bottom: 24px;">
+            {{ product.short_description }}
+        </p>
+
+        <!-- Buy & Add to Cart Form (Full-Page Post Submit, Respects Selected Quantity) -->
+        <div class="product-buy-form">
+            <form method="post" action="{% url 'cart:cart_add' product_id=product.id %}">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+
+                <!-- Quantity Stepper -->
+                <div class="quantity-control-group">
+                    <label for="id_quantity" class="quantity-label">Select Quantity:</label>
+                    <input 
+                        type="number" 
+                        id="id_quantity" 
+                        name="quantity" 
+                        value="1" 
+                        min="1" 
+                        max="{{ product.stock_qty }}" 
+                        class="qty-input-box"
+                        {% if not product.is_in_stock %}disabled{% endif %}
+                    >
+                    <span style="font-size: 0.85rem; color: var(--slate-500);">
+                        (Max {{ product.stock_qty }} units per order)
+                    </span>
+                </div>
+
+                <!-- Dual Action Buttons: Add to Cart & Buy Now -->
+                <div class="buy-actions-grid">
+                    <button type="submit" class="btn btn-secondary btn-lg" {% if not product.is_in_stock %}disabled{% endif %} style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        Add to Cart
+                    </button>
+                    
+                    <!-- Buy Now Button (submits to buy_now endpoint with selected quantity) -->
+                    <button 
+                        type="submit" 
+                        formaction="{% url 'cart:buy_now' product_id=product.id %}" 
+                        class="btn btn-accent-buy btn-lg"
+                        {% if not product.is_in_stock %}disabled{% endif %}
+                        style="display: flex; align-items: center; justify-content: center; gap: 8px;"
+                    >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                        Buy Now
+                    </button>
+                </div>
+            </form>
+
+            <div class="product-perks-list">
+                <div class="perk-item">
+                    <span style="color: var(--blue-accent); display: inline-flex; align-items: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                    </span>
+                    <span>Free Express Delivery over $500</span>
+                </div>
+                <div class="perk-item">
+                    <span style="color: var(--emerald-600); display: inline-flex; align-items: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </span>
+                    <span>{{ product.warranty }}</span>
+                </div>
+                <div class="perk-item">
+                    <span style="color: var(--accent-purple); display: inline-flex; align-items: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                    </span>
+                    <span>bKash, Nagad &amp; Cash on Delivery</span>
+                </div>
+                <div class="perk-item">
+                    <span style="color: #f59e0b; display: inline-flex; align-items: center;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+                    </span>
+                    <span>7-Day Replacement Guarantee</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Section: Pure CSS Tabs for Specs, Description, Reviews, Warranty, Video -->
+<section class="product-tabs-section">
+    <!-- Radio Controllers for Tabs -->
+    <input type="radio" name="prod-tabs" id="tab-specs" class="tab-radio-input" checked>
+    <input type="radio" name="prod-tabs" id="tab-desc" class="tab-radio-input">
+    <input type="radio" name="prod-tabs" id="tab-reviews" class="tab-radio-input">
+    <input type="radio" name="prod-tabs" id="tab-warranty" class="tab-radio-input">
+    <input type="radio" name="prod-tabs" id="tab-video" class="tab-radio-input">
+
+    <!-- Tab Navigation Bar -->
+    <div class="tab-nav-bar">
+        <label for="tab-specs" class="tab-nav-label" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            Technical Specifications
+        </label>
+        <label for="tab-desc" class="tab-nav-label" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            Architecture &amp; Features
+        </label>
+        <label for="tab-reviews" class="tab-nav-label" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Reviews &amp; Comments ({{ reviews.count }})
+        </label>
+        <label for="tab-warranty" class="tab-nav-label" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Warranty &amp; Authenticity
+        </label>
+        <label for="tab-video" class="tab-nav-label" style="display: inline-flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+            Video Showcase
+        </label>
+    </div>
+
+    <!-- Tab Panels Container -->
+    <div class="tab-panels-content">
+        
+        <!-- Panel 1: Technical Specifications -->
+        <div class="tab-panel panel-specs">
+            <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 16px;">
+                Detailed Hardware Specifications
+            </h3>
+            {% if specifications %}
+                <table class="specs-table">
+                    <tbody>
+                        {% for spec in specifications %}
+                            <tr>
+                                <th>{{ spec.spec_name }}</th>
+                                <td><strong>{{ spec.spec_value }}</strong> <span style="font-size: 0.8rem; color: var(--slate-400);">({{ spec.group }})</span></td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p style="color: var(--slate-600);">Standard manufacturer reference specifications apply.</p>
+            {% endif %}
+        </div>
+
+        <!-- Panel 2: Long-Form Description -->
+        <div class="tab-panel panel-desc">
+            <div class="rich-description-content">
+                <h3 style="font-size: 1.35rem; font-weight: 800; color: var(--navy); margin-bottom: 14px;">
+                    Engineering Highlights &amp; Performance Profile
+                </h3>
+                <p style="font-size: 1rem; line-height: 1.75; color: var(--slate-700);">
+                    {{ product.long_description }}
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px;">
+                    <div style="background: var(--slate-50); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                        <div style="color: var(--blue-accent); font-weight: 800; font-size: 1rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                            Ultra-Low Latency
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--slate-600);">Precision-engineered trace lengths and power delivery circuits ensure instantaneous response.</div>
+                    </div>
+                    <div style="background: var(--slate-50); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                        <div style="color: var(--emerald-600); font-weight: 800; font-size: 1rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M4.93 4.93l14.14 14.14M4.93 19.07L19.07 4.93"/></svg>
+                            Thermal Superiority
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--slate-600);">Advanced thermal interfaces maintain boost clocks without thermal throttling.</div>
+                    </div>
+                    <div style="background: var(--slate-50); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                        <div style="color: var(--accent-purple); font-weight: 800; font-size: 1rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+                            Factory Quality Tested
+                        </div>
+                        <div style="font-size: 0.875rem; color: var(--slate-600);">100% stress-tested before dispatch to guarantee rock-solid hardware stability.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel 3: Customer Comments & Reviews (Connected to DB & Admin) -->
+        <div class="tab-panel panel-reviews">
+            <div class="reviews-container">
+                
+                <!-- Left: Reviews List & Overall Score -->
+                <div>
+                    <div class="reviews-summary-card">
+                        <div class="reviews-score-block">
+                            <div class="reviews-big-score">{{ product.rating }}</div>
+                            <div style="color: #f59e0b; font-size: 1.1rem; margin: 4px 0;">
+                                ★★★★★
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--slate-500); font-weight: 600;">
+                                Based on {{ reviews.count }} review{{ reviews.count|pluralize }}
+                            </div>
+                        </div>
+                        <div style="flex: 1; font-size: 0.9rem; color: var(--slate-600); border-left: 1px solid var(--slate-200); padding-left: 24px;">
+                            <p style="margin-bottom: 6px; font-weight: 700; color: var(--navy);">
+                                Verified Hardware Buyer Feedback
+                            </p>
+                            <p style="font-size: 0.85rem; line-height: 1.5; color: var(--slate-500); margin: 0;">
+                                All customer reviews and comments are securely stored in the database and monitored via the Django admin console for transparency and authenticity.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- List of Reviews -->
+                    <div class="reviews-list">
+                        {% if reviews %}
+                            {% for r in reviews %}
+                                <div class="review-card-item" id="review-{{ r.id }}">
+                                    <div class="review-card-header">
+                                        <div class="review-author-meta">
+                                            <div class="review-avatar">
+                                                {{ r.author_name|slice:":1"|upper }}
+                                            </div>
+                                            <div>
+                                                <div class="review-author-name">{{ r.author_name }}</div>
+                                                {% if r.is_verified_purchase %}
+                                                    <span class="review-verified-badge">
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                        Verified Buyer
+                                                    </span>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        <div style="text-align: right;">
+                                            <div style="color: #f59e0b; font-size: 0.95rem; font-weight: 700;">
+                                                {% if r.rating == 5 %}★★★★★
+                                                {% elif r.rating == 4 %}★★★★☆
+                                                {% elif r.rating == 3 %}★★★☆☆
+                                                {% elif r.rating == 2 %}★★☆☆☆
+                                                {% else %}★☆☆☆☆
+                                                {% endif %}
+                                            </div>
+                                            <div class="review-date">{{ r.created_at|date:"M d, Y" }}</div>
+                                        </div>
+                                    </div>
+
+                                    <h4 class="review-title">{{ r.title }}</h4>
+                                    <p class="review-comment">{{ r.comment }}</p>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; padding: 36px 20px; background: var(--slate-50); border: 1px dashed var(--slate-300); border-radius: var(--radius-md); color: var(--slate-500);">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 8px; color: var(--slate-400);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                                <p style="font-weight: 600; color: var(--navy); margin-bottom: 4px;">No reviews yet for this product</p>
+                                <p style="font-size: 0.85rem; margin: 0;">Be the first customer to share your benchmark or setup experience!</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Right: Submit Comment & Review Form -->
+                <aside class="add-review-card">
+                    <h4 class="add-review-title">Write a Review &amp; Comment</h4>
+                    <p style="font-size: 0.85rem; color: var(--slate-500); margin-bottom: 16px;">
+                        Share your real-world performance results and feedback with fellow builders.
+                    </p>
+
+                    <form method="post" action="{% url 'products:add_review' slug=product.slug %}">
+                        {% csrf_token %}
+
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.85rem;">Your Name *</label>
+                            <input 
+                                type="text" 
+                                name="author_name" 
+                                class="form-input" 
+                                value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" 
+                                placeholder="e.g. Alex Chowdhury" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.85rem;">Your Email (Optional)</label>
+                            <input 
+                                type="email" 
+                                name="author_email" 
+                                class="form-input" 
+                                value="{% if user.is_authenticated %}{{ user.email }}{% endif %}" 
+                                placeholder="name@example.com"
+                            >
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.85rem;">Rating Score *</label>
+                            <select name="rating" class="form-select" required>
+                                <option value="5" selected>★★★★★ (5/5) - Outstanding</option>
+                                <option value="4">★★★★☆ (4/5) - Very Good</option>
+                                <option value="3">★★★☆☆ (3/5) - Good / Average</option>
+                                <option value="2">★★☆☆☆ (2/5) - Below Average</option>
+                                <option value="1">★☆☆☆☆ (1/5) - Poor</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.85rem;">Review Headline / Title *</label>
+                            <input 
+                                type="text" 
+                                name="title" 
+                                class="form-input" 
+                                placeholder="e.g. Incredible 4K gaming performance!" 
+                                required
+                            >
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label class="form-label" style="font-size: 0.85rem;">Detailed Feedback / Comment *</label>
+                            <textarea 
+                                name="comment" 
+                                class="form-textarea" 
+                                rows="4" 
+                                placeholder="Share temperatures, clocks, installation ease, or distributor authenticity..." 
+                                required
+                            ></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-block" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            Submit Review
+                        </button>
+                    </form>
+                </aside>
+
+            </div>
+        </div>
+
+        <!-- Panel 4: Warranty & Authenticity -->
+        <div class="tab-panel panel-warranty">
+            <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 16px;">
+                Official Manufacturer Warranty Coverage
+            </h3>
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 24px; max-width: 800px;">
+                <div style="display: flex; gap: 14px; align-items: flex-start; margin-bottom: 16px;">
+                    <span style="color: var(--emerald-600); display: inline-flex; margin-top: 2px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </span>
+                    <div>
+                        <h4 style="font-size: 1.1rem; font-weight: 700; color: var(--navy); margin-bottom: 4px;">{{ product.warranty }}</h4>
+                        <p style="font-size: 0.9rem; color: var(--slate-600); margin: 0;">
+                            This unit comes with official distributor verification. All serial numbers are logged into our warranty tracking database upon dispatch.
+                        </p>
+                    </div>
+                </div>
+                <ul style="list-style: none; font-size: 0.9rem; color: var(--slate-700); display: grid; gap: 10px; padding: 0;">
+                    <li style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--emerald-600);"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Authenticity:</strong> 100% genuine factory-sealed retail package with verified holograms.</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--emerald-600);"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>RMA Service:</strong> Direct replacement support at authorized N-IT Home service centers.</span>
+                    </li>
+                    <li style="display: flex; align-items: center; gap: 8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--emerald-600);"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span><strong>Instant Invoice:</strong> Printable digital serial-verified receipt provided with every order.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Panel 5: Native Video Tag (No JS Needed) -->
+        <div class="tab-panel panel-video">
+            <h3 style="font-size: 1.3rem; font-weight: 800; color: var(--navy); margin-bottom: 16px;">
+                Product Teardown &amp; Performance Showcase
+            </h3>
+            <div class="video-wrapper">
+                <video controls preload="metadata" poster="{{ product.primary_image_url }}">
+                    {% if product.video_url %}
+                        <source src="{{ product.video_url }}" type="video/mp4">
+                    {% else %}
+                        <source src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" type="video/mp4">
+                    {% endif %}
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <p style="text-align: center; margin-top: 12px; font-size: 0.85rem; color: var(--slate-500);">
+                Streamed via native HTML5 video player without third-party JavaScript trackers.
+            </p>
+        </div>
+
+    </div>
+</section>
+
+<!-- Related Products in Category -->
+{% if related_products %}
+<section style="margin-top: 48px;">
+    <h3 style="font-size: 1.4rem; font-weight: 800; color: var(--navy); margin-bottom: 20px;">
+        Related {{ product.category.name }} Components
+    </h3>
+    <div class="product-grid">
+        {% for rel in related_products %}
+            <article class="product-card">
+                <div class="product-card-img-wrap">
+                    <a href="{{ rel.get_absolute_url }}">
+                        <img src="{{ rel.primary_image_url }}" alt="{{ rel.name }}" class="product-card-img" loading="lazy">
+                    </a>
+                </div>
+                <div class="product-card-body">
+                    <div class="product-brand-cat">
+                        <span>{{ rel.brand }}</span>
+                        <span class="badge badge-cyan" style="font-size: 0.7rem;">{{ rel.category.name }}</span>
+                    </div>
+                    <h4 class="product-card-title">
+                        <a href="{{ rel.get_absolute_url }}">{{ rel.name }}</a>
+                    </h4>
+                    <div class="product-card-footer">
+                        <span class="product-price-current">${{ rel.price }}</span>
+                        <a href="{{ rel.get_absolute_url }}" class="btn btn-primary btn-sm">View →</a>
+                    </div>
+                </div>
+            </article>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+{% endblock %}

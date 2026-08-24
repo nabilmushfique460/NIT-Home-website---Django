@@ -1,0 +1,194 @@
+from django.db import models
+from django.urls import reverse
+from django.utils.text import slugify
+from django.conf import settings
+
+class PromotionBanner(models.Model):
+    """Promotional / Advertising Banner model displayed on top of the catalog homepage.
+    Admin can edit, deactivate, delete or add new promotional banners.
+    """
+    title = models.CharField(max_length=200, default="Unleash Peak Performance with N-IT Home")
+    title_highlight = models.CharField(max_length=100, default="N-IT Home", blank=True, help_text="Part of the title to highlight")
+    badge_1 = models.CharField(max_length=80, default="Next-Gen Components")
+    badge_2 = models.CharField(max_length=80, default="In Stock & Ready to Ship")
+    lead_text = models.TextField(default="Explore authentic high-performance desktop hardware — flagship NVIDIA & AMD graphics cards, AMD Ryzen 3D V-Cache processors, PCIe Gen5 NVMe storage, and low-latency DDR5 memory kits.")
+    perk_1 = models.CharField(max_length=80, default="Official Warranty")
+    perk_2 = models.CharField(max_length=80, default="Same-Day Processing")
+    perk_3 = models.CharField(max_length=80, default="bKash / Nagad / COD")
+    
+    # Highlighted Item / Offer Box on the right side
+    card_tag = models.CharField(max_length=80, default="TOP SELLING FLAGSHIP")
+    card_title = models.CharField(max_length=120, default="GeForce RTX 4090 24GB")
+    card_price = models.DecimalField(max_digits=10, decimal_places=2, default=1699.99)
+    card_link = models.CharField(max_length=255, default="/product/nvidia-geforce-rtx-4090-24gb-founders-edition/", help_text="URL or relative link for the promo button")
+    card_button_text = models.CharField(max_length=80, default="View Flagship Hardware →")
+    
+    is_active = models.BooleanField(default=True, help_text="Check to display this banner on the homepage. Uncheck to hide it.")
+    order = models.PositiveSmallIntegerField(default=0, help_text="Ordering priority (0 is highest priority)")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+        verbose_name = 'Promotion Banner'
+        verbose_name_plural = 'Promotion Banners'
+
+    def __str__(self) -> str:
+        return f"{self.title} ({'Active' if self.is_active else 'Hidden'})"
+
+
+class Category(models.Model):
+    """Product category model (RAM, SSD, CPU, GPU)."""
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(max_length=120, unique=True)
+    description = models.TextField(blank=True)
+    icon_svg = models.TextField(blank=True, help_text="Inline SVG or icon representation")
+
+    class Meta:
+        verbose_name_plural = 'Categories'
+        ordering = ['name']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('products:product_list') + f'?category={self.slug}'
+
+    def __str__(self) -> str:
+        return self.name
+
+class Product(models.Model):
+    """PC Hardware component product model."""
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=280, unique=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
+    brand = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    stock_qty = models.PositiveIntegerField(default=10)
+    short_description = models.TextField(max_length=500, help_text="Short teaser shown in listing cards")
+    long_description = models.TextField(help_text="Detailed markdown/HTML rich description with performance specs")
+    thumbnail = models.ImageField(upload_to='products/thumbs/', blank=True, null=True)
+    thumbnail_url = models.URLField(max_length=500, blank=True, null=True, help_text="CDN or web fallback image")
+    video_url = models.URLField(max_length=500, blank=True, null=True, help_text="Direct MP4 video stream URL")
+    is_featured = models.BooleanField(default=False)
+    warranty = models.CharField(max_length=100, default="3 Years Manufacturer Warranty")
+    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.9)
+    review_count = models.PositiveIntegerField(default=48)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.brand}-{self.name}")
+        super().save(*args, **kwargs)
+
+    def get_absolute_url(self):
+        return reverse('products:product_detail', kwargs={'slug': self.slug})
+
+    @property
+    def is_in_stock(self) -> bool:
+        return self.stock_qty > 0
+
+    @property
+    def discount_percent(self) -> int:
+        if self.original_price and self.original_price > self.price:
+            return int(((self.original_price - self.price) / self.original_price) * 100)
+        return 0
+
+    @property
+    def primary_image_url(self) -> str:
+        if self.thumbnail:
+            return self.thumbnail.url
+        if self.thumbnail_url:
+            return self.thumbnail_url
+        return "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80"
+
+    def __str__(self) -> str:
+        return f"{self.brand} {self.name} (${self.price})"
+
+class ProductImage(models.Model):
+    """4K Gallery images for product details view."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    image = models.ImageField(upload_to='products/4k/', blank=True, null=True)
+    image_url = models.URLField(max_length=500, blank=True, null=True)
+    caption = models.CharField(max_length=150, blank=True)
+    is_4k = models.BooleanField(default=True)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    @property
+    def display_url(self) -> str:
+        if self.image:
+            return self.image.url
+        if self.image_url:
+            return self.image_url
+        return "https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80"
+
+    def __str__(self) -> str:
+        return f"Image for {self.product.name} (#{self.order})"
+
+class ProductSpecification(models.Model):
+    """Structured technical specifications."""
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='specifications')
+    group = models.CharField(max_length=60, default="Key Specifications")
+    spec_name = models.CharField(max_length=100)
+    spec_value = models.CharField(max_length=255)
+    order = models.PositiveSmallIntegerField(default=0)
+
+    class Meta:
+        ordering = ['order', 'id']
+
+    def __str__(self) -> str:
+        return f"{self.product.name} - {self.spec_name}: {self.spec_value}"
+
+
+class ProductReview(models.Model):
+    """Customer ratings, reviews, and comments on hardware components.
+    Directly connected to the database and accessible via Django Admin.
+    """
+    RATING_CHOICES = [
+        (5, '5 Stars - Excellent'),
+        (4, '4 Stars - Very Good'),
+        (3, '3 Stars - Average / Good'),
+        (2, '2 Stars - Fair'),
+        (1, '1 Star - Poor'),
+    ]
+
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
+    author_name = models.CharField(max_length=100, help_text="Reviewer name")
+    author_email = models.EmailField(blank=True, help_text="Reviewer contact email")
+    rating = models.PositiveSmallIntegerField(default=5, choices=RATING_CHOICES)
+    title = models.CharField(max_length=150, help_text="Review summary or title")
+    comment = models.TextField(help_text="Detailed feedback, benchmark results, or comments")
+    is_verified_purchase = models.BooleanField(default=True, help_text="Verified hardware buyer badge")
+    is_approved = models.BooleanField(default=True, help_text="Check to display on public product page; uncheck to hide")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Product Review'
+        verbose_name_plural = 'Product Reviews & Comments'
+
+    def __str__(self) -> str:
+        return f"{self.author_name} ({self.rating}★) on {self.product.name}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # Update product rating and review count
+        approved = self.product.reviews.filter(is_approved=True)
+        if approved.exists():
+            avg_rating = sum(r.rating for r in approved) / approved.count()
+            self.product.rating = round(avg_rating, 1)
+            self.product.review_count = approved.count()
+            self.product.save(update_fields=['rating', 'review_count'])
+

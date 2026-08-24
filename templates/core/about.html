@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="max-width: 860px; margin: 20px auto;">
+    <div style="margin-bottom: 32px; text-align: center;">
+        <span class="badge badge-cyan" style="margin-bottom: 8px;">About Us</span>
+        <h1 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 12px;">
+            Engineered for Enthusiasts. Built by Builders.
+        </h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem; max-width: 680px; margin: 0 auto;">
+            N-IT Home is Bangladesh's premier PC hardware and enthusiast component e-commerce platform.
+        </p>
+    </div>
+
+    <div style="background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 36px; line-height: 1.8; color: #cbd5e1; font-size: 1.05rem; margin-bottom: 32px;">
+        <h3 style="color: var(--accent-cyan); font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">
+            Our Mission &amp; Quality Guarantee
+        </h3>
+        <p style="margin-bottom: 20px;">
+            At N-IT Home, we believe computing power shouldn't be bottlenecked by compromised components or unverified supply chains. Every GPU, processor, SSD, and memory kit we stock is sourced directly from authorized factory distributors with intact serial tracing and official warranty verification.
+        </p>
+
+        <h3 style="color: var(--accent-cyan); font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">
+            Extreme Performance Architecture
+        </h3>
+        <p style="margin-bottom: 20px;">
+            Whether you are assembling a 4K 144Hz ray-tracing gaming battlestation, an AI workstation running local LLMs, or an ultra-dense video editing rig, N-IT Home delivers verified hardware with benchmark-tested compatibility.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 28px;">
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                <div style="font-size: 2rem; font-weight: 900; color: var(--accent-cyan); font-family: var(--font-mono);">100%</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Authentic Hardware</div>
+            </div>
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                <div style="font-size: 2rem; font-weight: 900; color: var(--accent-emerald); font-family: var(--font-mono);">&lt; 24h</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Dispatch Speed</div>
+            </div>
+            <div style="background: var(--bg-surface); padding: 20px; border-radius: var(--radius-md); text-align: center;">
+                <div style="font-size: 2rem; font-weight: 900; color: var(--accent-purple); font-family: var(--font-mono);">3+ Yrs</div>
+                <div style="font-size: 0.85rem; color: var(--text-muted);">Official Warranty</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

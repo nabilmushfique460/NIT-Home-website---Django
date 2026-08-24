@@ -1,0 +1,11 @@
+{
+  "name": "n-it-home",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "python3 manage.py runserver 0.0.0.0:3000",
+    "build": "python3 manage.py collectstatic --noinput && python3 manage.py migrate",
+    "start": "python3 manage.py runserver 0.0.0.0:3000",
+    "lint": "python3 manage.py check"
+  }
+}
