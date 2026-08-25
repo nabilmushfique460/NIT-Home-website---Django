@@ -370,7 +370,7 @@
                                 type="text" 
                                 name="author_name" 
                                 class="form-input" 
-                                value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.username }}{% endif %}" 
+                                value="{% if user.is_authenticated %}{{ user.get_full_name|default:user.email }}{% endif %}" 
                                 placeholder="e.g. Alex Chowdhury" 
                                 required
                             >

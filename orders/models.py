@@ -1,6 +1,6 @@
 import uuid
 from django.db import models
-from django.contrib.auth.models import User
+from django.conf import settings
 from products.models import Product
 
 class Order(models.Model):
@@ -20,7 +20,7 @@ class Order(models.Model):
     )
 
     order_number = models.CharField(max_length=32, unique=True, editable=False)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     
     # Shipping Contact & Address
     full_name = models.CharField(max_length=120)

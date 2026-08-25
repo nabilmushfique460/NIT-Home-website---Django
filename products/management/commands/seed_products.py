@@ -1,8 +1,10 @@
 from decimal import Decimal
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from products.models import Category, Product, ProductImage, ProductSpecification, PromotionBanner, ProductReview
 from accounts.models import Address
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Seeds 12 PC Hardware Products (3 RAM, 3 SSD, 3 CPU, 3 GPU from distinct companies), Categories, Specs, Images, and Admin/Demo Users'
@@ -10,25 +12,32 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.stdout.write("Starting database seeding for N-IT Home...")
 
-        # 1. Ensure Superuser nit-admin is referenced
-        admin_user = User.objects.filter(username='nit-admin').first()
+        # 1. Ensure Superuser admin@nithome.com is created
+        admin_user = User.objects.filter(email='admin@nithome.com').first()
         if not admin_user:
-            admin_user = User.objects.filter(is_superuser=True).first()
+            admin_user = User.objects.create_superuser(
+                email='admin@nithome.com',
+                password='adminpassword123',
+                first_name='NIT',
+                last_name='Administrator'
+            )
+            self.stdout.write(self.style.SUCCESS("Created Superuser: admin@nithome.com / adminpassword123"))
 
         demo_user, created = User.objects.get_or_create(
-            username='gamer_pro',
+            email='customer@nithome.com',
             defaults={
-                'email': 'customer@nithome.com',
                 'first_name': 'Nabil',
                 'last_name': 'Hasan',
+                'is_verified': True,
             }
         )
         if created:
             demo_user.set_password('customer123')
+            demo_user.is_verified = True
             demo_user.save()
-            demo_user.profile.is_verified = True
-            demo_user.profile.phone = '+880 1812-345678'
-            demo_user.profile.save()
+            if hasattr(demo_user, 'profile'):
+                demo_user.profile.phone = '+880 1812-345678'
+                demo_user.profile.save()
 
             Address.objects.create(
                 user=demo_user,

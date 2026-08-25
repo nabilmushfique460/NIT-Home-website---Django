@@ -1,17 +1,22 @@
 from django import forms
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from .models import Profile, Address
+from .validators import validate_strong_password
+
+User = get_user_model()
+
 
 class SignUpForm(forms.ModelForm):
-    """User registration form."""
+    """User registration form with strong password enforcement."""
     email = forms.EmailField(
         required=True,
-        widget=forms.EmailInput(attrs={'placeholder': 'name@example.com', 'class': 'form-input'})
+        widget=forms.EmailInput(attrs={'placeholder': 'name@example.com', 'class': 'form-input', 'autofocus': True})
     )
     first_name = forms.CharField(
         max_length=50,
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': 'First Name', 'class': 'form-input'})
     )
     last_name = forms.CharField(
@@ -21,28 +26,26 @@ class SignUpForm(forms.ModelForm):
     )
     phone = forms.CharField(
         max_length=20,
-        required=True,
+        required=False,
         widget=forms.TextInput(attrs={'placeholder': '+880 1700-000000', 'class': 'form-input'})
     )
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Create strong password', 'class': 'form-input'}),
-        min_length=6
+        min_length=8,
+        help_text="Must be at least 8 characters and include uppercase, lowercase, number, and special character."
     )
     confirm_password = forms.CharField(
         widget=forms.PasswordInput(attrs={'placeholder': 'Confirm your password', 'class': 'form-input'}),
-        min_length=6
+        min_length=8
     )
 
     class Meta:
         model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
-        widgets = {
-            'username': forms.TextInput(attrs={'placeholder': 'Choose username', 'class': 'form-input'}),
-        }
+        fields = ['email', 'first_name', 'last_name']
 
     def clean_email(self):
-        email = self.cleaned_data.get('email').strip().lower()
-        if User.objects.filter(email=email).exists():
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
             raise ValidationError("A user with this email address already exists.")
         return email
 
@@ -51,76 +54,114 @@ class SignUpForm(forms.ModelForm):
         password = cleaned_data.get('password')
         confirm_password = cleaned_data.get('confirm_password')
 
-        if password and confirm_password and password != confirm_password:
-            self.add_error('confirm_password', "Passwords do not match.")
+        if password and confirm_password:
+            if password != confirm_password:
+                self.add_error('confirm_password', "Passwords do not match.")
+            else:
+                try:
+                    validate_strong_password(password)
+                    validate_password(password)
+                except ValidationError as e:
+                    self.add_error('password', e)
+
         return cleaned_data
 
+
 class LoginForm(forms.Form):
-    """Standard authentication form."""
-    username_or_email = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Username or Email', 'class': 'form-input', 'autofocus': True})
+    """Secure authentication form using email as the unique identifier."""
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'placeholder': 'name@example.com', 'class': 'form-input', 'autofocus': True})
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Password', 'class': 'form-input'})
+        required=True,
+        widget=forms.PasswordInput(attrs={'placeholder': '••••••••', 'class': 'form-input'})
     )
 
+
 class OTPVerificationForm(forms.Form):
-    """OTP code submission form."""
+    """6-digit OTP code verification form."""
     otp = forms.CharField(
         max_length=6,
         min_length=6,
         widget=forms.TextInput(attrs={
-            'placeholder': '6-digit OTP',
-            'class': 'form-input text-center tracking-widest text-2xl font-mono',
+            'placeholder': '123456',
+            'class': 'form-input font-mono text-center',
             'maxlength': '6',
             'pattern': '[0-9]{6}',
             'autocomplete': 'one-time-code',
             'autofocus': True,
+            'onpaste': 'return false;',
         })
     )
+
 
 class ForgotPasswordForm(forms.Form):
     """Password reset request form."""
     email = forms.EmailField(
+        required=True,
         widget=forms.EmailInput(attrs={'placeholder': 'Enter your registered email', 'class': 'form-input', 'autofocus': True})
     )
 
+
 class ResetPasswordForm(forms.Form):
-    """New password configuration form."""
+    """Password reset completion form with OTP and strong new password."""
     otp = forms.CharField(
         max_length=6,
         min_length=6,
-        widget=forms.TextInput(attrs={'placeholder': '6-digit OTP', 'class': 'form-input font-mono', 'maxlength': '6'})
+        widget=forms.TextInput(attrs={
+            'placeholder': '123456',
+            'class': 'form-input font-mono text-center',
+            'maxlength': '6',
+            'pattern': '[0-9]{6}',
+            'autofocus': True,
+            'onpaste': 'return false;',
+        })
     )
     new_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'New password', 'class': 'form-input'}),
-        min_length=6
+        widget=forms.PasswordInput(attrs={'placeholder': 'New password (min 8 characters)', 'class': 'form-input'}),
+        min_length=8,
+        help_text="Must be at least 8 characters and include uppercase, lowercase, number, and special character."
     )
     confirm_new_password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Confirm new password', 'class': 'form-input'}),
-        min_length=6
+        widget=forms.PasswordInput(attrs={'placeholder': 'Re-enter new password', 'class': 'form-input'}),
+        min_length=8
     )
 
     def clean(self):
         cleaned_data = super().clean()
         p1 = cleaned_data.get('new_password')
         p2 = cleaned_data.get('confirm_new_password')
-        if p1 and p2 and p1 != p2:
-            self.add_error('confirm_new_password', "Passwords do not match.")
+
+        if p1 and p2:
+            if p1 != p2:
+                self.add_error('confirm_new_password', "Passwords do not match.")
+            else:
+                try:
+                    validate_strong_password(p1)
+                    validate_password(p1)
+                except ValidationError as e:
+                    self.add_error('new_password', e)
+
         return cleaned_data
+
 
 class ProfileForm(forms.ModelForm):
     """User profile update form."""
-    first_name = forms.CharField(max_length=50, required=True, widget=forms.TextInput(attrs={'class': 'form-input'}))
+    first_name = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
     last_name = forms.CharField(max_length=50, required=False, widget=forms.TextInput(attrs={'class': 'form-input'}))
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-input', 'readonly': True}))
 
     class Meta:
         model = Profile
-        fields = ['phone']
+        fields = ['phone', 'street_address', 'city', 'postal_code']
         widgets = {
-            'phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Contact phone'}),
+            'phone': forms.TextInput(attrs={'class': 'form-input', 'placeholder': '+880 1812-345678'}),
+            'street_address': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Street / House / Road'}),
+            'city': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'City'}),
+            'postal_code': forms.TextInput(attrs={'class': 'form-input', 'placeholder': 'Postal Code'}),
         }
+
 
 class AddressForm(forms.ModelForm):
     """Shipping Address creation & edit form."""

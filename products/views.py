@@ -130,7 +130,7 @@ class AddProductReviewView(View):
         # If user is authenticated, fill name / email from profile if empty
         if request.user.is_authenticated:
             if not author_name:
-                author_name = request.user.get_full_name() or request.user.username
+                author_name = request.user.get_full_name() or request.user.email
             if not author_email:
                 author_email = request.user.email
 

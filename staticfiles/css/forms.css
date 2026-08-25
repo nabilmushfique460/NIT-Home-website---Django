@@ -1,0 +1,568 @@
+/* ==========================================================================
+   N-IT Home — Professional Polish Forms, Cart, Checkout, Auth & Payment Gateways CSS
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Generic Form Controls
+   -------------------------------------------------------------------------- */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--slate-700);
+  margin-bottom: 6px;
+}
+
+.form-input, .form-textarea, .form-select {
+  width: 100%;
+  background-color: var(--white);
+  border: 1px solid var(--slate-300);
+  border-radius: var(--radius-sm);
+  color: var(--navy);
+  padding: 9px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  outline: none;
+}
+
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  border-color: var(--blue-accent);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+  background-color: var(--white);
+}
+
+.form-input::placeholder, .form-textarea::placeholder {
+  color: var(--slate-400);
+}
+
+.form-error {
+  color: var(--accent-rose);
+  font-size: 0.8rem;
+  margin-top: 4px;
+  display: block;
+  font-weight: 600;
+}
+
+.form-help {
+  color: var(--slate-500);
+  font-size: 0.775rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.form-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.875rem;
+  color: var(--slate-700);
+  cursor: pointer;
+}
+
+.form-checkbox {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--blue-primary);
+  cursor: pointer;
+}
+
+/* --------------------------------------------------------------------------
+   Auth Layout (Login, Signup, OTP, Reset)
+   -------------------------------------------------------------------------- */
+.auth-wrapper {
+  max-width: 440px;
+  margin: 36px auto;
+}
+
+.auth-card {
+  background-color: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  margin-bottom: 6px;
+}
+
+.auth-subtitle {
+  font-size: 0.875rem;
+  color: var(--slate-600);
+}
+
+.oauth-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 20px 0;
+  color: var(--slate-400);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.oauth-divider::before, .oauth-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.oauth-divider span {
+  padding: 0 12px;
+}
+
+.btn-google {
+  background-color: var(--white);
+  color: var(--slate-800);
+  border: 1px solid var(--slate-300);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  transition: all 0.15s ease;
+}
+
+.btn-google:hover {
+  background-color: var(--slate-50);
+  border-color: var(--slate-400);
+}
+
+/* --------------------------------------------------------------------------
+   Shopping Cart View Layout
+   -------------------------------------------------------------------------- */
+.cart-layout {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+  align-items: start;
+}
+
+.cart-items-card {
+  background-color: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.cart-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.cart-table th {
+  text-align: left;
+  padding: 12px 14px;
+  color: var(--slate-500);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--slate-200);
+  background-color: var(--slate-50);
+}
+
+.cart-table td {
+  padding: 16px 14px;
+  border-bottom: 1px solid var(--slate-100);
+  vertical-align: middle;
+}
+
+.cart-product-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.cart-product-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background-color: var(--slate-50);
+  object-fit: cover;
+  border: 1px solid var(--slate-200);
+}
+
+.cart-product-name {
+  font-weight: 700;
+  color: var(--navy);
+  font-size: 0.9rem;
+  margin-bottom: 3px;
+}
+
+.cart-product-name:hover {
+  color: var(--blue-primary);
+}
+
+.cart-product-meta {
+  font-size: 0.75rem;
+  color: var(--slate-500);
+  text-transform: uppercase;
+}
+
+.cart-qty-form {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cart-qty-btn {
+  background-color: var(--white);
+  border: 1px solid var(--slate-300);
+  color: var(--slate-800);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  font-weight: bold;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.cart-qty-btn:hover {
+  background-color: var(--blue-primary);
+  border-color: var(--blue-primary);
+  color: var(--white);
+}
+
+.cart-qty-display {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 0 8px;
+  color: var(--navy);
+}
+
+/* Cart Summary Box */
+.cart-summary-card {
+  background-color: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  position: sticky;
+  top: 96px;
+  box-shadow: var(--shadow-sm);
+}
+
+.summary-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 0.875rem;
+  color: var(--slate-600);
+}
+
+.summary-row.total {
+  border-top: 2px solid var(--slate-100);
+  padding-top: 14px;
+  margin-top: 14px;
+  color: var(--navy);
+  font-weight: 800;
+  font-size: 1.15rem;
+  font-family: var(--font-mono);
+}
+
+/* --------------------------------------------------------------------------
+   Checkout Flow Layout
+   -------------------------------------------------------------------------- */
+.checkout-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 28px;
+  align-items: start;
+}
+
+.checkout-section-card {
+  background-color: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.checkout-section-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 18px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--slate-100);
+}
+
+.checkout-step-number {
+  background: var(--blue-primary);
+  color: var(--white);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+/* Payment Method Selection Radio Cards */
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.payment-method-card {
+  position: relative;
+  background-color: var(--slate-50);
+  border: 2px solid var(--slate-200);
+  border-radius: var(--radius-sm);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.payment-method-card:hover {
+  border-color: var(--slate-300);
+  background-color: var(--white);
+}
+
+.payment-method-card input[type="radio"] {
+  accent-color: var(--blue-primary);
+  width: 18px;
+  height: 18px;
+}
+
+.payment-icon-pill {
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  font-weight: 800;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.payment-icon-bkash {
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #fbcfe8;
+}
+
+.payment-icon-nagad {
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+}
+
+.payment-icon-cod {
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
+}
+
+/* --------------------------------------------------------------------------
+   Payment Gateway Simulator Views (bKash Pink & Nagad Red Theme)
+   -------------------------------------------------------------------------- */
+.bkash-gateway-box {
+  max-width: 440px;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #fbcfe8;
+  color: #1f2937;
+}
+
+.bkash-gateway-header {
+  background-color: #e2136e;
+  padding: 24px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.bkash-logo-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.bkash-gateway-body {
+  padding: 28px;
+}
+
+.bkash-btn-submit {
+  background-color: #e2136e;
+  color: #ffffff;
+  width: 100%;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.bkash-btn-submit:hover {
+  background-color: #c00e5c;
+}
+
+.nagad-gateway-box {
+  max-width: 440px;
+  margin: 30px auto;
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid #fecdd3;
+  color: #1f2937;
+}
+
+.nagad-gateway-header {
+  background: linear-gradient(135deg, #e31017, #f97316);
+  padding: 24px;
+  text-align: center;
+  color: #ffffff;
+}
+
+.nagad-logo-text {
+  font-size: 1.8rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.nagad-gateway-body {
+  padding: 28px;
+}
+
+.nagad-btn-submit {
+  background-color: #e31017;
+  color: #ffffff;
+  width: 100%;
+  padding: 12px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.nagad-btn-submit:hover {
+  background-color: #b90c12;
+}
+
+/* --------------------------------------------------------------------------
+   Order Invoice & Tracking Timeline
+   -------------------------------------------------------------------------- */
+.invoice-card {
+  background-color: var(--white);
+  border: 1px solid var(--slate-200);
+  border-radius: var(--radius-md);
+  padding: 32px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.order-timeline {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  margin: 32px 0;
+}
+
+.order-timeline::before {
+  content: '';
+  position: absolute;
+  top: 18px;
+  left: 30px;
+  right: 30px;
+  height: 3px;
+  background-color: var(--slate-200);
+  z-index: 1;
+}
+
+.timeline-step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+}
+
+.timeline-dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background-color: var(--white);
+  border: 2px solid var(--slate-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--slate-400);
+  font-size: 0.85rem;
+}
+
+.timeline-step.completed .timeline-dot {
+  background-color: var(--accent-emerald);
+  border-color: var(--accent-emerald);
+  color: #ffffff;
+}
+
+.timeline-step.current .timeline-dot {
+  background-color: var(--blue-primary);
+  border-color: var(--blue-primary);
+  color: var(--white);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+.timeline-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--slate-500);
+}
+
+.timeline-step.completed .timeline-label,
+.timeline-step.current .timeline-label {
+  color: var(--navy);
+}

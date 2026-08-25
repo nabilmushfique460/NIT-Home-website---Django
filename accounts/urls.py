@@ -1,8 +1,7 @@
 from django.urls import path
 from .views import (
     SignUpView, LoginView, LogoutView, VerifyOTPView, ResendOTPView,
-    ForgotPasswordView, ResetPasswordView, ProfileView, AddressDeleteView,
-    GoogleOAuthSimulateView
+    ForgotPasswordView, ResetPasswordView, ResendResetOTPView, ProfileView, AddressDeleteView
 )
 
 app_name = 'accounts'
@@ -15,7 +14,7 @@ urlpatterns = [
     path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),
     path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
     path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+    path('resend-reset-otp/', ResendResetOTPView.as_view(), name='resend_reset_otp'),
     path('profile/', ProfileView.as_view(), name='profile'),
     path('address/<int:pk>/delete/', AddressDeleteView.as_view(), name='delete_address'),
-    path('google-oauth/', GoogleOAuthSimulateView.as_view(), name='google_oauth'),
 ]

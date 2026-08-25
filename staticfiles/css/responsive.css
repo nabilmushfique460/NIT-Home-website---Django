@@ -1,0 +1,126 @@
+/* ==========================================================================
+   N-IT Home — Professional Polish Responsive Media Queries & Mobile Drawer
+   ========================================================================== */
+
+@media (max-width: 1024px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+  
+  .catalog-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-sidebar {
+    margin-bottom: 24px;
+  }
+
+  .product-detail-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .cart-layout, .checkout-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nav-links, .nav-search-form {
+    display: none;
+  }
+
+  .mobile-menu-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mobile Drawer via Checkbox Hack */
+  #mobile-nav-toggle:checked ~ .mobile-drawer-overlay {
+    display: block;
+  }
+
+  #mobile-nav-toggle:checked ~ .mobile-drawer-menu {
+    transform: translateX(0);
+  }
+
+  .mobile-drawer-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 199;
+  }
+
+  .mobile-drawer-menu {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100vh;
+    background-color: var(--slate-900);
+    border-left: 1px solid var(--slate-800);
+    padding: 24px;
+    z-index: 200;
+    transform: translateX(100%);
+    transition: transform 0.25s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    overflow-y: auto;
+  }
+
+  .mobile-drawer-close {
+    align-self: flex-end;
+    background: var(--slate-800);
+    border: 1px solid var(--slate-700);
+    color: var(--white);
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+
+  .hero-section {
+    padding: 24px;
+  }
+
+  .hero-title {
+    font-size: 1.75rem;
+  }
+
+  .product-detail-title {
+    font-size: 1.4rem;
+  }
+
+  .buy-actions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .cart-table th:nth-child(2),
+  .cart-table td:nth-child(2) {
+    display: none; /* Hide unit price on small phones */
+  }
+}
+

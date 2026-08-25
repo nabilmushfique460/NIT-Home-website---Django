@@ -31,7 +31,7 @@
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-sm" id="nav-profile-btn">
-                        👤 {{ user.first_name|default:user.username }}
+                        👤 {{ user.first_name|default:user.email }}
                     </a>
                     {% if user.is_staff %}
                         <a href="/admin/" class="badge badge-purple" target="_blank" title="Django Admin Dashboard">Admin</a>

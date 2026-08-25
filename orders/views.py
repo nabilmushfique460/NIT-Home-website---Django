@@ -27,7 +27,7 @@ class CheckoutView(FormView):
         initial = super().get_initial()
         if self.request.user.is_authenticated:
             user = self.request.user
-            initial['full_name'] = f"{user.first_name} {user.last_name}".strip() or user.username
+            initial['full_name'] = f"{user.first_name} {user.last_name}".strip() or user.email
             initial['email'] = user.email
             if hasattr(user, 'profile') and user.profile.phone:
                 initial['phone'] = user.profile.phone
