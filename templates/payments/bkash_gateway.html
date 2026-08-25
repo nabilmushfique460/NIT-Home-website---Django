@@ -1,53 +1,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="wrap" style="padding-top: 40px; padding-bottom: 56px;">
-    <div style="max-width: 480px; margin: 0 auto;">
-
-        <div class="bkash-gateway-box">
-            <div class="bkash-gateway-header">
-                <div class="bkash-logo-text">bKash</div>
-                <div style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">Merchant Payment Gateway Simulator</div>
-            </div>
-
-            <div class="bkash-gateway-body">
-                <div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; margin-bottom: 20px; text-align: center;">
-                    <div style="font-size: 12.5px; color: var(--text-faint);">Merchant: TRACEFORGE Labs</div>
-                    <div style="font-size: 12.5px; color: var(--text-dim); margin: 4px 0;">Order Manifest: #{{ order.order_number }}</div>
-                    <div class="mono" style="font-size: 2rem; font-weight: 700; color: var(--copper-bright);">
-                        ${{ payment.amount }}
-                    </div>
-                </div>
-
-                <form method="post" action="{% url 'payments:bkash_callback' transaction_id=payment.transaction_id %}">
-                    {% csrf_token %}
-
-                    <div class="form-group">
-                        <label class="form-label">bKash Account Number</label>
-                        <input type="text" name="wallet_number" value="01712345678" class="form-input" placeholder="e.g. 01XXXXXXXXX" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Verification OTP (Simulation: Enter 123456)</label>
-                        <input type="text" name="otp" value="123456" class="form-input" placeholder="6-digit OTP" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">bKash PIN (Simulation: Enter 12345)</label>
-                        <input type="password" name="pin" value="12345" class="form-input" placeholder="5-digit PIN" required>
-                    </div>
-
-                    <button type="submit" class="bkash-btn-submit">
-                        Authorize Payment ${{ payment.amount }} &rarr;
-                    </button>
-                </form>
-
-                <div style="text-align: center; margin-top: 16px;">
-                    <a href="{% url 'orders:order_detail' order_number=order.order_number %}" style="font-size: 13px; color: var(--text-faint);">Cancel Transaction &amp; Return</a>
-                </div>
-            </div>
+<div class="wrap" style="padding-top: 56px; padding-bottom: 72px;">
+    <div style="max-width: 560px; margin: 0 auto; text-align: center; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 48px 32px;">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #e11471; margin-bottom: 16px;">
+            bKash
         </div>
-
+        <h2 style="font-size: 1.6rem; font-weight: 700; color: var(--text); margin-bottom: 12px; line-height: 1.4;">
+            Bkash payment will be available soon !<br>Thank You
+        </h2>
+        <p style="color: var(--text-dim); font-size: 14.5px; margin-bottom: 28px; line-height: 1.6;">
+            Order reference <strong style="color: var(--copper-bright);">#{{ order.order_number }}</strong> has been recorded.
+        </p>
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <a href="{% url 'payments:payment_select' order_number=order.order_number %}" class="btn-solid lg">&larr; Back to Payment</a>
+            <a href="{% url 'orders:order_detail' order_number=order.order_number %}" class="btn-outline lg">View Order Manifest</a>
+        </div>
     </div>
 </div>
 {% endblock %}

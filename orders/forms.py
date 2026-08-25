@@ -11,5 +11,5 @@ class CheckoutForm(forms.Form):
     postal_code = forms.CharField(max_length=20, widget=forms.TextInput(attrs={'placeholder': 'Postal / ZIP Code', 'class': 'form-input', 'required': 'required'}))
     country = forms.CharField(max_length=100, required=False, initial='Bangladesh', widget=forms.TextInput(attrs={'class': 'form-input'}))
     order_notes = forms.CharField(required=False, widget=forms.Textarea(attrs={'placeholder': 'Special delivery notes or PC assembly instructions...', 'rows': 3, 'class': 'form-textarea'}))
-    payment_method = forms.ChoiceField(choices=Order.PAYMENT_METHOD_CHOICES, initial='COD', widget=forms.RadioSelect(attrs={'class': 'payment-radio'}))
+    payment_method = forms.ChoiceField(choices=Order.PAYMENT_METHOD_CHOICES, required=False, initial='COD')
     save_address_to_profile = forms.BooleanField(required=False, initial=True, widget=forms.CheckboxInput(attrs={'class': 'form-checkbox'}))

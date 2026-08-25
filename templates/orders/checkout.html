@@ -4,11 +4,11 @@
 <div class="wrap" style="padding-top: 32px; padding-bottom: 56px;">
     <div style="margin-bottom: 28px;">
         <span class="eyebrow mono" style="margin-bottom: 8px;">Order Initialization</span>
-        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 6px;">
             Secure Checkout
         </h1>
         <p style="color: var(--text-dim); font-size: 14.5px;">
-            Complete your delivery destination and select your verified payment strategy.
+            Provide your delivery destination to initialize your order and choose your payment method.
         </p>
     </div>
 
@@ -47,7 +47,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Email Address (for instant invoice &amp; tracking) *</label>
+                        <label class="form-label">Email Address (for invoice &amp; tracking) *</label>
                         <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-input" placeholder="name@example.com" required>
                         {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
                     </div>
@@ -58,33 +58,32 @@
                         {% if form.street_address.errors %}<span class="form-error">{{ form.street_address.errors.0 }}</span>{% endif %}
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                    <div style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr; gap: 16px;">
                         <div class="form-group">
                             <label class="form-label">City *</label>
-                            <input type="text" name="city" value="{{ form.city.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka" required>
+                            <input type="text" name="city" value="{{ form.city.value|default:'Dhaka' }}" class="form-input" required>
                             {% if form.city.errors %}<span class="form-error">{{ form.city.errors.0 }}</span>{% endif %}
                         </div>
 
                         <div class="form-group">
                             <label class="form-label">Division / State</label>
-                            <input type="text" name="state_or_division" value="{{ form.state_or_division.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka Division">
-                            {% if form.state_or_division.errors %}<span class="form-error">{{ form.state_or_division.errors.0 }}</span>{% endif %}
+                            <input type="text" name="state_or_division" value="{{ form.state_or_division.value|default:'Dhaka' }}" class="form-input">
                         </div>
 
                         <div class="form-group">
-                            <label class="form-label">Postal / ZIP Code *</label>
-                            <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" class="form-input" placeholder="e.g. 1213" required>
+                            <label class="form-label">Postal Code *</label>
+                            <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" class="form-input" placeholder="1213" required>
                             {% if form.postal_code.errors %}<span class="form-error">{{ form.postal_code.errors.0 }}</span>{% endif %}
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Special Delivery Instructions / PC Build Notes</label>
-                        <textarea name="order_notes" class="form-textarea" rows="2" placeholder="e.g. Call before delivery, handle GPU with care..."></textarea>
+                        <label class="form-label">Order Notes / Build Instructions (Optional)</label>
+                        <textarea name="order_notes" class="form-textarea" rows="2" placeholder="e.g. Leave with security desk, call before dispatch"></textarea>
                     </div>
 
                     {% if user.is_authenticated %}
-                        <div class="form-group">
+                        <div class="form-group" style="margin-bottom: 0;">
                             <label class="form-checkbox-label">
                                 <input type="checkbox" name="save_address_to_profile" value="1" checked class="form-checkbox">
                                 <span>Save this address to my profile address book</span>
@@ -93,37 +92,6 @@
                     {% endif %}
                 </section>
 
-                <section class="checkout-section-card">
-                    <div class="checkout-section-header">
-                        <span class="checkout-step-number">2</span>
-                        <span>Select Payment Method (Strategy Pattern)</span>
-                    </div>
-
-                    <div class="payment-method-selector">
-
-                        <label class="payment-option-card" for="pay-cod">
-                            <input type="radio" name="payment_method" value="COD" id="pay-cod" checked class="form-checkbox">
-                            <div class="payment-option-body">
-                                <div class="payment-option-title" style="color: var(--copper-bright); font-size: 15px;">
-                                    Cash on Delivery (COD)
-                                </div>
-                                <div class="payment-option-desc">
-                                    Pay directly upon delivery and hardware unboxing.
-                                </div>
-                            </div>
-                        </label>
-
-                        <div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; margin-top: 6px; font-size: 13.5px; line-height: 1.6; color: var(--text-dim);">
-                            <div style="color: var(--copper-bright); font-weight: 600; margin-bottom: 6px;">
-                                Payment System Notice
-                            </div>
-                            <p style="margin: 0; color: var(--text);">
-                                The payment system will be available soon. Please use the <strong>Cash on Delivery</strong> method or contact us on WhatsApp:
-                                <a href="https://wa.me/8801797529625" target="_blank" rel="noopener noreferrer" style="color: var(--copper-bright); font-weight: 700; font-family: var(--font-mono); text-decoration: underline; margin-left: 4px;">+8801797529625</a>
-                            </p>
-                        </div>
-                    </div>
-                </section>
             </div>
 
             <div>
@@ -144,32 +112,31 @@
                     </div>
 
                     <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span>${{ cart.get_subtotal }}</span>
+                        <span class="summary-label">Subtotal</span>
+                        <span class="summary-value">${{ cart.get_subtotal }}</span>
                     </div>
-
                     <div class="summary-row">
-                        <span>Express Shipping:</span>
-                        {% if cart.get_shipping_fee == 0 %}
-                            <span style="color: var(--ok);">FREE</span>
-                        {% else %}
-                            <span>${{ cart.get_shipping_fee }}</span>
-                        {% endif %}
+                        <span class="summary-label">Shipping</span>
+                        <span class="summary-value">
+                            {% if cart.get_shipping_fee == 0 %}
+                                <span style="color: var(--ok); font-weight: 700;">FREE</span>
+                            {% else %}
+                                ${{ cart.get_shipping_fee }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-row total">
+                        <span class="summary-label" style="color: var(--text); font-weight: 700;">Total Payable</span>
+                        <span class="summary-value price">${{ cart.get_grand_total }}</span>
                     </div>
 
-                    <div class="summary-total-row">
-                        <span>Total Due:</span>
-                        <span>${{ cart.get_grand_total }}</span>
-                    </div>
+                    <button type="submit" class="btn-solid btn-block btn-lg" style="margin-top: 24px;">
+                        Place Order &amp; Confirm &rarr;
+                    </button>
 
-                    <div style="margin-top: 24px;">
-                        <button type="submit" class="btn-solid btn-block btn-lg" id="checkout-submit-order-btn">
-                            Confirm &amp; Place Order &rarr;
-                        </button>
-                    </div>
-
-                    <div style="margin-top: 16px; font-size: 12px; color: var(--text-faint); text-align: center;">
-                        By confirming, you agree to TRACEFORGE warranty terms &amp; conditions.
+                    <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-faint);">
+                        Payment options (bKash, Nagad, Cash on Delivery) selected on next step
                     </div>
                 </div>
             </div>

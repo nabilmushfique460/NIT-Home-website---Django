@@ -1,62 +1,50 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="wrap" style="padding-top: 48px; padding-bottom: 56px;">
-    <div style="max-width: 680px; margin: 0 auto; text-align: center;">
+<div class="wrap" style="padding-top: 40px; padding-bottom: 64px;">
+    <div class="order-success-card">
+        <div class="order-success-badge">
+            &#10003;
+        </div>
+        <h1 class="order-success-title">Order Placed</h1>
+        <p style="color: var(--copper-bright); font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; line-height: 1.5;">
+            We will review your order and confirm you soon with a email.
+        </p>
+        <p class="order-success-desc">
+            Your order reference is <strong>#{{ order.order_number }}</strong>. Our team has received your order manifest and will review it promptly.
+        </p>
 
-        <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 48px 32px; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);">
-
-            <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(143, 191, 159, 0.15); color: var(--ok); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">
-                ✓
+        <div class="order-success-details">
+            <div class="order-success-row">
+                <span>Order Number</span>
+                <strong>#{{ order.order_number }}</strong>
             </div>
-
-            <span class="badge" style="position: static; background: var(--ok); color: #161005; font-size: 11px; padding: 5px 12px; margin-bottom: 16px; display: inline-block;">
-                ORDER CONFIRMED &amp; PROCESSING
-            </span>
-
-            <h1 style="font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 8px;">
-                Thank You For Your Order!
-            </h1>
-
-            <p style="color: var(--text-dim); font-size: 15px; margin-bottom: 24px;">
-                Your order manifest reference number is <strong class="mono" style="color: var(--copper-bright);">#{{ order.order_number }}</strong>.
-            </p>
-
-            <div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 20px; text-align: left; margin-bottom: 28px;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; font-size: 13.5px;">
-                    <div>
-                        <span style="color: var(--text-faint);">Customer:</span><br>
-                        <strong style="color: var(--text);">{{ order.full_name }}</strong>
-                    </div>
-                    <div>
-                        <span style="color: var(--text-faint);">Payment Method:</span><br>
-                        <strong style="color: var(--text);">{{ order.get_payment_method_display }}</strong>
-                    </div>
-                    <div>
-                        <span style="color: var(--text-faint);">Total Amount:</span><br>
-                        <strong class="mono" style="color: var(--copper-bright); font-size: 1.15rem;">${{ order.total_amount }}</strong>
-                    </div>
-                    <div>
-                        <span style="color: var(--text-faint);">Payment Status:</span><br>
-                        {% if order.payment_status == 'PAID' %}
-                            <span class="badge" style="position: static; background: var(--ok); color: #161005;">PAID &amp; VERIFIED</span>
-                        {% else %}
-                            <span class="badge" style="position: static; background: var(--copper); color: #161005;">PENDING</span>
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="order-success-row">
+                <span>Recipient</span>
+                <span>{{ order.full_name }}</span>
             </div>
-
-            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;">
-                <a href="{% url 'orders:order_detail' order_number=order.order_number %}" class="btn-solid">
-                    View Full Invoice &amp; Track &rarr;
-                </a>
-                <a href="{% url 'products:product_list' %}" class="btn-outline">
-                    Continue Shopping
-                </a>
+            <div class="order-success-row">
+                <span>Payment Method</span>
+                <span>{{ order.get_payment_method_display }}</span>
+            </div>
+            <div class="order-success-row">
+                <span>Delivery Address</span>
+                <span>{{ order.street_address }}, {{ order.city }} {{ order.postal_code }}</span>
+            </div>
+            <div class="order-success-row total">
+                <span>Total Amount</span>
+                <span class="price">${{ order.total_amount }}</span>
             </div>
         </div>
 
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px;">
+            <a href="{% url 'products:product_list' %}" class="btn-solid lg">
+                Continue Shopping &rarr;
+            </a>
+            <a href="{% url 'orders:order_detail' order_number=order.order_number %}" class="btn-outline lg">
+                View Invoice Details
+            </a>
+        </div>
     </div>
 </div>
 {% endblock %}

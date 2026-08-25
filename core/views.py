@@ -42,16 +42,16 @@ class ContactView(TemplateView):
         from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
         admin_email = 'nabil29089@gmail.com'
 
-        client_subject = f"[TRACEFORGE] Message Received: {subject}"
+        client_subject = f"[N-IT HOME] Message Received: {subject}"
         client_body = (
             f"Hello {name},\n\n"
-            f"Thank you for contacting TRACEFORGE Support. We have received your inquiry:\n\n"
+            f"Thank you for contacting N-IT HOME Support. We have received your inquiry:\n\n"
             f"Subject: {subject}\n"
             f"Message:\n{message}\n\n"
-            f"Our bench engineering and support team will review your inquiry and get back to you shortly.\n\n"
+            f"Our team will review your inquiry and get back to you shortly.\n\n"
             f"Best regards,\n"
-            f"TRACEFORGE Support Team\n"
-            f"support@traceforge.tech"
+            f"N-IT HOME Support Team\n"
+            f"support@nithome.com"
         )
         try:
             send_mail(
@@ -64,7 +64,7 @@ class ContactView(TemplateView):
         except Exception:
             pass
 
-        admin_subject = f"[TRACEFORGE Contact Ticket] {name}: {subject}"
+        admin_subject = f"[N-IT HOME Contact Ticket] {name}: {subject}"
         admin_body = (
             f"New support ticket submitted via website contact form:\n\n"
             f"Sender Name: {name}\n"

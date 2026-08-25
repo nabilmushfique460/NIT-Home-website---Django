@@ -9,7 +9,6 @@ from .forms import CheckoutForm
 from .services import OrderService
 from cart.cart import Cart
 from accounts.models import Address
-from payments.services import PaymentGatewayFactory
 
 class CheckoutView(FormView):
     template_name = 'orders/checkout.html'
@@ -57,12 +56,20 @@ class CheckoutView(FormView):
             messages.error(self.request, str(e))
             return self.form_invalid(form)
         if user and form.cleaned_data.get('save_address_to_profile'):
-            Address.objects.get_or_create(user=user, street_address=form.cleaned_data['street_address'], city=form.cleaned_data['city'], postal_code=form.cleaned_data['postal_code'], defaults={'full_name': form.cleaned_data['full_name'], 'phone': form.cleaned_data['phone'], 'state_or_division': form.cleaned_data.get('state_or_division', ''), 'country': form.cleaned_data.get('country', 'Bangladesh')})
+            Address.objects.get_or_create(
+                user=user,
+                street_address=form.cleaned_data['street_address'],
+                city=form.cleaned_data['city'],
+                postal_code=form.cleaned_data['postal_code'],
+                defaults={
+                    'full_name': form.cleaned_data['full_name'],
+                    'phone': form.cleaned_data['phone'],
+                    'state_or_division': form.cleaned_data.get('state_or_division', ''),
+                    'country': form.cleaned_data.get('country', 'Bangladesh')
+                }
+            )
         cart.clear()
-        payment_method = form.cleaned_data['payment_method']
-        gateway = PaymentGatewayFactory.get_gateway(payment_method)
-        redirect_url = gateway.initiate_payment(order, self.request)
-        return redirect(redirect_url)
+        return redirect('payments:payment_select', order_number=order.order_number)
 
 class OrderSuccessView(DetailView):
     model = Order
