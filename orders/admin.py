@@ -21,61 +21,101 @@ class PaymentInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_number', 'full_name', 'phone', 'total_amount', 'payment_method', 'status', 'approval_action', 'created_at')
+    list_display = ('order_number', 'full_name', 'phone', 'total_amount', 'payment_method', 'status', 'step_action', 'created_at')
     list_filter = ('status', 'payment_method', 'is_paid', 'created_at')
     search_fields = ('order_number', 'full_name', 'email', 'phone', 'street_address')
     readonly_fields = ('order_number', 'subtotal', 'shipping_fee', 'total_amount', 'created_at', 'updated_at')
     inlines = [OrderItemInline, PaymentInline]
     date_hierarchy = 'created_at'
-    actions = ['approve_selected_orders', 'mark_shipped', 'mark_delivered', 'mark_cancelled']
+    actions = ['mark_as_confirmed', 'mark_as_packaging', 'mark_as_shipped', 'mark_as_delivered', 'approve_selected_cancellations']
 
-    def approval_action(self, obj):
+    def step_action(self, obj):
         if obj.status == 'PENDING':
-            url = reverse('admin:orders_order_approve', args=[obj.pk])
-            return format_html('<a class="button" style="background:#22c55e;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">1-Click Approve</a>', url)
-        return format_html('<span style="color:#22c55e;font-weight:600;">Confirmed</span>' if obj.status == 'CONFIRMED' else obj.get_status_display())
-    approval_action.short_description = 'Order Approval'
+            url = reverse('admin:orders_order_advance', args=[obj.pk, 'CONFIRMED'])
+            return format_html('<a class="button" style="background:#22c55e;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">1. Confirm Order</a>', url)
+        elif obj.status == 'CONFIRMED':
+            url = reverse('admin:orders_order_advance', args=[obj.pk, 'PACKAGING'])
+            return format_html('<a class="button" style="background:#0ea5e9;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">2. Start Packaging</a>', url)
+        elif obj.status == 'PACKAGING':
+            url = reverse('admin:orders_order_advance', args=[obj.pk, 'SHIPPED'])
+            return format_html('<a class="button" style="background:#f59e0b;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">3. Mark In Transit</a>', url)
+        elif obj.status == 'SHIPPED':
+            url = reverse('admin:orders_order_advance', args=[obj.pk, 'DELIVERED'])
+            return format_html('<a class="button" style="background:#10b981;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">4. Mark Delivered</a>', url)
+        elif obj.status == 'CANCEL_REQUESTED':
+            url = reverse('admin:orders_order_approve_cancel', args=[obj.pk])
+            return format_html('<a class="button" style="background:#ef4444;color:#fff;font-weight:700;padding:4px 10px;border-radius:4px;text-decoration:none;" href="{}">Approve Cancellation</a>', url)
+        elif obj.status == 'DELIVERED':
+            return format_html('<span style="color:#10b981;font-weight:700;">Delivered</span>')
+        elif obj.status == 'CANCELLED':
+            return format_html('<span style="color:#ef4444;font-weight:700;">Cancelled</span>')
+        return obj.get_status_display()
+    step_action.short_description = 'Next Step Action'
 
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            path('<int:order_id>/approve/', self.admin_site.admin_view(self.approve_order_view), name='orders_order_approve'),
+            path('<int:order_id>/advance/<str:next_status>/', self.admin_site.admin_view(self.advance_order_view), name='orders_order_advance'),
+            path('<int:order_id>/approve-cancel/', self.admin_site.admin_view(self.approve_cancel_view), name='orders_order_approve_cancel'),
         ]
         return custom_urls + urls
 
-    def approve_order_view(self, request, order_id):
+    def advance_order_view(self, request, order_id, next_status):
         order = get_object_or_404(Order, pk=order_id)
-        if order.status != 'CONFIRMED':
-            order.status = 'CONFIRMED'
-            order.save(update_fields=['status'])
-            OrderService.send_order_approved_email(order)
-            messages.success(request, f"Order #{order.order_number} approved successfully. Confirmation email dispatched to {order.email}.")
+        valid_statuses = dict(Order.STATUS_CHOICES)
+        if next_status in valid_statuses:
+            OrderService.advance_order_status(order, next_status)
+            messages.success(request, f"Order #{order.order_number} advanced to '{valid_statuses[next_status]}'. User notification and email dispatched.")
         else:
-            messages.info(request, f"Order #{order.order_number} is already confirmed.")
+            messages.error(request, 'Invalid status transition.')
         return redirect('admin:orders_order_changelist')
 
-    def approve_selected_orders(self, request, queryset):
+    def approve_cancel_view(self, request, order_id):
+        order = get_object_or_404(Order, pk=order_id)
+        OrderService.approve_order_cancellation(order)
+        messages.success(request, f"Order #{order.order_number} cancellation approved. Inventory restored, user notification and confirmation email dispatched.")
+        return redirect('admin:orders_order_changelist')
+
+    def mark_as_confirmed(self, request, queryset):
         count = 0
         for order in queryset:
-            if order.status != 'CONFIRMED':
-                order.status = 'CONFIRMED'
-                order.save(update_fields=['status'])
-                OrderService.send_order_approved_email(order)
+            OrderService.advance_order_status(order, 'CONFIRMED')
+            count += 1
+        self.message_user(request, f"{count} orders updated to Confirmed.")
+    mark_as_confirmed.short_description = 'Advance selected orders to Confirmed'
+
+    def mark_as_packaging(self, request, queryset):
+        count = 0
+        for order in queryset:
+            OrderService.advance_order_status(order, 'PACKAGING')
+            count += 1
+        self.message_user(request, f"{count} orders updated to Bench Packaging.")
+    mark_as_packaging.short_description = 'Advance selected orders to Bench Packaging'
+
+    def mark_as_shipped(self, request, queryset):
+        count = 0
+        for order in queryset:
+            OrderService.advance_order_status(order, 'SHIPPED')
+            count += 1
+        self.message_user(request, f"{count} orders updated to In Transit.")
+    mark_as_shipped.short_description = 'Advance selected orders to In Transit'
+
+    def mark_as_delivered(self, request, queryset):
+        count = 0
+        for order in queryset:
+            OrderService.advance_order_status(order, 'DELIVERED')
+            count += 1
+        self.message_user(request, f"{count} orders updated to Delivered.")
+    mark_as_delivered.short_description = 'Advance selected orders to Delivered'
+
+    def approve_selected_cancellations(self, request, queryset):
+        count = 0
+        for order in queryset:
+            if order.status == 'CANCEL_REQUESTED':
+                OrderService.approve_order_cancellation(order)
                 count += 1
-        self.message_user(request, f"{count} orders approved and confirmation emails sent.")
-    approve_selected_orders.short_description = 'Approve & confirm selected orders'
-
-    def mark_shipped(self, request, queryset):
-        queryset.update(status='SHIPPED')
-    mark_shipped.short_description = 'Mark selected orders as Shipped'
-
-    def mark_delivered(self, request, queryset):
-        queryset.update(status='DELIVERED')
-    mark_delivered.short_description = 'Mark selected orders as Delivered'
-
-    def mark_cancelled(self, request, queryset):
-        queryset.update(status='CANCELLED')
-    mark_cancelled.short_description = 'Mark selected orders as Cancelled'
+        self.message_user(request, f"{count} cancellations approved and inventory restored.")
+    approve_selected_cancellations.short_description = 'Approve selected cancellation requests'
 
 @admin.register(OrderItem)
 class OrderItemAdmin(admin.ModelAdmin):

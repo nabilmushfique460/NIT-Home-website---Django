@@ -4,8 +4,20 @@ from django.conf import settings
 from products.models import Product
 
 class Order(models.Model):
-    STATUS_CHOICES = (('PENDING', 'Pending Payment / Verification'), ('CONFIRMED', 'Confirmed & Processing'), ('SHIPPED', 'Shipped / In Transit'), ('DELIVERED', 'Delivered'), ('CANCELLED', 'Cancelled'))
-    PAYMENT_METHOD_CHOICES = (('COD', 'Cash on Delivery (COD)'), ('BKASH', 'bKash Mobile Financial Service'), ('NAGAD', 'Nagad Mobile Financial Service'))
+    STATUS_CHOICES = (
+        ('PENDING', 'Placed'),
+        ('CONFIRMED', 'Confirmed'),
+        ('PACKAGING', 'Bench Packaging'),
+        ('SHIPPED', 'In Transit'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCEL_REQUESTED', 'Cancellation Requested'),
+        ('CANCELLED', 'Cancelled'),
+    )
+    PAYMENT_METHOD_CHOICES = (
+        ('COD', 'Cash on Delivery (COD)'),
+        ('BKASH', 'bKash Mobile Financial Service'),
+        ('NAGAD', 'Nagad Mobile Financial Service'),
+    )
     order_number = models.CharField(max_length=32, unique=True, editable=False)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     full_name = models.CharField(max_length=120)
@@ -40,8 +52,33 @@ class Order(models.Model):
 
     @property
     def status_step_index(self) -> int:
-        steps = {'PENDING': 1, 'CONFIRMED': 2, 'SHIPPED': 3, 'DELIVERED': 4, 'CANCELLED': 0}
+        steps = {
+            'PENDING': 1,
+            'CONFIRMED': 2,
+            'PACKAGING': 3,
+            'SHIPPED': 4,
+            'DELIVERED': 5,
+            'CANCEL_REQUESTED': 0,
+            'CANCELLED': 0
+        }
         return steps.get(self.status, 1)
+
+    @property
+    def progress_percentage(self) -> int:
+        percentages = {
+            'PENDING': 0,
+            'CONFIRMED': 25,
+            'PACKAGING': 50,
+            'SHIPPED': 75,
+            'DELIVERED': 100,
+            'CANCEL_REQUESTED': 0,
+            'CANCELLED': 0
+        }
+        return percentages.get(self.status, 0)
+
+    @property
+    def can_be_cancelled(self) -> bool:
+        return self.status in ['PENDING', 'CONFIRMED', 'PACKAGING']
 
     def __str__(self) -> str:
         return f'Order #{self.order_number} - {self.full_name} (${self.total_amount})'

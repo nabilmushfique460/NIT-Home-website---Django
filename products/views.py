@@ -2,7 +2,10 @@ from django.views.generic import ListView, DetailView, View
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
+from django.core.mail import send_mail
+from django.conf import settings
 from .models import Product, Category, ProductImage, PromotionBanner, ProductReview
+from accounts.models import Notification
 
 class ProductListView(ListView):
     model = Product
@@ -100,6 +103,60 @@ class AddProductReviewView(View):
                 rating = 5
         except (ValueError, TypeError):
             rating = 5
-        ProductReview.objects.create(product=product, user=request.user if request.user.is_authenticated else None, author_name=author_name, author_email=author_email, rating=rating, title=title, comment=comment, is_approved=True, is_verified_purchase=True)
-        messages.success(request, 'Thank you! Your verified review and comment have been published.')
+
+        ProductReview.objects.create(
+            product=product,
+            user=request.user if request.user.is_authenticated else None,
+            author_name=author_name,
+            author_email=author_email,
+            rating=rating,
+            title=title,
+            comment=comment,
+            is_approved=True,
+            is_verified_purchase=True
+        )
+
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
+
+        if author_email:
+            user_subject = f"[N-IT HOME] Thank you for reviewing {product.name}!"
+            user_message = (
+                f"Dear {author_name},\n\n"
+                f"Thank you for sharing your feedback on {product.name}! Your review has been published.\n\n"
+                f"Your Rating: {rating} / 5 Stars\n"
+                f"Headline: {title}\n"
+                f"Review:\n{comment}\n\n"
+                f"We truly appreciate your review and support for N-IT HOME!\n\n"
+                f"Best regards,\n"
+                f"N-IT HOME Team"
+            )
+            try:
+                send_mail(subject=user_subject, message=user_message, from_email=from_email, recipient_list=[author_email], fail_silently=False)
+            except Exception:
+                pass
+
+        admin_subject = f"[N-IT HOME Review Alert] New Review on {product.name}"
+        admin_message = (
+            f"A customer has submitted a product review on N-IT HOME:\n\n"
+            f"Product: {product.name}\n"
+            f"Reviewer: {author_name} ({author_email})\n"
+            f"Rating: {rating} / 5 Stars\n"
+            f"Headline: {title}\n\n"
+            f"Review Content:\n"
+            f"{comment}"
+        )
+        try:
+            send_mail(subject=admin_subject, message=admin_message, from_email=from_email, recipient_list=['nabil29089@gmail.com'], fail_silently=False)
+        except Exception:
+            pass
+
+        if request.user.is_authenticated:
+            Notification.objects.create(
+                user=request.user,
+                title=f"Review Published for {product.name}",
+                message=f"Thank you! Your {rating}-star review for {product.name} has been published.",
+                link=f"/product/{product.slug}/"
+            )
+
+        messages.success(request, 'Thank you! Your verified review has been published. A confirmation email was sent to your inbox.')
         return redirect('products:product_detail', slug=product.slug)

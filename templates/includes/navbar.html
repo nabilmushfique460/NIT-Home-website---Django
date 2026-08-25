@@ -43,6 +43,16 @@
       </a>
 
       {% if user.is_authenticated %}
+        <a href="{% url 'accounts:notifications' %}" class="icon-btn" aria-label="Notifications" title="Notifications">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          {% if unread_notifications_count > 0 %}
+            <span class="cart-badge" style="background: var(--copper); color: #000; font-weight: 700;">{{ unread_notifications_count }}</span>
+          {% endif %}
+        </a>
+
         <a href="{% url 'accounts:profile' %}" class="btn-ghost" style="padding: 8px 14px; font-size: 13.5px;">
           {{ user.first_name|default:user.email|truncatechars:14 }}
         </a>
@@ -149,6 +159,7 @@
     <div class="mobile-group-title">Account &amp; Orders</div>
     {% if user.is_authenticated %}
       <a href="{% url 'accounts:profile' %}" class="mobile-nav-link">Profile: {{ user.email }}</a>
+      <a href="{% url 'accounts:notifications' %}" class="mobile-nav-link">Notifications ({% if unread_notifications_count > 0 %}{{ unread_notifications_count }} new{% else %}0{% endif %})</a>
       <a href="{% url 'orders:order_history' %}" class="mobile-nav-link">My Orders</a>
       <a href="{% url 'cart:cart_detail' %}" class="mobile-nav-link">Cart ({{ cart.total_items|default:'0' }})</a>
       <form method="post" action="{% url 'accounts:logout' %}">

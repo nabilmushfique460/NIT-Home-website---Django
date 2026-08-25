@@ -80,7 +80,7 @@ class OrderSuccessView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = f'Order #{self.object.order_number} Confirmed'
+        context['title'] = f'Order #{self.object.order_number} Placed'
         return context
 
 class OrderDetailView(DetailView):
@@ -93,6 +93,7 @@ class OrderDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['title'] = f'Invoice #{self.object.order_number}'
+        context['items'] = self.object.items.select_related('product')
         return context
 
 class OrderHistoryView(LoginRequiredMixin, ListView):
@@ -114,8 +115,8 @@ class OrderCancelView(LoginRequiredMixin, View):
     def post(self, request, order_number, *args, **kwargs):
         order = get_object_or_404(Order, order_number=order_number, user=request.user)
         try:
-            OrderService.cancel_order(order)
-            messages.success(request, f'Order #{order.order_number} has been cancelled successfully.')
+            OrderService.request_order_cancellation(order, request.user)
+            messages.success(request, f'Cancellation request for Order #{order.order_number} submitted. Awaiting admin review.')
         except ValidationError as e:
             messages.error(request, str(e))
         return redirect('orders:order_detail', order_number=order.order_number)

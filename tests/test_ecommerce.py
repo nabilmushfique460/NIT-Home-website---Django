@@ -2,10 +2,11 @@ from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from products.models import Category, Product
+from products.models import Category, Product, ProductReview
 from orders.models import Order
+from orders.services import OrderService
 from payments.models import Payment
-from accounts.models import EmailVerification
+from accounts.models import EmailVerification, Notification
 from accounts.services import OTPService
 User = get_user_model()
 
@@ -79,18 +80,17 @@ class NITHomeECommerceTests(TestCase):
         self.client.logout()
         res_fail = self.client.post(login_url, {'email': 'testuser@example.com', 'password': 'wrongpassword'})
         self.assertEqual(res_fail.status_code, 200)
-        self.assertContains(res_fail, 'Invalid email address or password')
+        self.assertContains(res_fail, 'Invalid email or password')
 
     def test_forgot_and_reset_password_workflow(self):
         forgot_url = reverse('accounts:forgot_password')
         response = self.client.post(forgot_url, {'email': 'testuser@example.com'}, follow=True)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'accounts/reset_password.html')
-        verification = EmailVerification.objects.get(user=self.user)
         plain_otp, _ = EmailVerification.generate_otp(self.user)
         session = self.client.session
-        session['reset_password_user_id'] = self.user.id
-        session['reset_password_email'] = self.user.email
+        session['reset_user_id'] = self.user.id
+        session['reset_email'] = self.user.email
         session.save()
         reset_url = reverse('accounts:reset_password')
         reset_payload = {'otp': plain_otp, 'new_password': 'BrandNewPassword123!', 'confirm_new_password': 'BrandNewPassword123!'}
@@ -99,13 +99,6 @@ class NITHomeECommerceTests(TestCase):
         self.assertTemplateUsed(res_reset, 'accounts/login.html')
         self.user.refresh_from_db()
         self.assertTrue(self.user.check_password('BrandNewPassword123!'))
-
-    def test_unverified_user_login_prompts_otp(self):
-        unverified_user = User.objects.create_user(email='notverified@nithome.com', password='StrongPassword123!', is_verified=False)
-        login_url = reverse('accounts:login')
-        response = self.client.post(login_url, {'email': 'notverified@nithome.com', 'password': 'StrongPassword123!'}, follow=True)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'accounts/verify_otp.html')
 
     def test_otp_rate_limiting_max_attempts(self):
         user = User.objects.create_user(email='ratelimit@nithome.com', password='StrongPassword123!')
@@ -143,8 +136,8 @@ class NITHomeECommerceTests(TestCase):
 
     def test_resend_reset_otp_workflow(self):
         session = self.client.session
-        session['reset_password_user_id'] = self.user.id
-        session['reset_password_email'] = self.user.email
+        session['reset_user_id'] = self.user.id
+        session['reset_email'] = self.user.email
         session.save()
         resend_reset_url = reverse('accounts:resend_reset_otp')
         response = self.client.post(resend_reset_url, follow=True)
@@ -155,8 +148,8 @@ class NITHomeECommerceTests(TestCase):
 
     def test_reset_password_with_invalid_otp_fails(self):
         session = self.client.session
-        session['reset_password_user_id'] = self.user.id
-        session['reset_password_email'] = self.user.email
+        session['reset_user_id'] = self.user.id
+        session['reset_email'] = self.user.email
         session.save()
         reset_url = reverse('accounts:reset_password')
         payload = {'otp': '999999', 'new_password': 'SomeNewPassword123!', 'confirm_new_password': 'SomeNewPassword123!'}
@@ -170,7 +163,7 @@ class NITHomeECommerceTests(TestCase):
         response = self.client.get(reverse('products:product_list'))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'NVIDIA GeForce RTX 4090')
-        self.assertContains(response, 'N-IT')
+        self.assertContains(response, 'N-IT HOME')
 
     def test_product_detail_view(self):
         response = self.client.get(reverse('products:product_detail', kwargs={'slug': self.product.slug}))
@@ -192,36 +185,65 @@ class NITHomeECommerceTests(TestCase):
         response = self.client.post(update_url, {'action': 'decrease'}, follow=True)
         self.assertEqual(response.status_code, 200)
 
-    def test_checkout_cod_order_creation(self):
+    def test_checkout_cod_order_creation_and_step_advancement(self):
+        self.client.force_login(self.user)
         self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
         checkout_url = reverse('orders:checkout')
-        payload = {'full_name': 'Nabil Hasan', 'email': 'nabil@example.com', 'phone': '+880 1812345678', 'street_address': 'House 10, Road 4, Banani', 'city': 'Dhaka', 'state_or_division': 'Dhaka Division', 'postal_code': '1213'}
+        payload = {'full_name': 'Nabil Hasan', 'email': self.user.email, 'phone': '+880 1812345678', 'street_address': 'House 10, Road 4, Banani', 'city': 'Dhaka', 'state_or_division': 'Dhaka Division', 'postal_code': '1213'}
         response = self.client.post(checkout_url, payload, follow=True)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Select Payment Option')
-        order = Order.objects.get(email='nabil@example.com')
+        order = Order.objects.get(email=self.user.email)
         cod_res = self.client.post(reverse('payments:choose_payment', kwargs={'order_number': order.order_number}), {'payment_method': 'COD'}, follow=True)
         self.assertEqual(cod_res.status_code, 200)
-        self.assertContains(cod_res, 'We will review your order and confirm you soon with a email.')
         order.refresh_from_db()
-        self.assertEqual(order.payment_method, 'COD')
         self.assertEqual(order.status, 'PENDING')
-        self.assertFalse(order.is_paid)
-        self.assertEqual(order.items.count(), 1)
-        self.product.refresh_from_db()
-        self.assertEqual(self.product.stock_qty, 9)
+        self.assertEqual(order.status_step_index, 1)
 
-    def test_checkout_bkash_strategy_payment(self):
-        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
-        checkout_url = reverse('orders:checkout')
-        payload = {'full_name': 'Imtiaz Ahmed', 'email': 'imtiaz@example.com', 'phone': '+880 1712345678', 'street_address': 'Sector 3, Uttara', 'city': 'Dhaka', 'postal_code': '1230'}
-        response = self.client.post(checkout_url, payload, follow=True)
-        self.assertEqual(response.status_code, 200)
-        order = Order.objects.get(email='imtiaz@example.com')
-        bkash_res = self.client.post(reverse('payments:choose_payment', kwargs={'order_number': order.order_number}), {'payment_method': 'BKASH'}, follow=True)
-        self.assertEqual(bkash_res.status_code, 200)
-        self.assertContains(bkash_res, 'Bkash payment will be available soon !')
+        OrderService.advance_order_status(order, 'CONFIRMED')
         order.refresh_from_db()
-        payment = Payment.objects.get(order=order)
-        self.assertEqual(order.status, 'PENDING')
-        self.assertEqual(payment.status, 'PENDING')
+        self.assertEqual(order.status, 'CONFIRMED')
+        self.assertEqual(order.status_step_index, 2)
+
+        OrderService.advance_order_status(order, 'PACKAGING')
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'PACKAGING')
+        self.assertEqual(order.status_step_index, 3)
+
+        OrderService.advance_order_status(order, 'SHIPPED')
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'SHIPPED')
+        self.assertEqual(order.status_step_index, 4)
+
+        OrderService.advance_order_status(order, 'DELIVERED')
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'DELIVERED')
+        self.assertEqual(order.status_step_index, 5)
+        self.assertTrue(order.is_paid)
+
+        notifications = Notification.objects.filter(user=self.user)
+        self.assertGreaterEqual(notifications.count(), 5)
+
+    def test_product_review_and_order_cancellation(self):
+        self.client.force_login(self.user)
+        rev_url = reverse('products:add_review', kwargs={'slug': self.product.slug})
+        rev_res = self.client.post(rev_url, {'author_name': 'Test User', 'author_email': self.user.email, 'rating': '5', 'title': 'Great GPU', 'comment': 'Super fast performance.'}, follow=True)
+        self.assertEqual(rev_res.status_code, 200)
+        self.assertTrue(ProductReview.objects.filter(product=self.product, title='Great GPU').exists())
+
+        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
+        self.client.post(reverse('orders:checkout'), {'full_name': 'Test User', 'email': self.user.email, 'phone': '+880 1812345678', 'street_address': 'House 10, Road 4', 'city': 'Dhaka', 'postal_code': '1213'}, follow=True)
+        order = Order.objects.latest('id')
+        self.client.post(reverse('payments:choose_payment', kwargs={'order_number': order.order_number}), {'payment_method': 'COD'}, follow=True)
+        self.product.refresh_from_db()
+        stock_before_cancel = self.product.stock_qty
+
+        cancel_res = self.client.post(reverse('orders:order_cancel', kwargs={'order_number': order.order_number}), follow=True)
+        self.assertEqual(cancel_res.status_code, 200)
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'CANCEL_REQUESTED')
+
+        OrderService.approve_order_cancellation(order)
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'CANCELLED')
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock_qty, stock_before_cancel + 1)

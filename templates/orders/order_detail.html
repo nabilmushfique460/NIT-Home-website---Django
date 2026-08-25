@@ -9,42 +9,82 @@
                 Order Invoice #{{ order.order_number }}
             </h1>
             <div style="font-size: 13.5px; color: var(--text-dim); font-family: var(--font-mono);">
-                Placed on {{ order.created_at|date:"M d, Y - h:i A" }} • Status: <strong style="color: var(--copper-bright);">{{ order.get_order_status_display }}</strong>
+                Placed on {{ order.created_at|date:"M d, Y - h:i A" }} • Status: <strong style="color: var(--copper-bright);">{{ order.get_status_display }}</strong>
             </div>
         </div>
 
-        <div style="display: flex; gap: 10px;">
+        <div style="display: flex; gap: 10px; align-items: center;">
+            {% if user.is_authenticated and order.can_be_cancelled and order.status != 'CANCEL_REQUESTED' %}
+                <form method="post" action="{% url 'orders:order_cancel' order_number=order.order_number %}" onsubmit="return confirm('Are you sure you want to request cancellation for this order?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-outline btn-sm" style="border-color: #ef4444; color: #ef4444;">
+                        Cancel Order
+                    </button>
+                </form>
+            {% endif %}
             <a href="{% url 'orders:order_history' %}" class="btn-outline btn-sm">
                 &larr; My Orders
             </a>
         </div>
     </div>
 
+    {% if order.status == 'CANCEL_REQUESTED' %}
+        <div style="background: rgba(245, 158, 11, 0.12); border: 1px solid #f59e0b; border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 20px; color: #f59e0b; font-weight: 600; font-size: 14.5px;">
+            Cancellation Requested — Your cancellation request has been submitted and is currently awaiting admin review.
+        </div>
+    {% elif order.status == 'CANCELLED' %}
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #ef4444; border-radius: var(--radius-sm); padding: 16px 20px; margin-bottom: 20px; color: #ef4444; font-weight: 600; font-size: 14.5px;">
+            Order Cancelled — This order has been cancelled and closed.
+        </div>
+    {% endif %}
+
     <div class="invoice-card">
-        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Delivery Progress</h3>
-        <div class="order-timeline">
-            <div class="timeline-step {% if order.order_status in 'CONFIRMED,PROCESSING,SHIPPED,DELIVERED' %}completed{% else %}current{% endif %}">
-                <div class="timeline-dot">1</div>
-                <span class="timeline-label">Placed</span>
-            </div>
-            <div class="timeline-step {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}completed{% elif order.order_status == 'CONFIRMED' %}current{% endif %}">
-                <div class="timeline-dot">2</div>
-                <span class="timeline-label">Confirmed</span>
-            </div>
-            <div class="timeline-step {% if order.order_status in 'SHIPPED,DELIVERED' %}completed{% elif order.order_status == 'PROCESSING' %}current{% endif %}">
-                <div class="timeline-dot">3</div>
-                <span class="timeline-label">Bench Packaging</span>
-            </div>
-            <div class="timeline-step {% if order.order_status == 'DELIVERED' %}completed{% elif order.order_status == 'SHIPPED' %}current{% endif %}">
-                <div class="timeline-dot">4</div>
-                <span class="timeline-label">In Transit</span>
-            </div>
-            <div class="timeline-step {% if order.order_status == 'DELIVERED' %}completed{% endif %}">
-                <div class="timeline-dot">5</div>
-                <span class="timeline-label">Delivered</span>
+        <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 8px;">Delivery Progress</h3>
+        <div class="order-timeline-wrapper">
+            <div class="timeline-track"></div>
+            <div class="timeline-progress" style="width: {{ order.progress_percentage }}%;"></div>
+            <div class="order-timeline">
+                <div class="timeline-step {% if order.status_step_index >= 1 %}active{% endif %} {% if order.status_step_index == 1 %}current{% endif %}">
+                    <div class="timeline-dot">1</div>
+                    <span class="timeline-label">Placed</span>
+                </div>
+                <div class="timeline-step {% if order.status_step_index >= 2 %}active{% endif %} {% if order.status_step_index == 2 %}current{% endif %}">
+                    <div class="timeline-dot">2</div>
+                    <span class="timeline-label">Confirmed</span>
+                </div>
+                <div class="timeline-step {% if order.status_step_index >= 3 %}active{% endif %} {% if order.status_step_index == 3 %}current{% endif %}">
+                    <div class="timeline-dot">3</div>
+                    <span class="timeline-label">Bench Packaging</span>
+                </div>
+                <div class="timeline-step {% if order.status_step_index >= 4 %}active{% endif %} {% if order.status_step_index == 4 %}current{% endif %}">
+                    <div class="timeline-dot">4</div>
+                    <span class="timeline-label">In Transit</span>
+                </div>
+                <div class="timeline-step {% if order.status_step_index >= 5 %}active{% endif %} {% if order.status_step_index == 5 %}current{% endif %}">
+                    <div class="timeline-dot">5</div>
+                    <span class="timeline-label">Delivered</span>
+                </div>
             </div>
         </div>
     </div>
+
+    {% if order.status == 'DELIVERED' %}
+        <div class="invoice-card" style="border-color: var(--copper); background: var(--panel);">
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--copper-bright); margin-bottom: 8px;">
+                Delivered! Share Your Review
+            </h3>
+            <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 16px;">
+                Your order has been delivered. Share your hardware feedback and benchmark results with the community:
+            </p>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                {% for item in items %}
+                    <a href="{% url 'products:product_detail' slug=item.product.slug %}#reviews" class="btn-solid btn-sm">
+                        Review {{ item.product_name|truncatechars:28 }} &rarr;
+                    </a>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
 
     <div class="invoice-card">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line-soft);">
@@ -72,8 +112,8 @@
                         <span class="badge" style="position: static;">{{ order.get_payment_status_display }}</span>
                     {% endif %}
                     <br>
-                    {% if order.payment_set.first %}
-                        Transaction ID: <span style="font-family: var(--font-mono); color: var(--copper-bright);">{{ order.payment_set.first.transaction_id }}</span>
+                    {% if order.payments.first %}
+                        Transaction ID: <span style="font-family: var(--font-mono); color: var(--copper-bright);">{{ order.payments.first.transaction_id }}</span>
                     {% endif %}
                 </div>
             </div>
@@ -105,7 +145,7 @@
                             <span class="mono" style="font-weight: 700;">{{ item.quantity }}</span>
                         </td>
                         <td>
-                            <span class="mono" style="font-weight: 700; color: var(--copper-bright);">${{ item.total_price }}</span>
+                            <span class="mono" style="font-weight: 700; color: var(--copper-bright);">${{ item.line_total }}</span>
                         </td>
                     </tr>
                 {% endfor %}

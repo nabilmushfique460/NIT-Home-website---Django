@@ -49,7 +49,7 @@
                                 {% endif %}
                             </td>
                             <td>
-                                <span class="badge value" style="position: static;">{{ ord.get_order_status_display }}</span>
+                                <span class="badge value" style="position: static;">{{ ord.get_status_display }}</span>
                             </td>
                             <td>
                                 <a href="{% url 'orders:order_detail' order_number=ord.order_number %}" class="btn-outline btn-sm">

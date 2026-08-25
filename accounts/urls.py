@@ -1,4 +1,32 @@
 from django.urls import path
-from .views import SignUpView, LoginView, LogoutView, VerifyOTPView, ResendOTPView, ForgotPasswordView, ResetPasswordView, ResendResetOTPView, ProfileView, AddressDeleteView
+from .views import (
+    SignUpView,
+    LoginView,
+    LogoutView,
+    VerifyOTPView,
+    ResendOTPView,
+    ForgotPasswordView,
+    ResetPasswordView,
+    ResendResetOTPView,
+    ProfileView,
+    AddressDeleteView,
+    NotificationListView,
+    NotificationMarkReadView
+)
+
 app_name = 'accounts'
-urlpatterns = [path('signup/', SignUpView.as_view(), name='signup'), path('login/', LoginView.as_view(), name='login'), path('logout/', LogoutView.as_view(), name='logout'), path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'), path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'), path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'), path('reset-password/', ResetPasswordView.as_view(), name='reset_password'), path('resend-reset-otp/', ResendResetOTPView.as_view(), name='resend_reset_otp'), path('profile/', ProfileView.as_view(), name='profile'), path('address/<int:pk>/delete/', AddressDeleteView.as_view(), name='delete_address')]
+
+urlpatterns = [
+    path('signup/', SignUpView.as_view(), name='signup'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('verify-otp/', VerifyOTPView.as_view(), name='verify_otp'),
+    path('resend-otp/', ResendOTPView.as_view(), name='resend_otp'),
+    path('forgot-password/', ForgotPasswordView.as_view(), name='forgot_password'),
+    path('reset-password/', ResetPasswordView.as_view(), name='reset_password'),
+    path('resend-reset-otp/', ResendResetOTPView.as_view(), name='resend_reset_otp'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('address/<int:pk>/delete/', AddressDeleteView.as_view(), name='delete_address'),
+    path('notifications/', NotificationListView.as_view(), name='notifications'),
+    path('notifications/<int:pk>/read/', NotificationMarkReadView.as_view(), name='mark_notification_read'),
+]
