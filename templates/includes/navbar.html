@@ -1,83 +1,172 @@
-<header class="header-nav">
-    <div class="container">
-        <div class="nav-inner">
-            <!-- Brand Logo -->
-            <a href="{% url 'products:product_list' %}" class="brand-logo" id="nav-brand-logo">
-                <span class="brand-badge">N-IT</span>
-                <span>Home</span>
-            </a>
+{% load static %}
+<!-- TRACEFORGE Navigation Header -->
+<header class="nav" id="top">
+  <div class="nav-inner">
+    <!-- Brand Logo -->
+    <a class="logo" href="{% url 'products:product_list' %}">
+      <svg viewBox="0 0 26 26" fill="none" aria-hidden="true">
+        <path d="M13 3L21 8V18L13 23L5 18V8L13 3Z" stroke="#E0894F" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="13" cy="13" r="3" fill="#E0894F"/>
+        <path d="M13 3V10M13 23V16M5 8L10.5 11.5M21 8L15.5 11.5M5 18L10.5 14.5M21 18L15.5 14.5" stroke="#E0894F" stroke-width="1.1" opacity=".6"/>
+      </svg>
+      TRACEFORGE
+    </a>
 
-            <!-- Category Navigation Links -->
-            <ul class="nav-links">
-                <li><a href="{% url 'products:product_list' %}" class="nav-link">All Hardware</a></li>
-                <li><a href="{% url 'products:product_list' %}?category=gpu" class="nav-link">GPUs</a></li>
-                <li><a href="{% url 'products:product_list' %}?category=cpu" class="nav-link">CPUs</a></li>
-                <li><a href="{% url 'products:product_list' %}?category=ssd" class="nav-link">SSDs</a></li>
-                <li><a href="{% url 'products:product_list' %}?category=ram" class="nav-link">RAM</a></li>
-            </ul>
+    <!-- Shop Mega Dropdown Button -->
+    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="megaMenu">
+      <span class="plus">+</span> Shop
+    </button>
 
-            <!-- Search Form -->
-            <form action="{% url 'products:product_list' %}" method="get" class="nav-search-form">
-                <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search RTX 4090, Ryzen 7800X3D, DDR5..." class="nav-search-input" aria-label="Search hardware">
-                <button type="submit" class="nav-search-btn">Search</button>
-            </form>
+    <!-- Desktop Category Quick Links -->
+    <nav class="nav-links">
+      <a href="{% url 'products:product_list' %}?category=graphics-cards">GPUs</a>
+      <a href="{% url 'products:product_list' %}?category=processors">CPUs</a>
+      <a href="{% url 'products:product_list' %}?category=ram">Memory</a>
+      <a href="{% url 'products:product_list' %}?category=storage">Storage</a>
+      <a href="{% url 'products:product_list' %}#bench">Benchmarks</a>
+    </nav>
 
-            <!-- Actions (Cart & Auth) -->
-            <div class="nav-actions">
-                <a href="{% url 'cart:cart_detail' %}" class="cart-button-link" id="nav-cart-btn" title="View Cart">
-                    <span>🛒 Cart</span>
-                    <span class="cart-badge-count">{{ cart|length }}</span>
-                </a>
-
-                {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="btn btn-secondary btn-sm" id="nav-profile-btn">
-                        👤 {{ user.first_name|default:user.email }}
-                    </a>
-                    {% if user.is_staff %}
-                        <a href="/admin/" class="badge badge-purple" target="_blank" title="Django Admin Dashboard">Admin</a>
-                    {% endif %}
-                    <a href="{% url 'accounts:logout' %}" class="nav-link" style="padding: 6px 10px; font-size: 0.85rem;" title="Sign Out">Logout</a>
-                {% else %}
-                    <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-sm" id="nav-login-btn">Log In</a>
-                    <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-sm" id="nav-signup-btn">Sign Up</a>
-                {% endif %}
-
-                <!-- Mobile Hamburger Toggle Label -->
-                <label for="mobile-nav-toggle" class="mobile-menu-btn" aria-label="Toggle mobile menu">
-                    ☰
-                </label>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Mobile Navigation Drawer Overlay & Content (CSS Only) -->
-<label for="mobile-nav-toggle" class="mobile-drawer-overlay"></label>
-<div class="mobile-drawer-menu">
-    <label for="mobile-nav-toggle" class="mobile-drawer-close">✕ Close</label>
-    
-    <div style="font-weight: 800; font-size: 1.2rem; margin-bottom: 8px;">
-        <span class="brand-badge">N-IT</span> Home
-    </div>
-
-    <!-- Mobile Search -->
-    <form action="{% url 'products:product_list' %}" method="get" style="margin-bottom: 12px;">
-        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search hardware..." class="form-input" style="padding: 8px 12px;">
+    <!-- Search Form -->
+    <form action="{% url 'products:product_list' %}" method="get" class="nav-search" role="search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21L16.5 16.5"/>
+      </svg>
+      <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search part number, model, or spec…">
     </form>
 
-    <a href="{% url 'products:product_list' %}" class="nav-link">🔥 All Products</a>
-    <a href="{% url 'products:product_list' %}?category=gpu" class="nav-link">🎮 Graphics Cards (GPU)</a>
-    <a href="{% url 'products:product_list' %}?category=cpu" class="nav-link">⚡ Processors (CPU)</a>
-    <a href="{% url 'products:product_list' %}?category=ssd" class="nav-link">💾 Fast NVMe SSDs</a>
-    <a href="{% url 'products:product_list' %}?category=ram" class="nav-link">🚀 High-Speed DDR5 RAM</a>
-    <hr style="border-color: var(--border-subtle); margin: 8px 0;">
-    <a href="{% url 'cart:cart_detail' %}" class="nav-link">🛒 Cart ({{ cart|length }} items)</a>
+    <!-- Nav Actions -->
+    <div class="nav-actions">
+      <!-- Cart Icon with Live Badge -->
+      <a href="{% url 'cart:cart_detail' %}" class="icon-btn" id="cartBtn" aria-label="Shopping Cart">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 4H5L7.5 15H18L20.5 7H6.5"/>
+          <circle cx="9" cy="20" r="1.4"/>
+          <circle cx="17" cy="20" r="1.4"/>
+        </svg>
+        <span class="cart-badge" id="cartBadge">{{ cart.total_items|default:'0' }}</span>
+      </a>
+
+      <!-- Authentication Navigation -->
+      {% if user.is_authenticated %}
+        <a href="{% url 'accounts:profile' %}" class="btn-ghost" style="padding: 8px 14px; font-size: 13.5px;">
+          {{ user.first_name|default:user.email|truncatechars:14 }}
+        </a>
+        <a href="{% url 'orders:order_history' %}" class="btn-outline" style="padding: 8px 16px; font-size: 13px;">
+          Orders
+        </a>
+        {% if user.is_staff %}
+          <a href="{% url 'admin:index' %}" class="btn-solid" style="padding: 8px 14px; font-size: 12px; background: var(--panel-2); color: var(--copper-bright); border: 1px solid var(--line);">
+            Admin
+          </a>
+        {% endif %}
+        <form method="post" action="{% url 'accounts:logout' %}" style="display: inline; margin: 0;">
+          {% csrf_token %}
+          <button type="submit" class="btn-ghost" style="background: none; border: none; font-size: 13px; padding: 8px 12px;" title="Sign out">
+            Sign Out
+          </button>
+        </form>
+      {% else %}
+        <a class="btn-ghost" href="{% url 'accounts:login' %}">Log In</a>
+        <a class="btn-solid" href="{% url 'accounts:signup' %}" style="padding:9px 18px; font-size: 13.5px;">Sign Up</a>
+      {% endif %}
+
+      <!-- Mobile Hamburger Toggle -->
+      <label for="mobile-nav-toggle" class="nav-mobile-toggle" aria-label="Toggle Navigation">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </label>
+    </div>
+  </div>
+
+  <!-- Mega Menu Dropdown Panel -->
+  <div class="mega" id="megaMenu">
+    <div class="mega-grid">
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=graphics-cards">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="2" y="7" width="20" height="10" rx="2"/>
+          <circle cx="8" cy="12" r="2.4"/>
+          <circle cx="15" cy="12" r="2.4"/>
+          <path d="M2 17V19H6M22 17V19H18"/>
+        </svg>
+        <h4>Graphics Cards</h4>
+        <span>12–24GB GDDR7/GDDR6X VRAM</span>
+      </a>
+
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=processors">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="6" y="6" width="12" height="12" rx="1.5"/>
+          <path d="M9 2V6M15 2V6M9 18V22M15 18V22M2 9H6M2 15H6M18 9H22M18 15H22"/>
+        </svg>
+        <h4>Processors</h4>
+        <span>6–24 Cores · Up to 5.8GHz</span>
+      </a>
+
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=ram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="4" y="4" width="6" height="16" rx="1"/>
+          <rect x="14" y="4" width="6" height="16" rx="1"/>
+          <path d="M6 4V2M8 4V2M16 4V2M18 4V2"/>
+        </svg>
+        <h4>Memory</h4>
+        <span>DDR5 16–128GB Matched Kits</span>
+      </a>
+
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=storage">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="5" width="18" height="14" rx="2"/>
+          <circle cx="7" cy="9" r="1"/>
+          <path d="M7 14H17"/>
+        </svg>
+        <h4>Storage</h4>
+        <span>PCIe 5.0 NVMe 500GB–4TB</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- Mobile Navigation Drawer Overlay & Panel -->
+<div class="mobile-drawer-overlay"></div>
+<aside class="mobile-drawer-menu">
+  <div class="mobile-drawer-header">
+    <div class="logo">
+      <svg viewBox="0 0 26 26" fill="none" style="width: 22px; height: 22px;">
+        <path d="M13 3L21 8V18L13 23L5 18V8L13 3Z" stroke="#E0894F" stroke-width="1.6" stroke-linejoin="round"/>
+        <circle cx="13" cy="13" r="3" fill="#E0894F"/>
+      </svg>
+      TRACEFORGE
+    </div>
+    <label for="mobile-nav-toggle" class="mobile-drawer-close" aria-label="Close menu">✕</label>
+  </div>
+
+  <form action="{% url 'products:product_list' %}" method="get" class="nav-search mobile-search-form">
+    <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search hardware specs…">
+  </form>
+
+  <div class="mobile-nav-group">
+    <div class="mobile-group-title">Hardware Categories</div>
+    <a href="{% url 'products:product_list' %}?category=graphics-cards" class="mobile-nav-link">Graphics Cards (GPUs)</a>
+    <a href="{% url 'products:product_list' %}?category=processors" class="mobile-nav-link">Processors (CPUs)</a>
+    <a href="{% url 'products:product_list' %}?category=ram" class="mobile-nav-link">System Memory (RAM)</a>
+    <a href="{% url 'products:product_list' %}?category=storage" class="mobile-nav-link">Solid State Drives (NVMe)</a>
+  </div>
+
+  <div class="mobile-nav-group">
+    <div class="mobile-group-title">Account &amp; Orders</div>
     {% if user.is_authenticated %}
-        <a href="{% url 'accounts:profile' %}" class="nav-link">👤 My Profile & Addresses</a>
-        <a href="{% url 'orders:order_history' %}" class="nav-link">📦 Order History</a>
-        <a href="{% url 'accounts:logout' %}" class="nav-link" style="color: var(--accent-rose);">🚪 Logout</a>
+      <a href="{% url 'accounts:profile' %}" class="mobile-nav-link">Profile: {{ user.email }}</a>
+      <a href="{% url 'orders:order_history' %}" class="mobile-nav-link">My Orders</a>
+      <a href="{% url 'cart:cart_detail' %}" class="mobile-nav-link">Cart ({{ cart.total_items|default:'0' }})</a>
+      <form method="post" action="{% url 'accounts:logout' %}">
+        {% csrf_token %}
+        <button type="submit" class="btn-outline btn-block" style="margin-top: 10px; font-size: 13px; text-align: center;">Sign Out</button>
+      </form>
     {% else %}
-        <a href="{% url 'accounts:login' %}" class="btn btn-secondary btn-block">Log In</a>
-        <a href="{% url 'accounts:signup' %}" class="btn btn-primary btn-block">Create Account</a>
+      <a href="{% url 'accounts:login' %}" class="btn-outline btn-block" style="text-align: center; margin-bottom: 8px;">Log In</a>
+      <a href="{% url 'accounts:signup' %}" class="btn-solid btn-block" style="text-align: center;">Create Account</a>
     {% endif %}
-</div>
+  </div>
+</aside>

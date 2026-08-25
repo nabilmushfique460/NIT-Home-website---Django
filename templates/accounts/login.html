@@ -1,42 +1,45 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="auth-wrapper">
-    <div class="auth-card">
-        <div class="auth-header">
-            <h1 class="auth-title">Welcome Back</h1>
-            <p class="auth-subtitle">Sign in to your N-IT Home account</p>
-        </div>
-
-        <form method="post" action="{% url 'accounts:login' %}">
-            {% csrf_token %}
-            {% if form.non_field_errors %}
-                <div class="alert alert-error">{{ form.non_field_errors.0 }}</div>
-            {% endif %}
-
-            <div class="form-group">
-                <label class="form-label">Email Address</label>
-                <input type="email" name="email" class="form-input" placeholder="user@example.com" value="{{ form.email.value|default:'' }}" required autofocus>
-                {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
+<div class="wrap" style="padding-top: 32px; padding-bottom: 56px;">
+    <div class="auth-wrapper">
+        <div class="auth-card">
+            <div class="auth-header">
+                <span class="eyebrow mono" style="margin-bottom: 8px;">Access Portal</span>
+                <h1 class="auth-title">Welcome Back</h1>
+                <p class="auth-subtitle">Sign in to your TRACEFORGE account</p>
             </div>
 
-            <div class="form-group">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                    <label class="form-label" style="margin-bottom: 0;">Password</label>
-                    <a href="{% url 'accounts:forgot_password' %}" style="font-size: 0.8rem; color: var(--accent-cyan); font-weight: 600;">Forgot Password?</a>
+            <form method="post" action="{% url 'accounts:login' %}">
+                {% csrf_token %}
+                {% if form.non_field_errors %}
+                    <div class="alert alert-error">{{ form.non_field_errors.0 }}</div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" name="email" class="form-input" placeholder="builder@domain.com" value="{{ form.email.value|default:'' }}" required autofocus>
+                    {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
                 </div>
-                <input type="password" name="password" class="form-input" placeholder="••••••••" required>
-                {% if form.password.errors %}<span class="form-error">{{ form.password.errors.0 }}</span>{% endif %}
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="form-label" style="margin-bottom: 0;">Password</label>
+                        <a href="{% url 'accounts:forgot_password' %}" style="font-size: 12px; color: var(--copper-bright); font-weight: 600;">Forgot Password?</a>
+                    </div>
+                    <input type="password" name="password" class="form-input" placeholder="••••••••" required>
+                    {% if form.password.errors %}<span class="form-error">{{ form.password.errors.0 }}</span>{% endif %}
+                </div>
+
+                <button type="submit" class="btn-solid btn-block lg" style="margin-top: 12px;">
+                    Sign In &rarr;
+                </button>
+            </form>
+
+            <div class="auth-footer-links">
+                Don't have an account? 
+                <a href="{% url 'accounts:signup' %}">Create account</a>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 12px;">
-                Sign In →
-            </button>
-        </form>
-
-        <div style="margin-top: 24px; text-align: center; font-size: 0.9rem; color: var(--text-muted);">
-            Don't have an account? 
-            <a href="{% url 'accounts:signup' %}" style="color: var(--accent-cyan); font-weight: 700;">Create one</a>
         </div>
     </div>
 </div>

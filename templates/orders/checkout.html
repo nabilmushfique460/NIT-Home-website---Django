@@ -1,217 +1,194 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="margin-bottom: 28px;">
-    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue-accent);"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Secure Checkout
-    </h1>
-    <p style="color: var(--slate-600); font-size: 0.95rem;">
-        Complete your delivery details and choose your preferred payment method.
-    </p>
-</div>
+<div class="wrap" style="padding-top: 32px; padding-bottom: 56px;">
+    <div style="margin-bottom: 28px;">
+        <span class="eyebrow mono" style="margin-bottom: 8px;">Order Initialization</span>
+        <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
+            Secure Checkout
+        </h1>
+        <p style="color: var(--text-dim); font-size: 14.5px;">
+            Complete your delivery destination and select your verified payment strategy.
+        </p>
+    </div>
 
-<form method="post" action="{% url 'orders:checkout' %}">
-    {% csrf_token %}
+    <form method="post" action="{% url 'orders:checkout' %}">
+        {% csrf_token %}
 
-    <div class="checkout-layout">
-        
-        <!-- Left Column: Shipping & Payment Steps -->
-        <div>
+        <div class="checkout-layout">
             
-            <!-- Step 1: Customer Contact & Shipping Address -->
-            <section class="checkout-section-card">
-                <div class="checkout-section-header">
-                    <span class="checkout-step-number">1</span>
-                    <span>Shipping Address &amp; Contact Details</span>
-                </div>
-
-                {% if saved_addresses %}
-                    <div style="background: var(--slate-50); border: 1px solid var(--slate-200); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 0.85rem; color: var(--slate-700); display: flex; align-items: center; gap: 8px;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue-accent);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                        <span>Logged in as <strong>{{ user.email }}</strong>. Saved default profile address has been automatically pre-filled.</span>
-                    </div>
-                {% endif %}
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label class="form-label">Full Name *</label>
-                        <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}" class="form-input" placeholder="e.g. Nabil Hasan" required>
-                        {% if form.full_name.errors %}<span class="form-error">{{ form.full_name.errors.0 }}</span>{% endif %}
+            <!-- Left Column: Shipping & Payment Steps -->
+            <div>
+                
+                <!-- Step 1: Customer Contact & Shipping Address -->
+                <section class="checkout-section-card">
+                    <div class="checkout-section-header">
+                        <span class="checkout-step-number">1</span>
+                        <span>Shipping Address &amp; Contact Details</span>
                     </div>
 
-                    <div class="form-group">
-                        <label class="form-label">Contact Phone Number *</label>
-                        <input type="text" name="phone" value="{{ form.phone.value|default:'' }}" class="form-input" placeholder="e.g. +880 1812-345678" required>
-                        {% if form.phone.errors %}<span class="form-error">{{ form.phone.errors.0 }}</span>{% endif %}
-                    </div>
-                </div>
+                    {% if saved_addresses %}
+                        <div style="background: var(--panel-2); border: 1px solid var(--line); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 20px; font-size: 13.5px; color: var(--text-dim); display: flex; align-items: center; gap: 8px;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--copper);"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+                            <span>Logged in as <strong style="color: var(--copper-bright);">{{ user.email }}</strong>. Saved profile address pre-filled.</span>
+                        </div>
+                    {% endif %}
 
-                <div class="form-group">
-                    <label class="form-label">Email Address (for instant invoice &amp; tracking) *</label>
-                    <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-input" placeholder="name@example.com" required>
-                    {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
-                </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">Full Name *</label>
+                            <input type="text" name="full_name" value="{{ form.full_name.value|default:'' }}" class="form-input" placeholder="e.g. Nabil Hasan" required>
+                            {% if form.full_name.errors %}<span class="form-error">{{ form.full_name.errors.0 }}</span>{% endif %}
+                        </div>
 
-                <div class="form-group">
-                    <label class="form-label">Street Address / House / Flat *</label>
-                    <input type="text" name="street_address" value="{{ form.street_address.value|default:'' }}" class="form-input" placeholder="e.g. House 42, Road 11, Block D, Banani" required>
-                    {% if form.street_address.errors %}<span class="form-error">{{ form.street_address.errors.0 }}</span>{% endif %}
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
-                    <div class="form-group">
-                        <label class="form-label">City *</label>
-                        <input type="text" name="city" value="{{ form.city.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka" required>
-                        {% if form.city.errors %}<span class="form-error">{{ form.city.errors.0 }}</span>{% endif %}
+                        <div class="form-group">
+                            <label class="form-label">Contact Phone Number *</label>
+                            <input type="text" name="phone" value="{{ form.phone.value|default:'' }}" class="form-input" placeholder="e.g. +880 1812-345678" required>
+                            {% if form.phone.errors %}<span class="form-error">{{ form.phone.errors.0 }}</span>{% endif %}
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Division / State</label>
-                        <input type="text" name="state_or_division" value="{{ form.state_or_division.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka Division">
-                        {% if form.state_or_division.errors %}<span class="form-error">{{ form.state_or_division.errors.0 }}</span>{% endif %}
+                        <label class="form-label">Email Address (for instant invoice &amp; tracking) *</label>
+                        <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-input" placeholder="name@example.com" required>
+                        {% if form.email.errors %}<span class="form-error">{{ form.email.errors.0 }}</span>{% endif %}
                     </div>
 
                     <div class="form-group">
-                        <label class="form-label">Postal / ZIP Code *</label>
-                        <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" class="form-input" placeholder="e.g. 1213" required>
-                        {% if form.postal_code.errors %}<span class="form-error">{{ form.postal_code.errors.0 }}</span>{% endif %}
+                        <label class="form-label">Street Address / House / Flat *</label>
+                        <input type="text" name="street_address" value="{{ form.street_address.value|default:'' }}" class="form-input" placeholder="e.g. House 42, Road 11, Block D, Banani" required>
+                        {% if form.street_address.errors %}<span class="form-error">{{ form.street_address.errors.0 }}</span>{% endif %}
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label class="form-label">Special Delivery Instructions / PC Build Notes</label>
-                    <textarea name="order_notes" class="form-textarea" rows="2" placeholder="e.g. Call before delivery, handle GPU with care..."></textarea>
-                </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label class="form-label">City *</label>
+                            <input type="text" name="city" value="{{ form.city.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka" required>
+                            {% if form.city.errors %}<span class="form-error">{{ form.city.errors.0 }}</span>{% endif %}
+                        </div>
 
-                {% if user.is_authenticated %}
+                        <div class="form-group">
+                            <label class="form-label">Division / State</label>
+                            <input type="text" name="state_or_division" value="{{ form.state_or_division.value|default:'' }}" class="form-input" placeholder="e.g. Dhaka Division">
+                            {% if form.state_or_division.errors %}<span class="form-error">{{ form.state_or_division.errors.0 }}</span>{% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Postal / ZIP Code *</label>
+                            <input type="text" name="postal_code" value="{{ form.postal_code.value|default:'' }}" class="form-input" placeholder="e.g. 1213" required>
+                            {% if form.postal_code.errors %}<span class="form-error">{{ form.postal_code.errors.0 }}</span>{% endif %}
+                        </div>
+                    </div>
+
                     <div class="form-group">
-                        <label class="form-checkbox-label">
-                            <input type="checkbox" name="save_address_to_profile" value="1" checked class="form-checkbox">
-                            <span>Save this address to my profile address book</span>
+                        <label class="form-label">Special Delivery Instructions / PC Build Notes</label>
+                        <textarea name="order_notes" class="form-textarea" rows="2" placeholder="e.g. Call before delivery, handle GPU with care..."></textarea>
+                    </div>
+
+                    {% if user.is_authenticated %}
+                        <div class="form-group">
+                            <label class="form-checkbox-label">
+                                <input type="checkbox" name="save_address_to_profile" value="1" checked class="form-checkbox">
+                                <span>Save this address to my profile address book</span>
+                            </label>
+                        </div>
+                    {% endif %}
+                </section>
+
+                <!-- Step 2: Payment Method Selection -->
+                <section class="checkout-section-card">
+                    <div class="checkout-section-header">
+                        <span class="checkout-step-number">2</span>
+                        <span>Select Payment Method (Strategy Pattern)</span>
+                    </div>
+
+                    <div class="payment-method-selector">
+                        <!-- Option 1: COD -->
+                        <label class="payment-option-card" for="pay-cod">
+                            <input type="radio" name="payment_method" value="COD" id="pay-cod" checked class="form-checkbox">
+                            <div class="payment-option-body">
+                                <div class="payment-option-title">Cash on Delivery (COD)</div>
+                                <div class="payment-option-desc">Pay directly in cash to the courier upon bench verification and handover.</div>
+                            </div>
+                        </label>
+
+                        <!-- Option 2: bKash -->
+                        <label class="payment-option-card" for="pay-bkash">
+                            <input type="radio" name="payment_method" value="BKASH" id="pay-bkash" class="form-checkbox">
+                            <div class="payment-option-body">
+                                <div class="payment-option-title" style="display: flex; align-items: center; gap: 8px;">
+                                    bKash Online Payment
+                                    <span class="badge" style="position: static; font-size: 10px; padding: 2px 6px;">Instant</span>
+                                </div>
+                                <div class="payment-option-desc">Automated server-side redirect checkout with bKash simulator gateway.</div>
+                            </div>
+                        </label>
+
+                        <!-- Option 3: Nagad -->
+                        <label class="payment-option-card" for="pay-nagad">
+                            <input type="radio" name="payment_method" value="NAGAD" id="pay-nagad" class="form-checkbox">
+                            <div class="payment-option-body">
+                                <div class="payment-option-title" style="display: flex; align-items: center; gap: 8px;">
+                                    Nagad Direct Gateway
+                                    <span class="badge" style="position: static; font-size: 10px; padding: 2px 6px;">Instant</span>
+                                </div>
+                                <div class="payment-option-desc">Digital postal payment flow with cryptographic callback validation.</div>
+                            </div>
                         </label>
                     </div>
-                {% endif %}
-            </section>
+                </section>
+            </div>
 
-            <!-- Step 2: Payment Method Selection -->
-            <section class="checkout-section-card">
-                <div class="checkout-section-header">
-                    <span class="checkout-step-number">2</span>
-                    <span>Select Payment Method (Strategy Pattern)</span>
-                </div>
+            <!-- Right Column: Order Summary & Confirmation Button -->
+            <div>
+                <div class="checkout-summary-box">
+                    <h3 class="summary-title">Manifest Items ({{ cart|length }})</h3>
 
-                <div class="payment-methods-grid">
-                    
-                    <!-- Option 1: COD -->
-                    <label class="payment-method-card" for="pay-cod">
-                        <input type="radio" name="payment_method" value="COD" id="pay-cod" checked>
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                <span class="payment-icon-pill payment-icon-cod">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:2px;"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
-                                    COD
-                                </span>
-                                <strong style="color: var(--navy); font-size: 1rem;">Cash on Delivery</strong>
-                            </div>
-                            <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0;">
-                                Pay in cash directly to the courier upon unboxing and receiving your hardware.
-                            </p>
-                        </div>
-                    </label>
-
-                    <!-- Option 2: bKash -->
-                    <label class="payment-method-card" for="pay-bkash">
-                        <input type="radio" name="payment_method" value="BKASH" id="pay-bkash">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                <span class="payment-icon-pill payment-icon-bkash">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:2px;"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M7 15h0M2 10h20"/></svg>
-                                    bKash
-                                </span>
-                                <strong style="color: var(--navy); font-size: 1rem;">bKash Online Payment</strong>
-                                <span class="badge badge-emerald">Instant Confirmation</span>
-                            </div>
-                            <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0;">
-                                Seamless server-side redirect checkout with official bKash verification gateway.
-                            </p>
-                        </div>
-                    </label>
-
-                    <!-- Option 3: Nagad -->
-                    <label class="payment-method-card" for="pay-nagad">
-                        <input type="radio" name="payment_method" value="NAGAD" id="pay-nagad">
-                        <div style="flex: 1;">
-                            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                                <span class="payment-icon-pill payment-icon-nagad">
-                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:2px;"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                                    Nagad
-                                </span>
-                                <strong style="color: var(--navy); font-size: 1rem;">Nagad Online Payment</strong>
-                                <span class="badge badge-emerald">Instant Confirmation</span>
-                            </div>
-                            <p style="font-size: 0.85rem; color: var(--slate-600); margin: 0;">
-                                Official postal financial service redirect flow with server-side signature validation.
-                            </p>
-                        </div>
-                    </label>
-
-                </div>
-            </section>
-        </div>
-
-        <!-- Right Column: Order Summary & Confirmation Button -->
-        <div>
-            <div class="cart-summary-card">
-                <h3 class="summary-title">Items in Order ({{ cart|length }})</h3>
-
-                <div style="max-height: 260px; overflow-y: auto; margin-bottom: 20px; padding-right: 6px;">
-                    {% for item in cart %}
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 0.9rem;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" style="width: 44px; height: 44px; object-fit: cover; border-radius: 4px; background: #0b1120;">
-                                <div>
-                                    <div style="font-weight: 600; color: var(--navy); line-height: 1.3;">{{ item.product.name|truncatechars:28 }}</div>
-                                    <div style="font-size: 0.75rem; color: var(--slate-500);">Qty: {{ item.quantity }} × ${{ item.price }}</div>
+                    <div style="max-height: 260px; overflow-y: auto; margin-bottom: 20px;">
+                        {% for item in cart %}
+                            <div class="checkout-item-row">
+                                <img src="{{ item.product.primary_image_url }}" alt="{{ item.product.name }}" class="checkout-item-thumb">
+                                <div class="checkout-item-info">
+                                    <div style="font-weight: 600; color: var(--text);">{{ item.product.name|truncatechars:26 }}</div>
+                                    <div style="font-size: 12px; color: var(--text-faint); font-family: var(--font-mono);">Qty: {{ item.quantity }} × ${{ item.price }}</div>
                                 </div>
+                                <span class="mono" style="font-weight: 700; color: var(--copper-bright);">${{ item.total_price }}</span>
                             </div>
-                            <span style="font-family: var(--font-mono); font-weight: 700; color: var(--navy);">${{ item.total_price }}</span>
-                        </div>
-                    {% endfor %}
-                </div>
+                        {% endfor %}
+                    </div>
 
-                <div class="summary-row">
-                    <span>Subtotal:</span>
-                    <span style="font-family: var(--font-mono); font-weight: 700;">${{ cart.get_subtotal }}</span>
-                </div>
+                    <div class="summary-row">
+                        <span>Subtotal:</span>
+                        <span>${{ cart.get_subtotal }}</span>
+                    </div>
 
-                <div class="summary-row">
-                    <span>Express Shipping:</span>
-                    {% if cart.get_shipping_fee == 0 %}
-                        <span style="color: var(--emerald-600); font-weight: 700;">FREE</span>
-                    {% else %}
-                        <span style="font-family: var(--font-mono); font-weight: 700;">${{ cart.get_shipping_fee }}</span>
-                    {% endif %}
-                </div>
+                    <div class="summary-row">
+                        <span>Express Shipping:</span>
+                        {% if cart.get_shipping_fee == 0 %}
+                            <span style="color: var(--ok);">FREE</span>
+                        {% else %}
+                            <span>${{ cart.get_shipping_fee }}</span>
+                        {% endif %}
+                    </div>
 
-                <div class="summary-row total">
-                    <span>Amount Due:</span>
-                    <span style="color: var(--navy); font-family: var(--font-mono); font-weight: 900;">${{ cart.get_grand_total }}</span>
-                </div>
+                    <div class="summary-total-row">
+                        <span>Total Due:</span>
+                        <span>${{ cart.get_grand_total }}</span>
+                    </div>
 
-                <div style="margin-top: 24px;">
-                    <button type="submit" class="btn btn-primary btn-block btn-lg" id="checkout-submit-order-btn" style="display: flex; align-items: center; justify-content: center; gap: 8px;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                        Confirm &amp; Place Order →
-                    </button>
-                </div>
+                    <div style="margin-top: 24px;">
+                        <button type="submit" class="btn-solid btn-block btn-lg" id="checkout-submit-order-btn">
+                            Confirm &amp; Place Order &rarr;
+                        </button>
+                    </div>
 
-                <div style="margin-top: 16px; font-size: 0.8rem; color: var(--slate-500); text-align: center;">
-                    By clicking confirm, you agree to N-IT Home terms of sale &amp; warranty policy.
+                    <div style="margin-top: 16px; font-size: 12px; color: var(--text-faint); text-align: center;">
+                        By confirming, you agree to TRACEFORGE warranty terms &amp; conditions.
+                    </div>
                 </div>
             </div>
-        </div>
 
-    </div>
-</form>
+        </div>
+    </form>
+</div>
 {% endblock %}

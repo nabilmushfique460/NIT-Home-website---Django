@@ -1,169 +1,136 @@
 /* ==========================================================================
-   N-IT Home — Professional Polish Forms, Cart, Checkout, Auth & Payment Gateways CSS
+   TRACEFORGE — Forms, Cart, Checkout, Auth, Invoices & Payment Gateway CSS
    ========================================================================== */
 
-/* --------------------------------------------------------------------------
-   Generic Form Controls
-   -------------------------------------------------------------------------- */
+/* Generic Form Controls */
 .form-group {
-  margin-bottom: 18px;
+  margin-bottom: 20px;
 }
 
 .form-label {
   display: block;
-  font-size: 0.875rem;
+  font-size: 13px;
   font-weight: 600;
-  color: var(--slate-700);
-  margin-bottom: 6px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
 }
 
 .form-input, .form-textarea, .form-select {
   width: 100%;
-  background-color: var(--white);
-  border: 1px solid var(--slate-300);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
   border-radius: var(--radius-sm);
-  color: var(--navy);
-  padding: 9px 12px;
-  font-size: 0.9rem;
+  color: var(--text);
+  padding: 11px 14px;
+  font-size: 14px;
   font-family: inherit;
-  transition: all 0.15s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
 }
 
 .form-input:focus, .form-textarea:focus, .form-select:focus {
-  border-color: var(--blue-accent);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-  background-color: var(--white);
+  border-color: var(--copper);
+  box-shadow: 0 0 0 2px rgba(224, 137, 79, 0.2);
 }
 
 .form-input::placeholder, .form-textarea::placeholder {
-  color: var(--slate-400);
+  color: var(--text-faint);
 }
 
 .form-error {
-  color: var(--accent-rose);
-  font-size: 0.8rem;
-  margin-top: 4px;
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 5px;
   display: block;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .form-help {
-  color: var(--slate-500);
-  font-size: 0.775rem;
-  margin-top: 4px;
+  color: var(--text-faint);
+  font-size: 12px;
+  margin-top: 5px;
   display: block;
 }
 
 .form-checkbox-label {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.875rem;
-  color: var(--slate-700);
+  gap: 10px;
+  font-size: 13.5px;
+  color: var(--text-dim);
   cursor: pointer;
+  user-select: none;
 }
 
 .form-checkbox {
   width: 16px;
   height: 16px;
-  accent-color: var(--blue-primary);
+  accent-color: var(--copper);
   cursor: pointer;
 }
 
-/* --------------------------------------------------------------------------
-   Auth Layout (Login, Signup, OTP, Reset)
-   -------------------------------------------------------------------------- */
+/* Auth Layout (Login, Signup, OTP, Profile) */
 .auth-wrapper {
   max-width: 440px;
-  margin: 36px auto;
+  margin: 56px auto;
 }
 
 .auth-card {
-  background-color: var(--white);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius-md);
-  padding: 32px;
-  box-shadow: var(--shadow-sm);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 40px 36px;
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .auth-title {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: var(--navy);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
 }
 
 .auth-subtitle {
-  font-size: 0.875rem;
-  color: var(--slate-600);
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.5;
 }
 
-.oauth-divider {
-  display: flex;
-  align-items: center;
+.auth-footer-links {
+  margin-top: 24px;
   text-align: center;
-  margin: 20px 0;
-  color: var(--slate-400);
-  font-size: 0.75rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
+  font-size: 13.5px;
+  color: var(--text-faint);
 }
 
-.oauth-divider::before, .oauth-divider::after {
-  content: '';
-  flex: 1;
-  border-bottom: 1px solid var(--slate-200);
-}
-
-.oauth-divider span {
-  padding: 0 12px;
-}
-
-.btn-google {
-  background-color: var(--white);
-  color: var(--slate-800);
-  border: 1px solid var(--slate-300);
+.auth-footer-links a {
+  color: var(--copper-bright);
   font-weight: 600;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  width: 100%;
-  padding: 9px 16px;
-  border-radius: var(--radius-sm);
-  font-size: 0.9rem;
-  transition: all 0.15s ease;
 }
 
-.btn-google:hover {
-  background-color: var(--slate-50);
-  border-color: var(--slate-400);
+.auth-footer-links a:hover {
+  text-decoration: underline;
 }
 
-/* --------------------------------------------------------------------------
-   Shopping Cart View Layout
-   -------------------------------------------------------------------------- */
+/* Shopping Cart Table & Summary */
 .cart-layout {
   display: grid;
-  grid-template-columns: 1fr 340px;
-  gap: 28px;
+  grid-template-columns: 1fr 380px;
+  gap: 32px;
+  margin-top: 24px;
   align-items: start;
 }
 
-.cart-items-card {
-  background-color: var(--white);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  box-shadow: var(--shadow-sm);
+.cart-items-card, .cart-table-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
 }
 
 .cart-table {
@@ -172,350 +139,281 @@
 }
 
 .cart-table th {
-  text-align: left;
-  padding: 12px 14px;
-  color: var(--slate-500);
-  font-size: 0.75rem;
-  font-weight: 700;
+  background: var(--panel-2);
+  padding: 14px 20px;
+  font-size: 12px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--slate-200);
-  background-color: var(--slate-50);
+  letter-spacing: 0.05em;
+  color: var(--text-faint);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  font-family: var(--font-mono);
 }
 
 .cart-table td {
-  padding: 16px 14px;
-  border-bottom: 1px solid var(--slate-100);
-  vertical-align: middle;
+  padding: 20px;
+  border-bottom: 1px solid var(--line-soft);
+  font-size: 14px;
 }
 
 .cart-product-info {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
 }
 
 .cart-product-thumb {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
   border-radius: var(--radius-sm);
-  background-color: var(--slate-50);
   object-fit: cover;
-  border: 1px solid var(--slate-200);
+  background: var(--panel-2);
+  border: 1px solid var(--line);
 }
 
 .cart-product-name {
-  font-weight: 700;
-  color: var(--navy);
-  font-size: 0.9rem;
-  margin-bottom: 3px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
 }
 
-.cart-product-name:hover {
-  color: var(--blue-primary);
+.cart-product-name a:hover {
+  color: var(--copper-bright);
 }
 
 .cart-product-meta {
-  font-size: 0.75rem;
-  color: var(--slate-500);
-  text-transform: uppercase;
+  font-size: 12px;
+  color: var(--text-faint);
+  font-family: var(--font-mono);
 }
 
 .cart-qty-form {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  padding: 2px;
 }
 
 .cart-qty-btn {
-  background-color: var(--white);
-  border: 1px solid var(--slate-300);
-  color: var(--slate-800);
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  font-weight: bold;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: var(--panel);
+  color: var(--text);
+  font-weight: 700;
   cursor: pointer;
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s;
 }
 
 .cart-qty-btn:hover {
-  background-color: var(--blue-primary);
-  border-color: var(--blue-primary);
-  color: var(--white);
+  background: var(--copper);
+  color: #161005;
 }
 
 .cart-qty-display {
+  padding: 0 10px;
   font-family: var(--font-mono);
-  font-weight: 700;
-  padding: 0 8px;
-  color: var(--navy);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
 }
 
-/* Cart Summary Box */
-.cart-summary-card {
-  background-color: var(--white);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  position: sticky;
-  top: 96px;
-  box-shadow: var(--shadow-sm);
+.cart-btn-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: color 0.15s;
 }
 
-.summary-title {
-  font-size: 1.1rem;
-  font-weight: 800;
-  color: var(--navy);
-  margin-bottom: 18px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--slate-100);
+.cart-btn-remove:hover {
+  color: #ef4444;
 }
 
-.summary-row {
+.cart-actions-bar {
+  padding: 16px 20px;
+  background: var(--panel-2);
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 0.875rem;
-  color: var(--slate-600);
+  align-items: center;
 }
 
-.summary-row.total {
-  border-top: 2px solid var(--slate-100);
-  padding-top: 14px;
-  margin-top: 14px;
-  color: var(--navy);
-  font-weight: 800;
+/* Cart & Checkout Summary Box */
+.cart-summary-box, .cart-summary-card, .checkout-summary-box {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+.summary-title, .cart-summary-title {
   font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.summary-row, .cart-summary-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--text-dim);
   font-family: var(--font-mono);
 }
 
-/* --------------------------------------------------------------------------
-   Checkout Flow Layout
-   -------------------------------------------------------------------------- */
+.summary-total-row, .cart-summary-total {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--copper-bright);
+  font-family: var(--font-mono);
+}
+
+/* Checkout Layout & Steps */
 .checkout-layout {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
-  gap: 28px;
+  gap: 32px;
+  margin-top: 24px;
   align-items: start;
 }
 
 .checkout-section-card {
-  background-color: var(--white);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius-md);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: var(--shadow-sm);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 32px;
+  margin-bottom: 24px;
 }
 
 .checkout-section-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 1.05rem;
-  font-weight: 800;
-  color: var(--navy);
-  margin-bottom: 18px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--slate-100);
+  gap: 12px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 24px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
 }
 
 .checkout-step-number {
-  background: var(--blue-primary);
-  color: var(--white);
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-/* Payment Method Selection Radio Cards */
-.payment-methods-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-  margin-bottom: 18px;
-}
-
-.payment-method-card {
-  position: relative;
-  background-color: var(--slate-50);
-  border: 2px solid var(--slate-200);
-  border-radius: var(--radius-sm);
-  padding: 14px 18px;
+  background: var(--copper);
+  color: #161005;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.payment-method-card:hover {
-  border-color: var(--slate-300);
-  background-color: var(--white);
-}
-
-.payment-method-card input[type="radio"] {
-  accent-color: var(--blue-primary);
-  width: 18px;
-  height: 18px;
-}
-
-.payment-icon-pill {
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  font-weight: 800;
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.payment-icon-bkash {
-  background: #fdf2f8;
-  color: #db2777;
-  border: 1px solid #fbcfe8;
-}
-
-.payment-icon-nagad {
-  background: #fff1f2;
-  color: #e11d48;
-  border: 1px solid #fecdd3;
-}
-
-.payment-icon-cod {
-  background: #f0fdf4;
-  color: #16a34a;
-  border: 1px solid #bbf7d0;
-}
-
-/* --------------------------------------------------------------------------
-   Payment Gateway Simulator Views (bKash Pink & Nagad Red Theme)
-   -------------------------------------------------------------------------- */
-.bkash-gateway-box {
-  max-width: 440px;
-  margin: 30px auto;
-  background: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  border: 1px solid #fbcfe8;
-  color: #1f2937;
-}
-
-.bkash-gateway-header {
-  background-color: #e2136e;
-  padding: 24px;
-  text-align: center;
-  color: #ffffff;
-}
-
-.bkash-logo-text {
-  font-size: 1.8rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
-}
-
-.bkash-gateway-body {
-  padding: 28px;
-}
-
-.bkash-btn-submit {
-  background-color: #e2136e;
-  color: #ffffff;
-  width: 100%;
-  padding: 12px;
+  justify-content: center;
+  font-size: 13px;
   font-weight: 700;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 6px;
+  font-family: var(--font-mono);
+}
+
+.payment-method-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-option-card {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
   cursor: pointer;
-  transition: background-color 0.15s;
+  transition: all 0.2s ease;
+  background: var(--panel-2);
 }
 
-.bkash-btn-submit:hover {
-  background-color: #c00e5c;
+.payment-option-card:hover {
+  border-color: var(--copper);
 }
 
-.nagad-gateway-box {
-  max-width: 440px;
-  margin: 30px auto;
-  background: #ffffff;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-  border: 1px solid #fecdd3;
-  color: #1f2937;
+.payment-option-body {
+  flex: 1;
 }
 
-.nagad-gateway-header {
-  background: linear-gradient(135deg, #e31017, #f97316);
-  padding: 24px;
-  text-align: center;
-  color: #ffffff;
+.payment-option-title {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 2px;
 }
 
-.nagad-logo-text {
-  font-size: 1.8rem;
-  font-weight: 900;
-  letter-spacing: -0.02em;
+.payment-option-desc {
+  font-size: 12.5px;
+  color: var(--text-dim);
 }
 
-.nagad-gateway-body {
-  padding: 28px;
+/* Checkout Summary Items */
+.checkout-item-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line-soft);
 }
 
-.nagad-btn-submit {
-  background-color: #e31017;
-  color: #ffffff;
-  width: 100%;
-  padding: 12px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.15s;
+.checkout-item-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
 }
 
-.nagad-btn-submit:hover {
-  background-color: #b90c12;
+.checkout-item-info {
+  flex: 1;
+  font-size: 13.5px;
 }
 
-/* --------------------------------------------------------------------------
-   Order Invoice & Tracking Timeline
-   -------------------------------------------------------------------------- */
+/* Invoices & Order Timeline Tracking */
 .invoice-card {
-  background-color: var(--white);
-  border: 1px solid var(--slate-200);
-  border-radius: var(--radius-md);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   padding: 32px;
   margin-bottom: 24px;
-  box-shadow: var(--shadow-sm);
 }
 
 .order-timeline {
   display: flex;
   justify-content: space-between;
   position: relative;
-  margin: 32px 0;
+  margin: 24px 0 12px;
 }
 
 .order-timeline::before {
   content: '';
   position: absolute;
-  top: 18px;
-  left: 30px;
-  right: 30px;
-  height: 3px;
-  background-color: var(--slate-200);
+  top: 14px;
+  left: 20px;
+  right: 20px;
+  height: 2px;
+  background-color: var(--line);
   z-index: 1;
 }
 
@@ -526,43 +424,123 @@
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  text-align: center;
 }
 
 .timeline-dot {
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   border-radius: 50%;
-  background-color: var(--white);
-  border: 2px solid var(--slate-300);
+  background: var(--panel-2);
+  border: 2px solid var(--line);
+  color: var(--text-faint);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
-  color: var(--slate-400);
-  font-size: 0.85rem;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  transition: all 0.2s;
 }
 
 .timeline-step.completed .timeline-dot {
-  background-color: var(--accent-emerald);
-  border-color: var(--accent-emerald);
-  color: #ffffff;
+  background: var(--copper);
+  border-color: var(--copper);
+  color: #161005;
 }
 
 .timeline-step.current .timeline-dot {
-  background-color: var(--blue-primary);
-  border-color: var(--blue-primary);
-  color: var(--white);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+  border-color: var(--copper-bright);
+  color: var(--copper-bright);
+  box-shadow: 0 0 0 4px rgba(224, 137, 79, 0.2);
 }
 
 .timeline-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--slate-500);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-faint);
 }
 
 .timeline-step.completed .timeline-label,
 .timeline-step.current .timeline-label {
-  color: var(--navy);
+  color: var(--text);
+}
+
+/* Order History Cards */
+.order-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.order-card-header {
+  background: var(--panel-2);
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--line);
+  font-size: 13.5px;
+  font-family: var(--font-mono);
+}
+
+.order-card-body {
+  padding: 24px;
+}
+
+/* bKash & Nagad Simulator Gateway Cards */
+.gateway-wrapper, .bkash-gateway-box, .nagad-gateway-box {
+  max-width: 480px;
+  margin: 48px auto;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.bkash-gateway-header, .nagad-gateway-header {
+  background: var(--panel-2);
+  color: var(--text);
+  padding: 24px;
+  text-align: center;
+  border-bottom: 1px solid var(--line);
+}
+
+.bkash-logo-text, .nagad-logo-text {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--copper-bright);
+  font-family: var(--font-display);
+}
+
+.bkash-gateway-body, .nagad-gateway-body {
+  padding: 32px;
+}
+
+.bkash-btn-submit, .nagad-btn-submit {
+  width: 100%;
+  background: var(--copper);
+  color: #161005;
+  border: 1px solid var(--copper);
+  padding: 12px;
+  font-size: 14.5px;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.bkash-btn-submit:hover, .nagad-btn-submit:hover {
+  background: var(--copper-bright);
+  border-color: var(--copper-bright);
+}
+
+.gateway-amount-display {
+  font-size: 2.25rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--copper-bright);
+  margin: 12px 0 20px;
+  text-align: center;
 }

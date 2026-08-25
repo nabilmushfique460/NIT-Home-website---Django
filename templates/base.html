@@ -4,15 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% if title %}{{ title }} | {% endif %}N-IT Home — PC Hardware Components</title>
-    <meta name="description" content="N-IT Home is a full-stack PC hardware e-commerce platform offering top-tier RAM, SSDs, CPUs, and GPUs with instant delivery and secure payments.">
+    <title>{% if title %}{{ title }} | {% endif %}TRACEFORGE — Build without bottlenecks</title>
+    <meta name="description" content="TRACEFORGE PC Hardware — Every GPU, CPU, memory kit, and drive we sell is burned in on our own test bench before it reaches yours.">
+    <!-- Google Fonts: Space Grotesk, Inter, IBM Plex Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/gallery.css' %}">
     <link rel="stylesheet" href="{% static 'css/forms.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 </head>
 <body>
-    <!-- Hidden Checkbox for Zero-JS Mobile Navigation Toggle -->
+    <!-- Hidden Checkbox for Mobile Navigation Toggle -->
     <input type="checkbox" id="mobile-nav-toggle" aria-hidden="true">
 
     <!-- Global Navigation Header -->
@@ -20,13 +24,112 @@
 
     <!-- Main Container Content -->
     <main class="main-content">
-        <div class="container">
+        <div class="wrap">
             {% include 'includes/messages.html' %}
-            {% block content %}{% endblock %}
         </div>
+        {% block content %}{% endblock %}
     </main>
 
     <!-- Global Footer -->
     {% include 'includes/footer.html' %}
+
+    <!-- Interactive Client Scripts (Progressive Enhancement) -->
+    <script>
+        document.documentElement.classList.add('js');
+
+        // Mega menu toggle
+        const menuBtn = document.getElementById('menuBtn');
+        const mega = document.getElementById('megaMenu');
+        if (menuBtn && mega) {
+            menuBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const open = mega.classList.toggle('open');
+                menuBtn.setAttribute('aria-expanded', open);
+            });
+            document.addEventListener('click', (e) => {
+                if (!mega.contains(e.target) && !menuBtn.contains(e.target)) {
+                    mega.classList.remove('open');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    mega.classList.remove('open');
+                    menuBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+        }
+
+        // Scroll reveal observer
+        const revealEls = document.querySelectorAll('.reveal');
+        if ('IntersectionObserver' in window && revealEls.length) {
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view');
+                        io.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            revealEls.forEach(el => io.observe(el));
+        } else {
+            revealEls.forEach(el => el.classList.add('in-view'));
+        }
+
+        // Count-up stats observer
+        const nums = document.querySelectorAll('.stat .num');
+        if ('IntersectionObserver' in window && nums.length) {
+            const countIo = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const el = entry.target;
+                        const target = parseFloat(el.dataset.target);
+                        const decimals = parseInt(el.dataset.decimals || '0');
+                        const duration = 1400;
+                        const start = performance.now();
+                        function tick(now){
+                            const p = Math.min((now - start) / duration, 1);
+                            const eased = 1 - Math.pow(1 - p, 3);
+                            const val = target * eased;
+                            el.textContent = val.toFixed(decimals);
+                            if (p < 1) requestAnimationFrame(tick);
+                        }
+                        requestAnimationFrame(tick);
+                        countIo.unobserve(el);
+                    }
+                });
+            }, { threshold: 0.5 });
+            nums.forEach(el => countIo.observe(el));
+        }
+
+        // Mouse parallax on hero schematic
+        const schematic = document.querySelector('.schematic');
+        const heroVisual = document.querySelector('.hero-visual');
+        const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (heroVisual && schematic && !reduceMotion && window.matchMedia('(hover:hover)').matches) {
+            heroVisual.addEventListener('mousemove', (e) => {
+                const rect = heroVisual.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                schematic.style.transform = `translate(${x * 10}px, ${y * 10}px)`;
+            });
+            heroVisual.addEventListener('mouseleave', () => {
+                schematic.style.transform = 'translate(0,0)';
+            });
+            schematic.style.transition = 'transform .35s ease-out';
+        }
+
+        // Newsletter subscription handling
+        const newsForm = document.getElementById('newsForm');
+        const newsNote = document.getElementById('newsNote');
+        if (newsForm && newsNote) {
+            newsForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                newsNote.textContent = "You're on the list — we'll email you at restock.";
+                newsNote.classList.add('ok');
+                newsForm.reset();
+            });
+        }
+    </script>
 </body>
 </html>

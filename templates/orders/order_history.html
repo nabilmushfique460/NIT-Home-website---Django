@@ -1,78 +1,76 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div style="margin-bottom: 28px;">
-    <h1 style="font-size: 1.85rem; font-weight: 800; color: var(--navy); margin-bottom: 6px; display: flex; align-items: center; gap: 10px;">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--blue-accent);"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        Order History
-    </h1>
-    <p style="color: var(--slate-600); font-size: 0.95rem;">
-        Track past purchases, download invoices, and monitor delivery updates.
-    </p>
-</div>
-
-{% if orders %}
-    <div style="background-color: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm);">
-        <table class="cart-table">
-            <thead>
-                <tr>
-                    <th>Order #</th>
-                    <th>Date</th>
-                    <th>Items</th>
-                    <th>Total Amount</th>
-                    <th>Payment</th>
-                    <th>Order Status</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for ord in orders %}
-                    <tr>
-                        <td>
-                            <strong style="color: var(--blue-primary); font-family: var(--font-mono);">#{{ ord.order_number }}</strong>
-                        </td>
-                        <td style="font-size: 0.85rem; color: var(--slate-600);">
-                            {{ ord.created_at|date:"M d, Y" }}
-                        </td>
-                        <td>
-                            <span style="font-size: 0.9rem; color: var(--slate-700);">{{ ord.items.count }} item{{ ord.items.count|pluralize }}</span>
-                        </td>
-                        <td>
-                            <span style="font-family: var(--font-mono); font-weight: 700; color: var(--navy);">${{ ord.total_amount }}</span>
-                        </td>
-                        <td>
-                            {% if ord.payment_status == 'PAID' %}
-                                <span class="badge badge-emerald">PAID ({{ ord.get_payment_method_display }})</span>
-                            {% else %}
-                                <span class="badge badge-amber">{{ ord.get_payment_status_display }}</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge badge-cyan">{{ ord.get_order_status_display }}</span>
-                        </td>
-                        <td>
-                            <a href="{% url 'orders:order_detail' order_number=ord.order_number %}" class="btn btn-secondary btn-sm">
-                                View Invoice →
-                            </a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-{% else %}
-    <div style="background-color: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 60px 20px; text-align: center; max-width: 600px; margin: 40px auto; box-shadow: var(--shadow-sm);">
-        <div style="margin-bottom: 16px; color: var(--slate-400);">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
-        </div>
-        <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--navy); margin-bottom: 8px;">No Orders Placed Yet</h2>
-        <p style="color: var(--slate-600); font-size: 0.95rem; margin-bottom: 24px;">
-            You haven't placed any orders with this account yet.
+<div class="wrap" style="padding-top: 32px; padding-bottom: 56px;">
+    <div style="margin-bottom: 28px;">
+        <span class="eyebrow mono" style="margin-bottom: 8px;">Order Manifests</span>
+        <h1 style="font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 6px;">
+            Order History
+        </h1>
+        <p style="color: var(--text-dim); font-size: 14.5px;">
+            Track past component purchases, download invoices, and monitor delivery progress.
         </p>
-        <a href="{% url 'products:product_list' %}" class="btn btn-primary btn-lg">
-            Start Shopping →
-        </a>
     </div>
-{% endif %}
 
+    {% if orders %}
+        <div class="cart-items-card">
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Date</th>
+                        <th>Items</th>
+                        <th>Total Amount</th>
+                        <th>Payment</th>
+                        <th>Order Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ord in orders %}
+                        <tr>
+                            <td>
+                                <strong class="mono" style="color: var(--copper-bright);">#{{ ord.order_number }}</strong>
+                            </td>
+                            <td class="mono" style="font-size: 13px; color: var(--text-dim);">
+                                {{ ord.created_at|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                <span style="font-size: 13.5px; color: var(--text);">{{ ord.items.count }} item{{ ord.items.count|pluralize }}</span>
+                            </td>
+                            <td>
+                                <span class="mono" style="font-weight: 700; color: var(--text);">${{ ord.total_amount }}</span>
+                            </td>
+                            <td>
+                                {% if ord.payment_status == 'PAID' %}
+                                    <span class="badge" style="position: static; background: var(--ok); color: #161005;">PAID</span>
+                                {% else %}
+                                    <span class="badge" style="position: static; background: var(--copper); color: #161005;">{{ ord.get_payment_status_display }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge value" style="position: static;">{{ ord.get_order_status_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'orders:order_detail' order_number=ord.order_number %}" class="btn-outline btn-sm">
+                                    View Invoice &rarr;
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 64px 20px; text-align: center; max-width: 600px; margin: 40px auto;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;">No Orders Placed Yet</h2>
+            <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 24px;">
+                You haven't placed any component orders with this account yet.
+            </p>
+            <a href="{% url 'products:product_list' %}" class="btn-solid lg">
+                Browse Hardware Catalog &rarr;
+            </a>
+        </div>
+    {% endif %}
+</div>
 {% endblock %}

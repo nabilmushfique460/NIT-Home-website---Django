@@ -1,251 +1,319 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-<!-- Dynamic Hero Promotional / Advertise Banner (Controlled via Django Admin) -->
-{% if active_banner %}
-<section class="hero-section" id="promo-banner">
-    <div class="hero-grid">
-        <div>
-            <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
-                {% if active_banner.badge_1 %}
-                    <span class="badge badge-cyan">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="display:inline-block; vertical-align:-1px; margin-right:4px;"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                        {{ active_banner.badge_1 }}
-                    </span>
-                {% endif %}
-                {% if active_banner.badge_2 %}
-                    <span class="badge badge-emerald">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-1px; margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
-                        {{ active_banner.badge_2 }}
-                    </span>
-                {% endif %}
-            </div>
-            <h1 class="hero-title">
-                {{ active_banner.title }}
-            </h1>
-            <p class="hero-lead">
-                {{ active_banner.lead_text }}
-            </p>
-            <div class="hero-features">
-                {% if active_banner.perk_1 %}
-                <div class="hero-feature-item">
-                    <span style="color: var(--blue-accent); display: inline-flex; align-items: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                    </span>
-                    <span>{{ active_banner.perk_1 }}</span>
-                </div>
-                {% endif %}
-                {% if active_banner.perk_2 %}
-                <div class="hero-feature-item">
-                    <span style="color: var(--accent-emerald); display: inline-flex; align-items: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-                    </span>
-                    <span>{{ active_banner.perk_2 }}</span>
-                </div>
-                {% endif %}
-                {% if active_banner.perk_3 %}
-                <div class="hero-feature-item">
-                    <span style="color: var(--accent-purple); display: inline-flex; align-items: center;">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    </span>
-                    <span>{{ active_banner.perk_3 }}</span>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-        <div style="text-align: center;">
-            <div style="display: inline-block; padding: 20px; background: rgba(15, 23, 42, 0.7); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); backdrop-filter: blur(10px); min-width: 260px;">
-                <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--blue-accent); font-weight: 800; letter-spacing: 0.05em; margin-bottom: 4px;">{{ active_banner.card_tag }}</div>
-                <div style="font-size: 1.25rem; font-weight: 800; color: #ffffff; margin-bottom: 6px;">{{ active_banner.card_title }}</div>
-                <div style="font-size: 1.55rem; font-weight: 900; color: #ffffff; font-family: var(--font-mono); margin-bottom: 14px;">${{ active_banner.card_price }}</div>
-                <a href="{{ active_banner.card_link }}" class="btn btn-primary btn-sm" style="width: 100%;">
-                    {{ active_banner.card_button_text }}
-                </a>
-            </div>
-        </div>
+<!-- ===== HERO SECTION WITH SCHEMATIC ===== -->
+<section class="hero" id="top">
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <div class="eyebrow"><span class="dot"></span> 42,918 bench runs logged this week</div>
+      <h1>Build without<br><span class="accent">bottlenecks.</span></h1>
+      <p class="hero-sub">Every GPU, CPU, memory kit, and drive we sell is burned in on our own test bench before it reaches yours. Real clocks, real thermals — no surprises at first boot.</p>
+      <div class="hero-ctas">
+        <a href="#shop" class="btn-solid lg">Shop Hardware</a>
+        <a href="#catalog" class="btn-outline lg">See bench results &rarr;</a>
+      </div>
+      <div class="hero-micro">
+        <div><span class="val">48H</span><small>Burn-in per unit</small></div>
+        <div><span class="val">3YR</span><small>Standard warranty</small></div>
+        <div><span class="val">24H</span><small>Ships next business day</small></div>
+      </div>
     </div>
+
+    <div class="hero-visual">
+      <svg class="schematic" viewBox="0 0 600 600" aria-label="Traceforge Hardware Architecture Schematic">
+        <!-- traces -->
+        <path class="trace t1" d="M180,140 L270,140 L270,258"/>
+        <path class="trace t2" d="M420,140 L330,140 L330,258"/>
+        <path class="trace t3" d="M180,460 L270,460 L270,342"/>
+        <path class="trace t4" d="M420,460 L330,460 L330,342"/>
+
+        <!-- traveling data packets -->
+        <circle class="packet" r="4">
+          <animateMotion dur="2.6s" begin="1.6s" repeatCount="indefinite" path="M180,140 L270,140 L270,258"/>
+        </circle>
+        <circle class="packet" r="4">
+          <animateMotion dur="2.6s" begin="2.0s" repeatCount="indefinite" path="M420,140 L330,140 L330,258"/>
+        </circle>
+        <circle class="packet" r="4">
+          <animateMotion dur="2.6s" begin="2.4s" repeatCount="indefinite" path="M180,460 L270,460 L270,342"/>
+        </circle>
+        <circle class="packet" r="4">
+          <animateMotion dur="2.6s" begin="2.8s" repeatCount="indefinite" path="M420,460 L330,460 L330,342"/>
+        </circle>
+
+        <!-- hub -->
+        <g class="hub">
+          <circle cx="300" cy="300" r="50"/>
+          <path class="icon-stroke" d="M288,288 H312 V312 H288 Z M280,296 H288 M280,304 H288 M312,296 H320 M312,304 H320 M296,280 V288 M304,280 V288 M296,312 V320 M304,312 V320"/>
+          <text x="300" y="336" text-anchor="middle" class="spec" fill="currentColor">TF-CORE</text>
+        </g>
+
+        <!-- CPU node -->
+        <g class="node-g n1">
+          <g class="node-float">
+            <circle class="badge" cx="140" cy="140" r="40"/>
+            <path class="icon-stroke" transform="translate(140,140)" d="M-11,-11 H11 V11 H-11 Z M-18,-6 H-11 M-18,0 H-11 M-18,6 H-11 M18,-6 H11 M18,0 H11 M18,6 H11 M-6,-18 V-11 M0,-18 V-11 M6,-18 V-11 M-6,18 V11 M0,18 V11 M6,18 V11"/>
+            <text x="140" y="200" text-anchor="middle" class="label">CPU</text>
+            <text x="140" y="220" text-anchor="middle" class="spec">5.6GHz boost</text>
+          </g>
+        </g>
+
+        <!-- GPU node -->
+        <g class="node-g n2">
+          <g class="node-float">
+            <circle class="badge" cx="460" cy="140" r="40"/>
+            <rect class="icon-stroke" x="438" y="129" width="44" height="22" rx="4"/>
+            <circle class="icon-stroke" cx="450" cy="140" r="5"/>
+            <circle class="icon-stroke" cx="466" cy="140" r="5"/>
+            <text x="460" y="200" text-anchor="middle" class="label">GPU</text>
+            <text x="460" y="220" text-anchor="middle" class="spec">24GB GDDR7</text>
+          </g>
+        </g>
+
+        <!-- RAM node -->
+        <g class="node-g n3">
+          <g class="node-float">
+            <circle class="badge" cx="140" cy="460" r="40"/>
+            <rect class="icon-stroke" x="128" y="442" width="10" height="34" rx="1.5"/>
+            <rect class="icon-stroke" x="142" y="442" width="10" height="34" rx="1.5"/>
+            <path class="icon-stroke" d="M126,476 h4 M136,476 h4 M140,476 h4 M150,476 h4"/>
+            <text x="140" y="520" text-anchor="middle" class="label">RAM</text>
+            <text x="140" y="540" text-anchor="middle" class="spec">6400MT/s kit</text>
+          </g>
+        </g>
+
+        <!-- SSD node -->
+        <g class="node-g n4">
+          <g class="node-float">
+            <circle class="badge" cx="460" cy="460" r="40"/>
+            <rect class="icon-stroke" x="438" y="449" width="44" height="22" rx="3"/>
+            <circle class="icon-stroke" cx="446" cy="456" r="2"/>
+            <path class="icon-stroke" d="M446,464 H474"/>
+            <text x="460" y="520" text-anchor="middle" class="label">SSD</text>
+            <text x="460" y="540" text-anchor="middle" class="spec">14.5GB/s read</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+  </div>
 </section>
-{% endif %}
 
-<!-- Category Pills Bar -->
-<div class="category-filter-bar">
-    <a href="{% url 'products:product_list' %}" class="cat-pill {% if not selected_category %}active{% endif %}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        All Hardware ({{ products.count }})
-    </a>
-    {% for cat in categories %}
-        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}" class="cat-pill {% if selected_category == cat.slug %}active{% endif %}">
-            {% if cat.slug == 'gpu' %}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 12h4m-2-2v4m9-2h.01m3 0h.01"/></svg>
-                Graphics Cards
-            {% elif cat.slug == 'cpu' %}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3m6-3v3M9 20v3m6-3v3M20 9h3m-3 6h3M1 9h3m-3 6h3"/></svg>
-                Processors
-            {% elif cat.slug == 'ssd' %}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><line x1="22" y1="12" x2="2" y2="12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/><line x1="6" y1="16" x2="6.01" y2="16"/><line x1="10" y1="16" x2="10.01" y2="16"/></svg>
-                NVMe SSDs
-            {% else %}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block; vertical-align:-2px; margin-right:4px;"><rect x="2" y="6" width="20" height="12" rx="1"/><path d="M6 18v2m4-2v2m4-2v2m4-2v2M6 6V4m4 2V4m4 2V4m4 2V4"/></svg>
-                DDR5 RAM
-            {% endif %}
-            ({{ cat.name }})
+<!-- ===== CATEGORIES SECTION ===== -->
+<section id="shop">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow mono">Shop by category</span>
+        <h2>Four categories. Zero guesswork.</h2>
+      </div>
+      <p>Every listing ships with the exact clock, timing, and thermal numbers we measured — not just the box spec.</p>
+    </div>
+
+    <div class="cat-grid">
+      <div class="cat-card reveal" id="gpu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="2" y="7" width="20" height="10" rx="2"/>
+          <circle cx="8" cy="12" r="2.4"/>
+          <circle cx="15" cy="12" r="2.4"/>
+          <path d="M2 17V19H6M22 17V19H18"/>
+        </svg>
+        <h3>Graphics Cards</h3>
+        <p>From 1440p sweet spots to 4K flagships, every card power-tested at full load.</p>
+        <span class="range mono">12–24GB VRAM</span>
+        <a class="go" href="{% url 'products:product_list' %}?category=graphics-cards#catalog">
+          Shop GPUs 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
         </a>
-    {% endfor %}
-</div>
+      </div>
 
-<!-- Main Catalog Layout with Filter Sidebar -->
-<div class="catalog-layout">
-    <!-- Sidebar Filters (Pure HTML GET Forms, No JS) -->
-    <aside class="filter-sidebar">
-        <div class="sidebar-title">
-            <span>Hardware Filters</span>
-            {% if selected_category or search_query or selected_brand or selected_sort or in_stock_only %}
-                <a href="{% url 'products:product_list' %}" style="font-size: 0.75rem; color: var(--accent-rose); font-weight: 600;">Reset</a>
-            {% endif %}
-        </div>
+      <div class="cat-card reveal" id="cpu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="6" y="6" width="12" height="12" rx="1.5"/>
+          <path d="M9 2V6M15 2V6M9 18V22M15 18V22M2 9H6M2 15H6M18 9H22M18 15H22"/>
+        </svg>
+        <h3>Processors</h3>
+        <p>Desktop chips for gaming and workstation loads, binned for sustained clocks.</p>
+        <span class="range mono">6–24 cores</span>
+        <a class="go" href="{% url 'products:product_list' %}?category=processors#catalog">
+          Shop CPUs 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
+        </a>
+      </div>
 
-        <form action="{% url 'products:product_list' %}" method="get">
-            {% if selected_category %}
-                <input type="hidden" name="category" value="{{ selected_category }}">
-            {% endif %}
-            {% if search_query %}
-                <input type="hidden" name="q" value="{{ search_query }}">
-            {% endif %}
+      <div class="cat-card reveal" id="ram">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="4" y="4" width="6" height="16" rx="1"/>
+          <rect x="14" y="4" width="6" height="16" rx="1"/>
+          <path d="M6 4V2M8 4V2M16 4V2M18 4V2"/>
+        </svg>
+        <h3>Memory</h3>
+        <p>DDR5 kits matched and tested in pairs, so timings hold at rated speed.</p>
+        <span class="range mono">16–128GB kits</span>
+        <a class="go" href="{% url 'products:product_list' %}?category=ram#catalog">
+          Shop Memory 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
+        </a>
+      </div>
 
-            <!-- Sort By -->
-            <div class="filter-group">
-                <div class="filter-group-title">Sort By</div>
-                <select name="sort" class="form-select" onchange="this.form.submit()">
-                    <option value="" {% if not selected_sort %}selected{% endif %}>Featured &amp; Recommended</option>
-                    <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                    <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                    <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
-                    <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest Additions</option>
-                </select>
+      <div class="cat-card reveal" id="ssd">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+          <rect x="3" y="5" width="18" height="14" rx="2"/>
+          <circle cx="7" cy="9" r="1"/>
+          <path d="M7 14H17"/>
+        </svg>
+        <h3>Storage</h3>
+        <p>NVMe drives benchmarked on real sequential and random workloads, not just peak numbers.</p>
+        <span class="range mono">500GB–4TB</span>
+        <a class="go" href="{% url 'products:product_list' %}?category=storage#catalog">
+          Shop Storage 
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PRODUCTS CATALOG SECTION ===== -->
+<section id="catalog">
+  <div class="wrap">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow mono" id="bench">Bench-tested this week</span>
+        <h2>Featured hardware catalog</h2>
+      </div>
+      <p>A cross-section of what's moving fastest off our diagnostic bench right now.</p>
+    </div>
+
+    <!-- Category Filter Pills Bar -->
+    <div class="cat-filter-pills-bar">
+      <a href="{% url 'products:product_list' %}#catalog" class="filter-pill {% if not current_category %}active{% endif %}">
+        All Hardware
+      </a>
+      {% for cat in categories %}
+        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}#catalog" class="filter-pill {% if current_category == cat.slug %}active{% endif %}">
+          {{ cat.name }} ({{ cat.product_count }})
+        </a>
+      {% endfor %}
+    </div>
+
+    {% if search_query %}
+      <div style="margin-bottom: 24px; color: var(--text-dim); font-size: 14px;">
+        Showing search results for "<strong style="color: var(--copper-bright);">{{ search_query }}</strong>" ({{ total_products }} matched):
+        <a href="{% url 'products:product_list' %}" style="margin-left: 12px; color: var(--copper); text-decoration: underline;">Clear Search</a>
+      </div>
+    {% endif %}
+
+    <!-- Product Grid -->
+    {% if products %}
+      <div class="prod-grid">
+        {% for product in products %}
+          <article class="product-card reveal">
+            <!-- Visual Card Header -->
+            <div class="product-visual {% if 'gpu' in product.category.slug or 'graphics' in product.category.slug %}product-visual--gpu{% elif 'cpu' in product.category.slug or 'processor' in product.category.slug %}product-visual--cpu{% elif 'ram' in product.category.slug or 'memory' in product.category.slug %}product-visual--ram{% else %}product-visual--ssd{% endif %}">
+              
+              <!-- Badges -->
+              {% if product.discount_percent > 0 %}
+                <span class="badge">-{{ product.discount_percent }}% OFF</span>
+              {% elif forloop.counter == 1 %}
+                <span class="badge">Bestseller</span>
+              {% elif forloop.counter == 2 %}
+                <span class="badge value">New</span>
+              {% endif %}
+
+              <!-- Watermark SVG Icon -->
+              {% if 'gpu' in product.category.slug or 'graphics' in product.category.slug %}
+                <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2.4"/><circle cx="15" cy="12" r="2.4"/></svg>
+                <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2.4"/><circle cx="15" cy="12" r="2.4"/><path d="M2 17V19H6M22 17V19H18"/></svg>
+              {% elif 'cpu' in product.category.slug or 'processor' in product.category.slug %}
+                <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
+                <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2V6M15 2V6M9 18V22M15 18V22M2 9H6M2 15H6M18 9H22M18 15H22"/></svg>
+              {% elif 'ram' in product.category.slug or 'memory' in product.category.slug %}
+                <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="4" y="4" width="6" height="16" rx="1"/><rect x="14" y="4" width="6" height="16" rx="1"/></svg>
+                <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="6" height="16" rx="1"/><rect x="14" y="4" width="6" height="16" rx="1"/><path d="M6 4V2M8 4V2M16 4V2M18 4V2"/></svg>
+              {% else %}
+                <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="5" width="18" height="14" rx="2"/></svg>
+                <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="7" cy="9" r="1"/><path d="M7 14H17"/></svg>
+              {% endif %}
+
+              <!-- Real Hardware Image Overlay if Available -->
+              {% if product.primary_image_url %}
+                <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-real-img" loading="lazy">
+              {% endif %}
             </div>
 
-            <!-- Brand Filter -->
-            <div class="filter-group">
-                <div class="filter-group-title">Manufacturer Brand</div>
-                <select name="brand" class="form-select" onchange="this.form.submit()">
-                    <option value="" {% if not selected_brand %}selected{% endif %}>All Brands</option>
-                    {% for b in available_brands %}
-                        <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- In Stock Checkbox -->
-            <div class="filter-group">
-                <label class="form-checkbox-label">
-                    <input type="checkbox" name="in_stock" value="1" {% if in_stock_only == '1' %}checked{% endif %} class="form-checkbox" onchange="this.form.submit()">
-                    <span>In-Stock Items Only</span>
-                </label>
-            </div>
-
-            <button type="submit" class="btn btn-secondary btn-block btn-sm" style="margin-top: 10px;">Apply Filters</button>
-        </form>
-
-        <hr style="border-color: var(--border-subtle); margin: 20px 0;">
-
-        <div style="background: rgba(6, 182, 212, 0.08); border: 1px dashed rgba(6, 182, 212, 0.4); border-radius: var(--radius-sm); padding: 14px;">
-            <div style="font-size: 0.85rem; font-weight: 700; color: var(--accent-cyan); margin-bottom: 4px;">🛡️ Guaranteed Compatibility</div>
-            <div style="font-size: 0.75rem; color: var(--text-muted); line-height: 1.4;">
-                All listed components adhere to standard ATX, PCIe 4.0/5.0, AM5, and LGA1700 specifications.
-            </div>
-        </div>
-    </aside>
-
-    <!-- Product Grid Section -->
-    <section>
-        {% if search_query %}
-            <div style="margin-bottom: 16px; font-size: 1.1rem; color: var(--text-muted);">
-                Showing results for "<strong style="color: var(--accent-cyan);">{{ search_query }}</strong>" ({{ products.count }} found)
-            </div>
-        {% endif %}
-
-        {% if products %}
-            <div class="product-grid">
-                {% for product in products %}
-                    <article class="product-card" id="product-card-{{ product.id }}">
-                        <!-- Thumbnail Image & Badges -->
-                        <div class="product-card-img-wrap">
-                            <a href="{{ product.get_absolute_url }}">
-                                <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-card-img" loading="lazy">
-                            </a>
-
-                            <div class="product-badges-top">
-                                {% if product.is_featured %}
-                                    <span class="badge badge-purple">★ Featured</span>
-                                {% endif %}
-                                {% if product.discount_percent > 0 %}
-                                    <span class="badge badge-rose">-{{ product.discount_percent }}% OFF</span>
-                                {% endif %}
-                            </div>
-
-                            <div class="product-stock-top">
-                                {% if product.stock_qty > 5 %}
-                                    <span class="badge badge-emerald">In Stock ({{ product.stock_qty }})</span>
-                                {% elif product.stock_qty > 0 %}
-                                    <span class="badge badge-amber">Low Stock ({{ product.stock_qty }})</span>
-                                {% else %}
-                                    <span class="badge badge-rose">Out of Stock</span>
-                                {% endif %}
-                            </div>
-                        </div>
-
-                        <!-- Card Body -->
-                        <div class="product-card-body">
-                            <div class="product-brand-cat">
-                                <span>{{ product.brand }}</span>
-                                <span class="badge badge-cyan" style="font-size: 0.7rem;">{{ product.category.name }}</span>
-                            </div>
-
-                            <h3 class="product-card-title">
-                                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
-                            </h3>
-
-                            <p class="product-short-desc">{{ product.short_description }}</p>
-
-                            <!-- Pricing & Action Buttons -->
-                            <div class="product-card-footer">
-                                <div class="product-pricing">
-                                    <span class="product-price-current">${{ product.price }}</span>
-                                    {% if product.original_price %}
-                                        <span class="product-price-original">${{ product.original_price }}</span>
-                                    {% endif %}
-                                </div>
-
-                                <div style="display: flex; gap: 6px; align-items: center;">
-                                    <!-- Full-Page Form Submit Add To Cart -->
-                                    <form action="{% url 'cart:cart_add' product_id=product.id %}" method="post">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="quantity" value="1">
-                                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                                        <button type="submit" class="btn btn-secondary btn-sm" title="Quick Add to Cart" {% if not product.is_in_stock %}disabled{% endif %} style="display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0;">
-                                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
-                                        </button>
-                                    </form>
-
-                                    <a href="{{ product.get_absolute_url }}" class="btn btn-primary btn-sm">
-                                        Details →
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </article>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div style="background-color: var(--white); border: 1px solid var(--slate-200); border-radius: var(--radius-md); padding: 48px; text-align: center;">
-                <div style="margin-bottom: 16px; color: var(--slate-400);">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <!-- Card Body -->
+            <div class="product-body">
+              <div class="product-cat mono">{{ product.category.name }} · {{ product.brand }}</div>
+              <h3>
+                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+              </h3>
+              <div class="product-specs mono">
+                {{ product.short_description|truncatechars:45|default:"Tested &amp; Certified" }}
+              </div>
+              <div class="product-foot">
+                <div>
+                  <span class="price">${{ product.price }}</span>
+                  {% if product.original_price %}
+                    <span style="font-size: 12px; color: var(--text-faint); text-decoration: line-through; margin-left: 6px; font-family: 'IBM Plex Mono', monospace;">${{ product.original_price }}</span>
+                  {% endif %}
                 </div>
-                <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--navy); margin-bottom: 8px;">No hardware components matched your filter</h3>
-                <p style="color: var(--slate-600); margin-bottom: 20px;">Try loosening your search terms or clearing selected brand/category filters.</p>
-                <a href="{% url 'products:product_list' %}" class="btn btn-primary">Browse All PC Components</a>
+
+                <form method="post" action="{% url 'cart:cart_add' product_id=product.id %}" style="margin: 0;">
+                  {% csrf_token %}
+                  <input type="hidden" name="quantity" value="1">
+                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                  <button type="submit" class="btn-add" {% if not product.is_in_stock %}disabled style="opacity: 0.4;"{% endif %}>
+                    {% if product.is_in_stock %}Add to cart{% else %}Out of Stock{% endif %}
+                  </button>
+                </form>
+              </div>
             </div>
-        {% endif %}
-    </section>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 56px 24px; text-align: center;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 8px;">No hardware components match this criteria</h3>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Try adjusting your search query or view all catalog categories.</p>
+        <a href="{% url 'products:product_list' %}" class="btn-solid">View All Products</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ===== STATS BAND ===== -->
+<div class="stats-band">
+  <div class="wrap stats-grid">
+    <div class="stat reveal">
+      <span class="num" data-target="48" data-suffix="">0</span><span class="unit">H</span>
+      <small>Burn-in test, every unit</small>
+    </div>
+    <div class="stat reveal">
+      <span class="num" data-target="99.98" data-suffix="" data-decimals="2">0</span><span class="unit">%</span>
+      <small>Boot-pass rate on arrival</small>
+    </div>
+    <div class="stat reveal">
+      <span class="num" data-target="3" data-suffix="">0</span><span class="unit">YR</span>
+      <small>Standard warranty, no add-on</small>
+    </div>
+    <div class="stat reveal">
+      <span class="mono" style="font-size:clamp(30px,3.4vw,40px);font-weight:600;color:var(--copper-bright);">24/7</span>
+      <small>Bench support line</small>
+    </div>
+  </div>
 </div>
+
+<!-- ===== CTA COMPATIBILITY BANNER ===== -->
+<section>
+  <div class="cta-banner">
+    <div class="cta-inner reveal">
+      <div>
+        <h2>Not sure what fits your build?</h2>
+        <p>Run your parts list through our compatibility checker before you buy — power draw, clearance, and socket match, all flagged up front.</p>
+      </div>
+      <a href="{% url 'core:contact' %}" class="btn-solid lg">Try the compatibility checker &rarr;</a>
+    </div>
+  </div>
+</section>
 {% endblock %}
