@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
+from .models import ContactMessage
 
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
@@ -33,3 +34,11 @@ class SessionAdmin(admin.ModelAdmin):
         except Exception:
             return 'Encrypted session'
     get_decoded_data.short_description = 'Session Summary'
+
+@admin.register(ContactMessage)
+class ContactMessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at', 'is_resolved')
+    list_filter = ('is_resolved', 'created_at')
+    search_fields = ('name', 'email', 'subject', 'message')
+    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+    date_hierarchy = 'created_at'
