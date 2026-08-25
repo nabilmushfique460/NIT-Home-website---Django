@@ -3,21 +3,21 @@
 {% block content %}
 <div class="wrap" style="padding-top: 48px; padding-bottom: 56px;">
     <div style="max-width: 680px; margin: 0 auto; text-align: center;">
-        
+
         <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 48px 32px; box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);">
-            
+
             <div style="width: 56px; height: 56px; border-radius: 50%; background: rgba(143, 191, 159, 0.15); color: var(--ok); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 24px;">
                 ✓
             </div>
-            
+
             <span class="badge" style="position: static; background: var(--ok); color: #161005; font-size: 11px; padding: 5px 12px; margin-bottom: 16px; display: inline-block;">
                 ORDER CONFIRMED &amp; PROCESSING
             </span>
-            
+
             <h1 style="font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 8px;">
                 Thank You For Your Order!
             </h1>
-            
+
             <p style="color: var(--text-dim); font-size: 15px; margin-bottom: 24px;">
                 Your order manifest reference number is <strong class="mono" style="color: var(--copper-bright);">#{{ order.order_number }}</strong>.
             </p>

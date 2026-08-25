@@ -45,7 +45,7 @@
                     <label class="form-label">Password *</label>
                     <input type="password" name="password" class="form-input" placeholder="Create strong password" required>
                     <div style="margin-top: 6px; font-size: 12px; color: var(--text-faint); line-height: 1.4;">
-                        🔐 At least <strong>8 characters</strong> (A-Z, a-z, 0-9, special character).
+                        Password requirements: at least <strong>8 characters</strong> (A-Z, a-z, 0-9, special character).
                     </div>
                     {% if form.password.errors %}<span class="form-error">{{ form.password.errors.0 }}</span>{% endif %}
                 </div>
@@ -62,7 +62,7 @@
             </form>
 
             <div class="auth-footer-links">
-                Already have an account? 
+                Already have an account?
                 <a href="{% url 'accounts:login' %}">Sign in</a>
             </div>
         </div>

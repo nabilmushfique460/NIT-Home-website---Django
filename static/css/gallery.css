@@ -1,8 +1,3 @@
-/* ==========================================================================
-   TRACEFORGE — Hardware Product Detail, 4K Gallery, Specs & Reviews CSS
-   ========================================================================== */
-
-/* Product Detail Layout Grid */
 .product-detail-layout {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
@@ -12,7 +7,6 @@
   align-items: start;
 }
 
-/* Breadcrumb Navigation */
 .breadcrumb-nav {
   display: flex;
   gap: 8px;
@@ -30,7 +24,6 @@
   color: var(--copper-bright);
 }
 
-/* 4K Image Carousel & Thumbnails */
 .gallery-container {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -120,7 +113,6 @@
   opacity: 1;
 }
 
-/* Product Summary Box (Right Column) */
 .product-summary-box {
   display: flex;
   flex-direction: column;
@@ -156,7 +148,6 @@
   font-family: var(--font-mono);
 }
 
-/* Price Hero Display */
 .product-price-hero {
   display: flex;
   align-items: center;
@@ -188,7 +179,6 @@
   font-family: var(--font-mono);
 }
 
-/* Quantity Control */
 .quantity-control-group {
   margin-bottom: 20px;
 }
@@ -266,7 +256,6 @@
   color: var(--copper-bright);
 }
 
-/* Buy Actions Grid */
 .buy-actions-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -303,7 +292,6 @@
   color: var(--text-dim);
 }
 
-/* Product Tabs Section (Pure CSS State) */
 .product-tabs-section {
   margin-top: 48px;
   background: var(--panel);
@@ -372,7 +360,6 @@
   100% { opacity: 1; transform: translateY(0); }
 }
 
-/* Specs Table */
 .specs-table {
   width: 100%;
   border-collapse: collapse;
@@ -400,7 +387,6 @@
   font-family: var(--font-mono);
 }
 
-/* Reviews Styling */
 .reviews-container {
   display: grid;
   grid-template-columns: 1fr;
@@ -470,7 +456,6 @@
   line-height: 1.6;
 }
 
-/* Review Submission Modal (Checkbox Trigger) */
 #review-modal-toggle {
   display: none;
 }

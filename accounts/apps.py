@@ -5,5 +5,4 @@ class AccountsConfig(AppConfig):
     name = 'accounts'
 
     def ready(self):
-        # Register profile signals if needed
         pass

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% if title %}{{ title }} | {% endif %}TRACEFORGE — Build without bottlenecks</title>
     <meta name="description" content="TRACEFORGE PC Hardware — Every GPU, CPU, memory kit, and drive we sell is burned in on our own test bench before it reaches yours.">
-    <!-- Google Fonts: Space Grotesk, Inter, IBM Plex Mono -->
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -16,13 +16,11 @@
     <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
 </head>
 <body>
-    <!-- Hidden Checkbox for Mobile Navigation Toggle -->
+
     <input type="checkbox" id="mobile-nav-toggle" aria-hidden="true">
 
-    <!-- Global Navigation Header -->
     {% include 'includes/navbar.html' %}
 
-    <!-- Main Container Content -->
     <main class="main-content">
         <div class="wrap">
             {% include 'includes/messages.html' %}
@@ -30,14 +28,10 @@
         {% block content %}{% endblock %}
     </main>
 
-    <!-- Global Footer -->
     {% include 'includes/footer.html' %}
 
-    <!-- Interactive Client Scripts (Progressive Enhancement) -->
     <script>
         document.documentElement.classList.add('js');
-
-        // Mega menu toggle
         const menuBtn = document.getElementById('menuBtn');
         const mega = document.getElementById('megaMenu');
         if (menuBtn && mega) {
@@ -59,8 +53,6 @@
                 }
             });
         }
-
-        // Scroll reveal observer
         const revealEls = document.querySelectorAll('.reveal');
         if ('IntersectionObserver' in window && revealEls.length) {
             const io = new IntersectionObserver((entries) => {
@@ -75,8 +67,6 @@
         } else {
             revealEls.forEach(el => el.classList.add('in-view'));
         }
-
-        // Count-up stats observer
         const nums = document.querySelectorAll('.stat .num');
         if ('IntersectionObserver' in window && nums.length) {
             const countIo = new IntersectionObserver((entries) => {
@@ -101,8 +91,6 @@
             }, { threshold: 0.5 });
             nums.forEach(el => countIo.observe(el));
         }
-
-        // Mouse parallax on hero schematic
         const schematic = document.querySelector('.schematic');
         const heroVisual = document.querySelector('.hero-visual');
         const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -118,8 +106,6 @@
             });
             schematic.style.transition = 'transform .35s ease-out';
         }
-
-        // Newsletter subscription handling
         const newsForm = document.getElementById('newsForm');
         const newsNote = document.getElementById('newsNote');
         if (newsForm && newsNote) {
@@ -130,6 +116,6 @@
                 newsForm.reset();
             });
         }
-    </script>
+</script>
 </body>
 </html>

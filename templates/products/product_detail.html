@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="wrap" style="padding-top: 24px; padding-bottom: 56px;">
-    <!-- Breadcrumb Navigation -->
+
     <nav class="breadcrumb-nav">
         <a href="{% url 'products:product_list' %}">Home</a>
         <span>/</span>
@@ -11,36 +11,31 @@
         <span style="color: var(--copper-bright); font-weight: 600;">{{ product.brand }} {{ product.name }}</span>
     </nav>
 
-    <!-- Top Section: 4K Image Gallery + Summary / Buy Box -->
     <div class="product-detail-layout">
-        
-        <!-- 1. CSS-Only Image Carousel & Thumbnails -->
+
         <div class="gallery-container">
-            <!-- Radio Button Controllers (Pure CSS State) -->
+
             <input type="radio" name="gallery-radio" id="gallery-img-1" class="gallery-radio-input" checked>
             <input type="radio" name="gallery-radio" id="gallery-img-2" class="gallery-radio-input">
             <input type="radio" name="gallery-radio" id="gallery-img-3" class="gallery-radio-input">
 
-            <!-- Viewport for Slides -->
             <div class="gallery-viewport">
                 {% for img in display_gallery %}
                     <div class="gallery-slide slide-{{ forloop.counter }}">
-                        <img src="{{ img.display_url }}" alt="{{ product.name }} - Angle {{ forloop.counter }}">
+                        <img src="{{ img.display_url }}" alt="{{ product.name }} - View {{ forloop.counter }}">
                     </div>
                 {% endfor %}
             </div>
 
-            <!-- Clickable Thumbnails -->
             <div class="gallery-thumbs">
                 {% for img in display_gallery %}
-                    <label for="gallery-img-{{ forloop.counter }}" class="gallery-thumb-label" title="Click to view angle {{ forloop.counter }}">
+                    <label for="gallery-img-{{ forloop.counter }}" class="gallery-thumb-label" title="View Angle {{ forloop.counter }}">
                         <img src="{{ img.display_url }}" alt="Thumbnail {{ forloop.counter }}">
                     </label>
                 {% endfor %}
             </div>
         </div>
 
-        <!-- 2. Summary & Buying Actions -->
         <div class="product-summary-box">
             <div class="product-meta-header">
                 <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
@@ -54,17 +49,16 @@
                 <h1 class="product-detail-title">{{ product.name }}</h1>
 
                 <div class="product-ratings-row">
-                    <span class="star-rating">
-                        ★ {{ product.rating }} / 5.0
+                    <span class="mono" style="color: var(--copper-bright); font-weight: 600;">
+                        {{ product.rating }} / 5.0
                     </span>
-                    <span>•</span>
+                    <span>&bull;</span>
                     <span>{{ product.review_count }} Bench Reviews</span>
-                    <span>•</span>
+                    <span>&bull;</span>
                     <span style="color: var(--ok); font-weight: 600;">In Stock: {{ product.stock_qty }} Units</span>
                 </div>
             </div>
 
-            <!-- Price Display Hero -->
             <div class="product-price-hero">
                 <div class="price-box-left">
                     <span class="price-main">${{ product.price }}</span>
@@ -75,7 +69,7 @@
                 <div>
                     {% if product.is_in_stock %}
                         <span class="badge" style="position: static; background: var(--ok); color: #161005;">
-                            ✓ Bench Verified &amp; Ready
+                            Bench Verified &amp; Ready
                         </span>
                     {% else %}
                         <span class="badge" style="position: static; background: #ef4444; color: #fff;">Out of Stock</span>
@@ -83,48 +77,45 @@
                 </div>
             </div>
 
-            <!-- Short Description Highlights -->
             <p style="font-size: 14.5px; color: var(--text-dim); line-height: 1.6; margin-bottom: 24px;">
                 {{ product.short_description }}
             </p>
 
-            <!-- Buy & Add to Cart Form -->
             <form method="post" action="{% url 'cart:cart_add' product_id=product.id %}">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
 
-                <!-- Quantity Stepper -->
                 <div class="quantity-control-group">
                     <label for="id_quantity" class="quantity-label">Quantity:</label>
                     <div class="interactive-qty-picker">
-                        <button 
-                            type="button" 
-                            id="qty-minus-btn" 
-                            class="btn-qty-click" 
+                        <button
+                            type="button"
+                            id="qty-minus-btn"
+                            class="btn-qty-click"
                             aria-label="Decrease quantity"
                             onclick="changeDetailQty(-1)"
                             disabled
-                        >−</button>
-                        <input 
-                            type="number" 
-                            id="id_quantity" 
-                            name="quantity" 
-                            value="1" 
-                            min="1" 
-                            max="{% if product.stock_qty < 4 %}{{ product.stock_qty }}{% else %}4{% endif %}" 
+                        >&minus;</button>
+                        <input
+                            type="number"
+                            id="id_quantity"
+                            name="quantity"
+                            value="1"
+                            min="1"
+                            max="{% if product.stock_qty < 4 %}{{ product.stock_qty }}{% else %}4{% endif %}"
                             class="qty-input-box"
                             {% if not product.is_in_stock %}disabled{% endif %}
                             oninput="validateDetailQty(this)"
                             readonly
                         >
-                        <button 
-                            type="button" 
-                            id="qty-plus-btn" 
-                            class="btn-qty-click" 
+                        <button
+                            type="button"
+                            id="qty-plus-btn"
+                            class="btn-qty-click"
                             aria-label="Increase quantity"
                             onclick="changeDetailQty(1)"
                             {% if not product.is_in_stock or product.stock_qty <= 1 %}disabled{% endif %}
-                        >+</button>
+                        >&plus;</button>
                     </div>
 
                     <div class="selected-qty-indicator" id="selected-qty-display">
@@ -133,15 +124,14 @@
                     </div>
                 </div>
 
-                <!-- Dual Action Buttons: Add to Cart & Buy Now -->
                 <div class="buy-actions-grid">
                     <button type="submit" class="btn-outline btn-lg" {% if not product.is_in_stock %}disabled style="opacity: 0.4;"{% endif %}>
                         Add to Cart
                     </button>
-                    
-                    <button 
-                        type="submit" 
-                        formaction="{% url 'cart:buy_now' product_id=product.id %}" 
+
+                    <button
+                        type="submit"
+                        formaction="{% url 'cart:buy_now' product_id=product.id %}"
                         class="btn-solid btn-lg"
                         {% if not product.is_in_stock %}disabled style="opacity: 0.4;"{% endif %}
                     >
@@ -152,35 +142,33 @@
 
             <div class="product-perks-list">
                 <div class="perk-item">
-                    <span style="color: var(--copper-bright);">📦</span>
+                    <span style="font-weight: 600; color: var(--copper-bright);">Express:</span>
                     <span>Free Express Delivery over $500</span>
                 </div>
                 <div class="perk-item">
-                    <span style="color: var(--ok);">🛡️</span>
+                    <span style="font-weight: 600; color: var(--ok);">Warranty:</span>
                     <span>{{ product.warranty|default:"3-Year Standard Warranty" }}</span>
                 </div>
                 <div class="perk-item">
-                    <span style="color: var(--copper-bright);">💳</span>
-                    <span>bKash, Nagad &amp; Cash on Delivery</span>
+                    <span style="font-weight: 600; color: var(--copper-bright);">Payment:</span>
+                    <span>Cash on Delivery &amp; WhatsApp (+8801797529625)</span>
                 </div>
                 <div class="perk-item">
-                    <span style="color: var(--steel);">🔄</span>
+                    <span style="font-weight: 600; color: var(--steel);">Coverage:</span>
                     <span>7-Day Replacement Guarantee</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Bottom Section: Pure CSS Tabs for Specs, Description, Reviews, Warranty, Video -->
     <section class="product-tabs-section">
-        <!-- Radio Controllers for Tabs -->
+
         <input type="radio" name="prod-tabs" id="tab-specs" class="tab-radio-input" checked>
         <input type="radio" name="prod-tabs" id="tab-desc" class="tab-radio-input">
         <input type="radio" name="prod-tabs" id="tab-reviews" class="tab-radio-input">
         <input type="radio" name="prod-tabs" id="tab-warranty" class="tab-radio-input">
         <input type="radio" name="prod-tabs" id="tab-video" class="tab-radio-input">
 
-        <!-- Tab Navigation Bar -->
         <div class="tab-nav-bar">
             <label for="tab-specs" class="tab-nav-label">
                 Technical Specifications
@@ -199,10 +187,8 @@
             </label>
         </div>
 
-        <!-- Tab Panels Content -->
         <div class="tab-panels-content">
-            
-            <!-- Panel 1: Technical Specifications -->
+
             <div class="tab-panel panel-specs">
                 <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 16px;">
                     Detailed Hardware Specifications
@@ -223,7 +209,6 @@
                 {% endif %}
             </div>
 
-            <!-- Panel 2: Long-Form Description -->
             <div class="tab-panel panel-desc">
                 <h3 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 14px;">
                     Engineering Highlights &amp; Performance Profile
@@ -231,38 +216,37 @@
                 <p style="font-size: 15px; line-height: 1.75; color: var(--text-dim);">
                     {{ product.long_description }}
                 </p>
-                
+
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px;">
                     <div style="background: var(--panel-2); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--line);">
                         <div style="color: var(--copper-bright); font-weight: 700; font-size: 15px; margin-bottom: 6px;">
-                            ⚡ Ultra-Low Latency Traces
+                            Ultra-Low Latency Traces
                         </div>
                         <div style="font-size: 13.5px; color: var(--text-dim);">Precision-engineered trace lengths and clean power delivery circuits ensure instantaneous response.</div>
                     </div>
                     <div style="background: var(--panel-2); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--line);">
                         <div style="color: var(--ok); font-weight: 700; font-size: 15px; margin-bottom: 6px;">
-                            ❄️ Thermal Superiority
+                            Thermal Superiority
                         </div>
                         <div style="font-size: 13.5px; color: var(--text-dim);">Advanced thermal interfaces maintain peak boost clocks without thermal throttling.</div>
                     </div>
                     <div style="background: var(--panel-2); padding: 18px; border-radius: var(--radius-sm); border: 1px solid var(--line);">
                         <div style="color: var(--steel); font-weight: 700; font-size: 15px; margin-bottom: 6px;">
-                            🔬 48-Hour Burn-In Certified
+                            48-Hour Burn-In Certified
                         </div>
                         <div style="font-size: 13.5px; color: var(--text-dim);">100% stress-tested on our diagnostic bench before dispatch to guarantee stability.</div>
                     </div>
                 </div>
             </div>
 
-            <!-- Panel 3: Customer Comments & Reviews -->
             <div class="tab-panel panel-reviews">
                 <div class="reviews-container">
                     <div>
                         <div class="reviews-summary-card">
                             <div class="reviews-score-block">
                                 <div class="reviews-big-score">{{ product.rating }}</div>
-                                <div style="color: var(--copper-bright); font-size: 1.1rem; margin: 4px 0;">
-                                    ★★★★★
+                                <div class="mono" style="color: var(--copper-bright); font-size: 14px; margin: 4px 0; font-weight: 600;">
+                                    Score: {{ product.rating }} / 5.0
                                 </div>
                                 <div style="font-size: 12px; color: var(--text-faint); font-family: var(--font-mono);">
                                     Based on {{ reviews.count }} review{{ reviews.count|pluralize }}
@@ -278,7 +262,6 @@
                             </div>
                         </div>
 
-                        <!-- Review List -->
                         {% if reviews %}
                             {% for rev in reviews %}
                                 <div class="review-card">
@@ -291,8 +274,8 @@
                                             {{ rev.created_at|date:"M d, Y" }}
                                         </div>
                                     </div>
-                                    <div style="color: var(--copper-bright); font-size: 13px; margin-bottom: 6px;">
-                                        ★ {{ rev.rating }}.0 / 5.0
+                                    <div class="mono" style="color: var(--copper-bright); font-size: 13px; margin-bottom: 6px; font-weight: 600;">
+                                        Rated: {{ rev.rating }} / 5.0
                                     </div>
                                     <div class="review-title">{{ rev.title }}</div>
                                     <p class="review-comment">{{ rev.comment }}</p>
@@ -302,7 +285,6 @@
                             <p style="color: var(--text-dim); font-size: 14px;">No reviews yet for this product. Be the first to share your bench performance data!</p>
                         {% endif %}
 
-                        <!-- Submit Review Trigger -->
                         {% if user.is_authenticated %}
                             <div style="margin-top: 24px;">
                                 <label for="review-modal-toggle" class="btn-solid" style="cursor: pointer;">
@@ -314,7 +296,6 @@
                 </div>
             </div>
 
-            <!-- Panel 4: Warranty -->
             <div class="tab-panel panel-warranty">
                 <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 14px;">
                     Official Manufacturer Warranty &amp; TRACEFORGE Coverage
@@ -327,7 +308,6 @@
                 </div>
             </div>
 
-            <!-- Panel 5: Video Showcase -->
             <div class="tab-panel panel-video">
                 <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 14px;">
                     Bench Stress Test &amp; Architecture Breakdown
@@ -343,25 +323,24 @@
         </div>
     </section>
 
-    <!-- Review Modal Checkbox Hack -->
     {% if user.is_authenticated %}
         <input type="checkbox" id="review-modal-toggle">
         <label for="review-modal-toggle" class="review-modal-overlay"></label>
         <div class="review-modal-content">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
                 <h3 style="font-size: 1.3rem; font-weight: 700; color: var(--text);">Submit Bench Review</h3>
-                <label for="review-modal-toggle" style="cursor: pointer; font-size: 18px; color: var(--text-faint);">✕</label>
+                <label for="review-modal-toggle" style="cursor: pointer; font-size: 18px; color: var(--text-faint);">&times;</label>
             </div>
-            <form method="post" action="{% url 'products:add_review' product_id=product.id %}">
+            <form method="post" action="{% url 'products:add_review' slug=product.slug %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label class="form-label">Score (1 to 5 Stars)</label>
+                    <label class="form-label">Rating Score (1 to 5)</label>
                     <select name="rating" class="form-select" required>
-                        <option value="5">★★★★★ (5/5) Exceptional</option>
-                        <option value="4">★★★★☆ (4/5) Very Good</option>
-                        <option value="3">★★★☆☆ (3/5) Average</option>
-                        <option value="2">★★☆☆☆ (2/5) Below Expectations</option>
-                        <option value="1">★☆☆☆☆ (1/5) Poor</option>
+                        <option value="5">5 / 5 - Exceptional Performance</option>
+                        <option value="4">4 / 5 - Very Good</option>
+                        <option value="3">3 / 5 - Average / Expected</option>
+                        <option value="2">2 / 5 - Below Expectations</option>
+                        <option value="1">1 / 5 - Poor</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -380,7 +359,6 @@
     {% endif %}
 </div>
 
-<!-- Interactive Stepper Script -->
 <script>
     function changeDetailQty(delta) {
         const input = document.getElementById('id_quantity');
@@ -388,15 +366,12 @@
         const minusBtn = document.getElementById('qty-minus-btn');
         const plusBtn = document.getElementById('qty-plus-btn');
         if (!input) return;
-
         let current = parseInt(input.value) || 1;
         const min = parseInt(input.min) || 1;
         const max = parseInt(input.max) || 4;
-
         current = Math.min(Math.max(current + delta, min), max);
         input.value = current;
         if (numDisplay) numDisplay.textContent = current;
-
         if (minusBtn) minusBtn.disabled = (current <= min);
         if (plusBtn) plusBtn.disabled = (current >= max);
     }

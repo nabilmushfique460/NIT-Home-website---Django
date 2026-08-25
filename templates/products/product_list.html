@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<!-- ===== HERO SECTION WITH SCHEMATIC ===== -->
+
 <section class="hero" id="top">
   <div class="wrap hero-inner">
     <div class="hero-copy">
@@ -11,7 +11,6 @@
       <p class="hero-sub">Every GPU, CPU, memory kit, and drive we sell is burned in on our own test bench before it reaches yours. Real clocks, real thermals — no surprises at first boot.</p>
       <div class="hero-ctas">
         <a href="#shop" class="btn-solid lg">Shop Hardware</a>
-        <a href="#catalog" class="btn-outline lg">See bench results &rarr;</a>
       </div>
       <div class="hero-micro">
         <div><span class="val">48H</span><small>Burn-in per unit</small></div>
@@ -22,13 +21,12 @@
 
     <div class="hero-visual">
       <svg class="schematic" viewBox="0 0 600 600" aria-label="Traceforge Hardware Architecture Schematic">
-        <!-- traces -->
+
         <path class="trace t1" d="M180,140 L270,140 L270,258"/>
         <path class="trace t2" d="M420,140 L330,140 L330,258"/>
         <path class="trace t3" d="M180,460 L270,460 L270,342"/>
         <path class="trace t4" d="M420,460 L330,460 L330,342"/>
 
-        <!-- traveling data packets -->
         <circle class="packet" r="4">
           <animateMotion dur="2.6s" begin="1.6s" repeatCount="indefinite" path="M180,140 L270,140 L270,258"/>
         </circle>
@@ -42,14 +40,12 @@
           <animateMotion dur="2.6s" begin="2.8s" repeatCount="indefinite" path="M420,460 L330,460 L330,342"/>
         </circle>
 
-        <!-- hub -->
         <g class="hub">
           <circle cx="300" cy="300" r="50"/>
           <path class="icon-stroke" d="M288,288 H312 V312 H288 Z M280,296 H288 M280,304 H288 M312,296 H320 M312,304 H320 M296,280 V288 M304,280 V288 M296,312 V320 M304,312 V320"/>
           <text x="300" y="336" text-anchor="middle" class="spec" fill="currentColor">TF-CORE</text>
         </g>
 
-        <!-- CPU node -->
         <g class="node-g n1">
           <g class="node-float">
             <circle class="badge" cx="140" cy="140" r="40"/>
@@ -59,7 +55,6 @@
           </g>
         </g>
 
-        <!-- GPU node -->
         <g class="node-g n2">
           <g class="node-float">
             <circle class="badge" cx="460" cy="140" r="40"/>
@@ -71,7 +66,6 @@
           </g>
         </g>
 
-        <!-- RAM node -->
         <g class="node-g n3">
           <g class="node-float">
             <circle class="badge" cx="140" cy="460" r="40"/>
@@ -83,7 +77,6 @@
           </g>
         </g>
 
-        <!-- SSD node -->
         <g class="node-g n4">
           <g class="node-float">
             <circle class="badge" cx="460" cy="460" r="40"/>
@@ -99,7 +92,6 @@
   </div>
 </section>
 
-<!-- ===== CATEGORIES SECTION ===== -->
 <section id="shop">
   <div class="wrap">
     <div class="section-head">
@@ -121,8 +113,8 @@
         <h3>Graphics Cards</h3>
         <p>From 1440p sweet spots to 4K flagships, every card power-tested at full load.</p>
         <span class="range mono">12–24GB VRAM</span>
-        <a class="go" href="{% url 'products:product_list' %}?category=graphics-cards#catalog">
-          Shop GPUs 
+        <a class="go" href="{% url 'products:product_list' %}?category=gpu#catalog">
+          Shop GPUs
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
         </a>
       </div>
@@ -135,8 +127,8 @@
         <h3>Processors</h3>
         <p>Desktop chips for gaming and workstation loads, binned for sustained clocks.</p>
         <span class="range mono">6–24 cores</span>
-        <a class="go" href="{% url 'products:product_list' %}?category=processors#catalog">
-          Shop CPUs 
+        <a class="go" href="{% url 'products:product_list' %}?category=cpu#catalog">
+          Shop CPUs
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
         </a>
       </div>
@@ -151,7 +143,7 @@
         <p>DDR5 kits matched and tested in pairs, so timings hold at rated speed.</p>
         <span class="range mono">16–128GB kits</span>
         <a class="go" href="{% url 'products:product_list' %}?category=ram#catalog">
-          Shop Memory 
+          Shop Memory
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
         </a>
       </div>
@@ -165,8 +157,8 @@
         <h3>Storage</h3>
         <p>NVMe drives benchmarked on real sequential and random workloads, not just peak numbers.</p>
         <span class="range mono">500GB–4TB</span>
-        <a class="go" href="{% url 'products:product_list' %}?category=storage#catalog">
-          Shop Storage 
+        <a class="go" href="{% url 'products:product_list' %}?category=ssd#catalog">
+          Shop Storage
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12H19M19 12L13 6M19 12L13 18"/></svg>
         </a>
       </div>
@@ -174,45 +166,65 @@
   </div>
 </section>
 
-<!-- ===== PRODUCTS CATALOG SECTION ===== -->
 <section id="catalog">
   <div class="wrap">
     <div class="section-head">
       <div>
-        <span class="eyebrow mono" id="bench">Bench-tested this week</span>
-        <h2>Featured hardware catalog</h2>
+        <span class="eyebrow mono" id="bench">Bench-tested hardware</span>
+        <h2>
+          {% if selected_category == 'gpu' %}
+            Graphics Cards (GPUs)
+          {% elif selected_category == 'cpu' %}
+            Processors (CPUs)
+          {% elif selected_category == 'ram' %}
+            System Memory (RAM)
+          {% elif selected_category == 'ssd' %}
+            Solid State Drives (SSD)
+          {% else %}
+            Hardware Catalog
+          {% endif %}
+        </h2>
       </div>
-      <p>A cross-section of what's moving fastest off our diagnostic bench right now.</p>
+      <p>
+        {% if selected_category == 'gpu' %}
+          Full-load thermal and power-tested discrete graphics accelerators.
+        {% elif selected_category == 'cpu' %}
+          Multi-core processors binned for sustained boost frequencies.
+        {% elif selected_category == 'ram' %}
+          DDR5 matched memory kits tested for rock-solid timing stability.
+        {% elif selected_category == 'ssd' %}
+          PCIe NVMe solid state drives verified under sustained sequential and random I/O.
+        {% else %}
+          A cross-section of what's moving fastest off our diagnostic bench right now.
+        {% endif %}
+      </p>
     </div>
 
-    <!-- Category Filter Pills Bar -->
     <div class="cat-filter-pills-bar">
-      <a href="{% url 'products:product_list' %}#catalog" class="filter-pill {% if not current_category %}active{% endif %}">
+      <a href="{% url 'products:product_list' %}#catalog" class="filter-pill {% if not selected_category %}active{% endif %}">
         All Hardware
       </a>
       {% for cat in categories %}
-        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}#catalog" class="filter-pill {% if current_category == cat.slug %}active{% endif %}">
-          {{ cat.name }} ({{ cat.product_count }})
+        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}#catalog" class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">
+          {{ cat.name }}
         </a>
       {% endfor %}
     </div>
 
     {% if search_query %}
       <div style="margin-bottom: 24px; color: var(--text-dim); font-size: 14px;">
-        Showing search results for "<strong style="color: var(--copper-bright);">{{ search_query }}</strong>" ({{ total_products }} matched):
-        <a href="{% url 'products:product_list' %}" style="margin-left: 12px; color: var(--copper); text-decoration: underline;">Clear Search</a>
+        Showing search results for "<strong style="color: var(--copper-bright);">{{ search_query }}</strong>" ({{ products|length }} matched):
+        <a href="{% url 'products:product_list' %}#catalog" style="margin-left: 12px; color: var(--copper); text-decoration: underline;">Clear Search</a>
       </div>
     {% endif %}
 
-    <!-- Product Grid -->
     {% if products %}
       <div class="prod-grid">
         {% for product in products %}
           <article class="product-card reveal">
-            <!-- Visual Card Header -->
-            <div class="product-visual {% if 'gpu' in product.category.slug or 'graphics' in product.category.slug %}product-visual--gpu{% elif 'cpu' in product.category.slug or 'processor' in product.category.slug %}product-visual--cpu{% elif 'ram' in product.category.slug or 'memory' in product.category.slug %}product-visual--ram{% else %}product-visual--ssd{% endif %}">
-              
-              <!-- Badges -->
+
+            <div class="product-visual {% if product.category.slug == 'gpu' %}product-visual--gpu{% elif product.category.slug == 'cpu' %}product-visual--cpu{% elif product.category.slug == 'ram' %}product-visual--ram{% else %}product-visual--ssd{% endif %}">
+
               {% if product.discount_percent > 0 %}
                 <span class="badge">-{{ product.discount_percent }}% OFF</span>
               {% elif forloop.counter == 1 %}
@@ -221,14 +233,13 @@
                 <span class="badge value">New</span>
               {% endif %}
 
-              <!-- Watermark SVG Icon -->
-              {% if 'gpu' in product.category.slug or 'graphics' in product.category.slug %}
+              {% if product.category.slug == 'gpu' %}
                 <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2.4"/><circle cx="15" cy="12" r="2.4"/></svg>
                 <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="7" width="20" height="10" rx="2"/><circle cx="8" cy="12" r="2.4"/><circle cx="15" cy="12" r="2.4"/><path d="M2 17V19H6M22 17V19H18"/></svg>
-              {% elif 'cpu' in product.category.slug or 'processor' in product.category.slug %}
+              {% elif product.category.slug == 'cpu' %}
                 <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="6" y="6" width="12" height="12" rx="1.5"/></svg>
                 <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="6" y="6" width="12" height="12" rx="1.5"/><path d="M9 2V6M15 2V6M9 18V22M15 18V22M2 9H6M2 15H6M18 9H22M18 15H22"/></svg>
-              {% elif 'ram' in product.category.slug or 'memory' in product.category.slug %}
+              {% elif product.category.slug == 'ram' %}
                 <svg class="watermark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="4" y="4" width="6" height="16" rx="1"/><rect x="14" y="4" width="6" height="16" rx="1"/></svg>
                 <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="4" y="4" width="6" height="16" rx="1"/><rect x="14" y="4" width="6" height="16" rx="1"/><path d="M6 4V2M8 4V2M16 4V2M18 4V2"/></svg>
               {% else %}
@@ -236,13 +247,11 @@
                 <svg class="fg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="7" cy="9" r="1"/><path d="M7 14H17"/></svg>
               {% endif %}
 
-              <!-- Real Hardware Image Overlay if Available -->
               {% if product.primary_image_url %}
                 <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-real-img" loading="lazy">
               {% endif %}
             </div>
 
-            <!-- Card Body -->
             <div class="product-body">
               <div class="product-cat mono">{{ product.category.name }} · {{ product.brand }}</div>
               <h3>
@@ -275,14 +284,13 @@
     {% else %}
       <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 56px 24px; text-align: center;">
         <h3 style="font-size: 1.3rem; margin-bottom: 8px;">No hardware components match this criteria</h3>
-        <p style="color: var(--text-dim); margin-bottom: 20px;">Try adjusting your search query or view all catalog categories.</p>
-        <a href="{% url 'products:product_list' %}" class="btn-solid">View All Products</a>
+        <p style="color: var(--text-dim); margin-bottom: 20px;">Try adjusting your category filter or view all catalog products.</p>
+        <a href="{% url 'products:product_list' %}#catalog" class="btn-solid">View All Products</a>
       </div>
     {% endif %}
   </div>
 </section>
 
-<!-- ===== STATS BAND ===== -->
 <div class="stats-band">
   <div class="wrap stats-grid">
     <div class="stat reveal">
@@ -304,7 +312,6 @@
   </div>
 </div>
 
-<!-- ===== CTA COMPATIBILITY BANNER ===== -->
 <section>
   <div class="cta-banner">
     <div class="cta-inner reveal">

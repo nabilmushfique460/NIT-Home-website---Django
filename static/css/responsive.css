@@ -1,9 +1,3 @@
-/* ==========================================================================
-   TRACEFORGE — Responsive Media Queries & Mobile Drawer CSS
-   Breakpoints: 1020px (Tablet/Medium) & 640px (Mobile)
-   ========================================================================== */
-
-/* ===== Tablet & Medium Viewports (max-width: 1020px) ===== */
 @media (max-width: 1020px) {
   .hero-inner {
     grid-template-columns: 1fr;
@@ -50,7 +44,6 @@
   }
 }
 
-/* ===== Mobile Viewports (max-width: 640px) ===== */
 @media (max-width: 640px) {
   .wrap, .nav-inner, .mega {
     padding-left: 20px;
@@ -109,7 +102,6 @@
   }
 }
 
-/* ===== Mobile Drawer Navigation (Checkbox Trigger) ===== */
 #mobile-nav-toggle {
   display: none;
 }

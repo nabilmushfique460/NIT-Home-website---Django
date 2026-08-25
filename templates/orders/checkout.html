@@ -16,11 +16,9 @@
         {% csrf_token %}
 
         <div class="checkout-layout">
-            
-            <!-- Left Column: Shipping & Payment Steps -->
+
             <div>
-                
-                <!-- Step 1: Customer Contact & Shipping Address -->
+
                 <section class="checkout-section-card">
                     <div class="checkout-section-header">
                         <span class="checkout-step-number">1</span>
@@ -95,7 +93,6 @@
                     {% endif %}
                 </section>
 
-                <!-- Step 2: Payment Method Selection -->
                 <section class="checkout-section-card">
                     <div class="checkout-section-header">
                         <span class="checkout-step-number">2</span>
@@ -103,43 +100,32 @@
                     </div>
 
                     <div class="payment-method-selector">
-                        <!-- Option 1: COD -->
+
                         <label class="payment-option-card" for="pay-cod">
                             <input type="radio" name="payment_method" value="COD" id="pay-cod" checked class="form-checkbox">
                             <div class="payment-option-body">
-                                <div class="payment-option-title">Cash on Delivery (COD)</div>
-                                <div class="payment-option-desc">Pay directly in cash to the courier upon bench verification and handover.</div>
+                                <div class="payment-option-title" style="color: var(--copper-bright); font-size: 15px;">
+                                    Cash on Delivery (COD)
+                                </div>
+                                <div class="payment-option-desc">
+                                    Pay directly upon delivery and hardware unboxing.
+                                </div>
                             </div>
                         </label>
 
-                        <!-- Option 2: bKash -->
-                        <label class="payment-option-card" for="pay-bkash">
-                            <input type="radio" name="payment_method" value="BKASH" id="pay-bkash" class="form-checkbox">
-                            <div class="payment-option-body">
-                                <div class="payment-option-title" style="display: flex; align-items: center; gap: 8px;">
-                                    bKash Online Payment
-                                    <span class="badge" style="position: static; font-size: 10px; padding: 2px 6px;">Instant</span>
-                                </div>
-                                <div class="payment-option-desc">Automated server-side redirect checkout with bKash simulator gateway.</div>
+                        <div style="background: var(--panel-2); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 16px; margin-top: 6px; font-size: 13.5px; line-height: 1.6; color: var(--text-dim);">
+                            <div style="color: var(--copper-bright); font-weight: 600; margin-bottom: 6px;">
+                                Payment System Notice
                             </div>
-                        </label>
-
-                        <!-- Option 3: Nagad -->
-                        <label class="payment-option-card" for="pay-nagad">
-                            <input type="radio" name="payment_method" value="NAGAD" id="pay-nagad" class="form-checkbox">
-                            <div class="payment-option-body">
-                                <div class="payment-option-title" style="display: flex; align-items: center; gap: 8px;">
-                                    Nagad Direct Gateway
-                                    <span class="badge" style="position: static; font-size: 10px; padding: 2px 6px;">Instant</span>
-                                </div>
-                                <div class="payment-option-desc">Digital postal payment flow with cryptographic callback validation.</div>
-                            </div>
-                        </label>
+                            <p style="margin: 0; color: var(--text);">
+                                The payment system will be available soon. Please use the <strong>Cash on Delivery</strong> method or contact us on WhatsApp:
+                                <a href="https://wa.me/8801797529625" target="_blank" rel="noopener noreferrer" style="color: var(--copper-bright); font-weight: 700; font-family: var(--font-mono); text-decoration: underline; margin-left: 4px;">+8801797529625</a>
+                            </p>
+                        </div>
                     </div>
                 </section>
             </div>
 
-            <!-- Right Column: Order Summary & Confirmation Button -->
             <div>
                 <div class="checkout-summary-box">
                     <h3 class="summary-title">Manifest Items ({{ cart|length }})</h3>

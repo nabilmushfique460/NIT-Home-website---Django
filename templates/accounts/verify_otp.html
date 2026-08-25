@@ -21,23 +21,23 @@
 
                 <div class="form-group">
                     <label class="form-label" style="text-align: center;">Enter 6-Digit OTP Code</label>
-                    <input 
-                        type="text" 
+                    <input
+                        type="text"
                         id="otp-input"
-                        name="otp" 
-                        class="form-input mono" 
-                        style="text-align: center; font-size: 1.6rem; letter-spacing: 0.25em; font-weight: 700; color: var(--copper-bright);" 
-                        placeholder="••••••" 
-                        maxlength="6" 
+                        name="otp"
+                        class="form-input mono"
+                        style="text-align: center; font-size: 1.6rem; letter-spacing: 0.25em; font-weight: 700; color: var(--copper-bright);"
+                        placeholder="••••••"
+                        maxlength="6"
                         pattern="[0-9]{6}"
                         autocomplete="off"
                         onpaste="return false;"
                         ondrop="return false;"
-                        required 
+                        required
                         autofocus
                     >
                     <small style="display: block; text-align: center; color: var(--text-faint); margin-top: 6px; font-size: 12px; font-family: var(--font-mono);">
-                        🔒 Manual key entry required
+                        Manual key entry required
                     </small>
                     {% if form.otp.errors %}<span class="form-error">{{ form.otp.errors.0 }}</span>{% endif %}
                 </div>
@@ -51,17 +51,17 @@
                 <p style="font-size: 13px; color: var(--text-faint); margin-bottom: 10px;">Didn't receive the OTP code?</p>
                 <form method="post" action="{% url 'accounts:resend_otp' %}" style="display: inline;">
                     {% csrf_token %}
-                    <button 
-                        type="submit" 
-                        id="resend-btn" 
-                        class="btn-outline btn-sm" 
+                    <button
+                        type="submit"
+                        id="resend-btn"
+                        class="btn-outline btn-sm"
                         style="font-size: 13px; min-width: 170px;"
                         {% if resend_cooldown > 0 %}disabled{% endif %}
                     >
                         {% if resend_cooldown > 0 %}
                             Resend in <span id="cooldown-timer">{{ resend_cooldown }}</span>s
                         {% else %}
-                            🔄 Resend OTP Code
+                            Resend OTP Code
                         {% endif %}
                     </button>
                 </form>
@@ -84,11 +84,9 @@
             }
         });
     }
-
     let remainingSeconds = parseInt("{{ resend_cooldown|default:'0' }}", 10);
     const resendBtn = document.getElementById('resend-btn');
     const timerSpan = document.getElementById('cooldown-timer');
-
     if (remainingSeconds > 0 && resendBtn) {
         resendBtn.disabled = true;
         const countdownInterval = setInterval(function() {
@@ -97,11 +95,10 @@
                 timerSpan.textContent = remainingSeconds;
             }
             resendBtn.textContent = 'Resend in ' + remainingSeconds + 's';
-
             if (remainingSeconds <= 0) {
                 clearInterval(countdownInterval);
                 resendBtn.disabled = false;
-                resendBtn.innerHTML = '🔄 Resend OTP Code';
+                resendBtn.innerHTML = 'Resend OTP Code';
             }
         }, 1000);
     }

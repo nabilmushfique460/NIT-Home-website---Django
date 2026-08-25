@@ -14,8 +14,7 @@
 
     {% if not cart.is_empty %}
     <div class="cart-layout">
-        
-        <!-- Cart Items Table Card -->
+
         <div class="cart-items-card">
             <table class="cart-table">
                 <thead>
@@ -48,7 +47,7 @@
                             </td>
                             <td>
                                 <div class="cart-qty-form">
-                                    <!-- Decrease button -->
+
                                     <form method="post" action="{% url 'cart:cart_update' product_id=item.product.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="decrease">
@@ -57,7 +56,6 @@
 
                                     <span class="cart-qty-display">{{ item.quantity }}</span>
 
-                                    <!-- Increase button -->
                                     <form method="post" action="{% url 'cart:cart_update' product_id=item.product.id %}">
                                         {% csrf_token %}
                                         <input type="hidden" name="action" value="increase">
@@ -94,7 +92,6 @@
             </div>
         </div>
 
-        <!-- Cart Summary Box -->
         <div class="cart-summary-box">
             <h3 class="cart-summary-title">Summary &amp; Shipping</h3>
 
@@ -122,8 +119,8 @@
                 Proceed to Checkout &rarr;
             </a>
 
-            <div style="margin-top: 16px; font-size: 12px; color: var(--text-faint); text-align: center;">
-                🔒 256-Bit Encrypted Secure Checkout
+            <div style="margin-top: 14px; text-align: center; font-size: 12px; color: var(--text-faint);">
+                256-Bit Encrypted Secure Checkout
             </div>
         </div>
     </div>

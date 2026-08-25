@@ -8,16 +8,14 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-
 class UserManager(BaseUserManager):
-    """Custom manager for User model using email as the unique identifier."""
 
     def create_user(self, email, password=None, **extra_fields):
         if not email:
             raise ValueError('Email address is required')
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)  # Django automatically hashes via PBKDF2/Argon2/bcrypt
+        user.set_password(password)
         user.save(using=self._db)
         return user
 
@@ -26,17 +24,13 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_verified', True)
         extra_fields.setdefault('is_active', True)
-
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
-
         return self.create_user(email, password, **extra_fields)
 
-
 class User(AbstractBaseUser, PermissionsMixin):
-    """Custom User model where email is the unique identifier."""
     email = models.EmailField(unique=True, db_index=True)
     first_name = models.CharField(max_length=50, blank=True)
     last_name = models.CharField(max_length=50, blank=True)
@@ -44,9 +38,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-
     objects = UserManager()
-
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -59,17 +51,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_full_name(self) -> str:
-        full = f"{self.first_name} {self.last_name}".strip()
+        full = f'{self.first_name} {self.last_name}'.strip()
         return full if full else self.email
 
     def get_short_name(self) -> str:
         return self.first_name if self.first_name else self.email.split('@')[0]
 
-
 class EmailVerification(models.Model):
-    """Stores cryptographically hashed OTPs and tracking metadata for email verification and password resets."""
     COOLDOWN_SECONDS = 60
-
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verifications')
     otp_hash = models.CharField(max_length=255)
     expires_at = models.DateTimeField()
@@ -83,58 +72,41 @@ class EmailVerification(models.Model):
 
     @classmethod
     def can_resend_otp(cls, user) -> tuple[bool, int]:
-        """Checks if 60 seconds have elapsed since the last OTP was generated for this user.
-        Returns (can_resend: bool, seconds_remaining: int).
-        """
         last_record = cls.objects.filter(user=user).order_by('-created_at').first()
         if not last_record:
-            return True, 0
+            return (True, 0)
         elapsed = (timezone.now() - last_record.created_at).total_seconds()
         if elapsed < cls.COOLDOWN_SECONDS:
-            return False, max(1, int(cls.COOLDOWN_SECONDS - elapsed))
-        return True, 0
+            return (False, max(1, int(cls.COOLDOWN_SECONDS - elapsed)))
+        return (True, 0)
 
     @classmethod
     def generate_otp(cls, user):
-        # Invalidate old OTP records for this user
         cls.objects.filter(user=user).delete()
-
-        # Cryptographically secure 6-digit random code
         plain_otp = str(secrets.randbelow(900000) + 100000)
         otp_hash = make_password(plain_otp)
         expires_at = timezone.now() + timedelta(minutes=10)
-
-        record = cls.objects.create(
-            user=user,
-            otp_hash=otp_hash,
-            expires_at=expires_at
-        )
-        return plain_otp, record
+        record = cls.objects.create(user=user, otp_hash=otp_hash, expires_at=expires_at)
+        return (plain_otp, record)
 
     def check_otp(self, plain_otp: str) -> bool:
-        """Verifies the plain text OTP against the stored hash with rate limit & expiration protection."""
         if self.attempts >= 5:
             return False
         self.attempts += 1
         self.save(update_fields=['attempts'])
-
         if timezone.now() > self.expires_at:
             return False
-
         return check_password(plain_otp.strip(), self.otp_hash)
 
     def is_valid(self) -> bool:
-        """Returns True if the verification record is not expired and under attempt limit."""
         return timezone.now() <= self.expires_at and self.attempts < 5
 
     def __str__(self) -> str:
-        return f"OTP verification for {self.user.email} (Expires {self.expires_at})"
-
+        return f'OTP verification for {self.user.email} (Expires {self.expires_at})'
 
 class Profile(models.Model):
-    """Extended user profile model."""
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    phone = models.CharField(max_length=20, blank=True, null=True, help_text="Contact telephone/mobile number")
+    phone = models.CharField(max_length=20, blank=True, null=True, help_text='Contact telephone/mobile number')
     street_address = models.CharField(max_length=255, blank=True, null=True)
     city = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
@@ -142,20 +114,16 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"{self.user.email}'s Profile ({'Verified' if self.user.is_verified else 'Unverified'})"
-
+        return f"{self.user.email}'s Profile ({('Verified' if self.user.is_verified else 'Unverified')})"
 
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
-    else:
-        if hasattr(instance, 'profile'):
-            instance.profile.save()
-
+    elif hasattr(instance, 'profile'):
+        instance.profile.save()
 
 class Address(models.Model):
-    """Customer shipping address model."""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses')
     full_name = models.CharField(max_length=120)
     phone = models.CharField(max_length=20)
@@ -177,4 +145,4 @@ class Address(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.full_name} - {self.street_address}, {self.city}"
+        return f'{self.full_name} - {self.street_address}, {self.city}'

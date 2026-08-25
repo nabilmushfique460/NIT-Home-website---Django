@@ -1,8 +1,3 @@
-/* ==========================================================================
-   TRACEFORGE — Forms, Cart, Checkout, Auth, Invoices & Payment Gateway CSS
-   ========================================================================== */
-
-/* Generic Form Controls */
 .form-group {
   margin-bottom: 20px;
 }
@@ -69,7 +64,6 @@
   cursor: pointer;
 }
 
-/* Auth Layout (Login, Signup, OTP, Profile) */
 .auth-wrapper {
   max-width: 440px;
   margin: 56px auto;
@@ -117,7 +111,6 @@
   text-decoration: underline;
 }
 
-/* Shopping Cart Table & Summary */
 .cart-layout {
   display: grid;
   grid-template-columns: 1fr 380px;
@@ -248,7 +241,6 @@
   align-items: center;
 }
 
-/* Cart & Checkout Summary Box */
 .cart-summary-box, .cart-summary-card, .checkout-summary-box {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -286,7 +278,6 @@
   font-family: var(--font-mono);
 }
 
-/* Checkout Layout & Steps */
 .checkout-layout {
   display: grid;
   grid-template-columns: 1.2fr 0.8fr;
@@ -367,7 +358,6 @@
   color: var(--text-dim);
 }
 
-/* Checkout Summary Items */
 .checkout-item-row {
   display: flex;
   align-items: center;
@@ -390,7 +380,6 @@
   font-size: 13.5px;
 }
 
-/* Invoices & Order Timeline Tracking */
 .invoice-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -465,7 +454,6 @@
   color: var(--text);
 }
 
-/* Order History Cards */
 .order-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -489,7 +477,6 @@
   padding: 24px;
 }
 
-/* bKash & Nagad Simulator Gateway Cards */
 .gateway-wrapper, .bkash-gateway-box, .nagad-gateway-box {
   max-width: 480px;
   margin: 48px auto;

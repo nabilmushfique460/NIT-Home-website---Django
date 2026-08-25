@@ -12,14 +12,13 @@ from accounts.models import Address
 from payments.services import PaymentGatewayFactory
 
 class CheckoutView(FormView):
-    """Checkout Class-Based View."""
     template_name = 'orders/checkout.html'
     form_class = CheckoutForm
 
     def dispatch(self, request, *args, **kwargs):
         cart = Cart(request)
         if cart.is_empty():
-            messages.warning(request, "Your cart is empty. Please add items before checkout.")
+            messages.warning(request, 'Your cart is empty. Please add items before checkout.')
             return redirect('products:product_list')
         return super().dispatch(request, *args, **kwargs)
 
@@ -27,15 +26,13 @@ class CheckoutView(FormView):
         initial = super().get_initial()
         if self.request.user.is_authenticated:
             user = self.request.user
-            initial['full_name'] = f"{user.first_name} {user.last_name}".strip() or user.email
+            initial['full_name'] = f'{user.first_name} {user.last_name}'.strip() or user.email
             initial['email'] = user.email
             if hasattr(user, 'profile') and user.profile.phone:
                 initial['phone'] = user.profile.phone
-
             default_address = Address.objects.filter(user=user, is_default=True).first()
             if not default_address:
                 default_address = Address.objects.filter(user=user).first()
-
             if default_address:
                 initial['street_address'] = default_address.street_address
                 initial['city'] = default_address.city
@@ -54,40 +51,20 @@ class CheckoutView(FormView):
     def form_valid(self, form):
         cart = Cart(self.request)
         user = self.request.user if self.request.user.is_authenticated else None
-
         try:
             order = OrderService.create_order_from_cart(cart, form.cleaned_data, user=user)
         except ValidationError as e:
             messages.error(self.request, str(e))
             return self.form_invalid(form)
-
-        # Optionally save new address for authenticated user
         if user and form.cleaned_data.get('save_address_to_profile'):
-            Address.objects.get_or_create(
-                user=user,
-                street_address=form.cleaned_data['street_address'],
-                city=form.cleaned_data['city'],
-                postal_code=form.cleaned_data['postal_code'],
-                defaults={
-                    'full_name': form.cleaned_data['full_name'],
-                    'phone': form.cleaned_data['phone'],
-                    'state_or_division': form.cleaned_data.get('state_or_division', ''),
-                    'country': form.cleaned_data.get('country', 'Bangladesh'),
-                }
-            )
-
-        # Clear cart upon order creation
+            Address.objects.get_or_create(user=user, street_address=form.cleaned_data['street_address'], city=form.cleaned_data['city'], postal_code=form.cleaned_data['postal_code'], defaults={'full_name': form.cleaned_data['full_name'], 'phone': form.cleaned_data['phone'], 'state_or_division': form.cleaned_data.get('state_or_division', ''), 'country': form.cleaned_data.get('country', 'Bangladesh')})
         cart.clear()
-
-        # Strategy pattern execution
         payment_method = form.cleaned_data['payment_method']
         gateway = PaymentGatewayFactory.get_gateway(payment_method)
         redirect_url = gateway.initiate_payment(order, self.request)
-
         return redirect(redirect_url)
 
 class OrderSuccessView(DetailView):
-    """Order placed confirmation Class-Based View."""
     model = Order
     template_name = 'orders/order_success.html'
     context_object_name = 'order'
@@ -96,11 +73,10 @@ class OrderSuccessView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = f"Order #{self.object.order_number} Confirmed"
+        context['title'] = f'Order #{self.object.order_number} Confirmed'
         return context
 
 class OrderDetailView(DetailView):
-    """Detailed order invoice and status timeline tracking Class-Based View."""
     model = Order
     template_name = 'orders/order_detail.html'
     context_object_name = 'order'
@@ -109,11 +85,10 @@ class OrderDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['title'] = f"Invoice #{self.object.order_number}"
+        context['title'] = f'Invoice #{self.object.order_number}'
         return context
 
 class OrderHistoryView(LoginRequiredMixin, ListView):
-    """Customer past orders list Class-Based View."""
     model = Order
     template_name = 'orders/order_history.html'
     context_object_name = 'orders'
@@ -128,12 +103,12 @@ class OrderHistoryView(LoginRequiredMixin, ListView):
         return context
 
 class OrderCancelView(LoginRequiredMixin, View):
-    """Cancel order request."""
+
     def post(self, request, order_number, *args, **kwargs):
         order = get_object_or_404(Order, order_number=order_number, user=request.user)
         try:
             OrderService.cancel_order(order)
-            messages.success(request, f"Order #{order.order_number} has been cancelled successfully.")
+            messages.success(request, f'Order #{order.order_number} has been cancelled successfully.')
         except ValidationError as e:
             messages.error(request, str(e))
         return redirect('orders:order_detail', order_number=order.order_number)

@@ -1,8 +1,8 @@
 {% load static %}
-<!-- TRACEFORGE Navigation Header -->
+
 <header class="nav" id="top">
   <div class="nav-inner">
-    <!-- Brand Logo -->
+
     <a class="logo" href="{% url 'products:product_list' %}">
       <svg viewBox="0 0 26 26" fill="none" aria-hidden="true">
         <path d="M13 3L21 8V18L13 23L5 18V8L13 3Z" stroke="#E0894F" stroke-width="1.6" stroke-linejoin="round"/>
@@ -12,32 +12,27 @@
       TRACEFORGE
     </a>
 
-    <!-- Shop Mega Dropdown Button -->
     <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="megaMenu">
       <span class="plus">+</span> Shop
     </button>
 
-    <!-- Desktop Category Quick Links -->
     <nav class="nav-links">
-      <a href="{% url 'products:product_list' %}?category=graphics-cards">GPUs</a>
-      <a href="{% url 'products:product_list' %}?category=processors">CPUs</a>
-      <a href="{% url 'products:product_list' %}?category=ram">Memory</a>
-      <a href="{% url 'products:product_list' %}?category=storage">Storage</a>
-      <a href="{% url 'products:product_list' %}#bench">Benchmarks</a>
+      <a href="{% url 'products:product_list' %}?category=gpu#catalog">GPUs</a>
+      <a href="{% url 'products:product_list' %}?category=cpu#catalog">CPUs</a>
+      <a href="{% url 'products:product_list' %}?category=ram#catalog">Memory</a>
+      <a href="{% url 'products:product_list' %}?category=ssd#catalog">Storage</a>
     </nav>
 
-    <!-- Search Form -->
     <form action="{% url 'products:product_list' %}" method="get" class="nav-search" role="search">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <circle cx="11" cy="11" r="7"/>
         <path d="M21 21L16.5 16.5"/>
       </svg>
-      <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search part number, model, or spec…">
+      <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search part number, model, or spec…">
     </form>
 
-    <!-- Nav Actions -->
     <div class="nav-actions">
-      <!-- Cart Icon with Live Badge -->
+
       <a href="{% url 'cart:cart_detail' %}" class="icon-btn" id="cartBtn" aria-label="Shopping Cart">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M3 4H5L7.5 15H18L20.5 7H6.5"/>
@@ -47,7 +42,6 @@
         <span class="cart-badge" id="cartBadge">{{ cart.total_items|default:'0' }}</span>
       </a>
 
-      <!-- Authentication Navigation -->
       {% if user.is_authenticated %}
         <a href="{% url 'accounts:profile' %}" class="btn-ghost" style="padding: 8px 14px; font-size: 13.5px;">
           {{ user.first_name|default:user.email|truncatechars:14 }}
@@ -71,7 +65,6 @@
         <a class="btn-solid" href="{% url 'accounts:signup' %}" style="padding:9px 18px; font-size: 13.5px;">Sign Up</a>
       {% endif %}
 
-      <!-- Mobile Hamburger Toggle -->
       <label for="mobile-nav-toggle" class="nav-mobile-toggle" aria-label="Toggle Navigation">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="3" y1="12" x2="21" y2="12"/>
@@ -82,10 +75,9 @@
     </div>
   </div>
 
-  <!-- Mega Menu Dropdown Panel -->
   <div class="mega" id="megaMenu">
     <div class="mega-grid">
-      <a class="mega-item" href="{% url 'products:product_list' %}?category=graphics-cards">
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=gpu#catalog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="2" y="7" width="20" height="10" rx="2"/>
           <circle cx="8" cy="12" r="2.4"/>
@@ -96,7 +88,7 @@
         <span>12–24GB GDDR7/GDDR6X VRAM</span>
       </a>
 
-      <a class="mega-item" href="{% url 'products:product_list' %}?category=processors">
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=cpu#catalog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="6" y="6" width="12" height="12" rx="1.5"/>
           <path d="M9 2V6M15 2V6M9 18V22M15 18V22M2 9H6M2 15H6M18 9H22M18 15H22"/>
@@ -105,7 +97,7 @@
         <span>6–24 Cores · Up to 5.8GHz</span>
       </a>
 
-      <a class="mega-item" href="{% url 'products:product_list' %}?category=ram">
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=ram#catalog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="4" y="4" width="6" height="16" rx="1"/>
           <rect x="14" y="4" width="6" height="16" rx="1"/>
@@ -115,7 +107,7 @@
         <span>DDR5 16–128GB Matched Kits</span>
       </a>
 
-      <a class="mega-item" href="{% url 'products:product_list' %}?category=storage">
+      <a class="mega-item" href="{% url 'products:product_list' %}?category=ssd#catalog">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
           <rect x="3" y="5" width="18" height="14" rx="2"/>
           <circle cx="7" cy="9" r="1"/>
@@ -128,7 +120,6 @@
   </div>
 </header>
 
-<!-- Mobile Navigation Drawer Overlay & Panel -->
 <div class="mobile-drawer-overlay"></div>
 <aside class="mobile-drawer-menu">
   <div class="mobile-drawer-header">
@@ -143,15 +134,15 @@
   </div>
 
   <form action="{% url 'products:product_list' %}" method="get" class="nav-search mobile-search-form">
-    <input type="text" name="search" value="{{ search_query|default:'' }}" placeholder="Search hardware specs…">
+    <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search hardware specs…">
   </form>
 
   <div class="mobile-nav-group">
     <div class="mobile-group-title">Hardware Categories</div>
-    <a href="{% url 'products:product_list' %}?category=graphics-cards" class="mobile-nav-link">Graphics Cards (GPUs)</a>
-    <a href="{% url 'products:product_list' %}?category=processors" class="mobile-nav-link">Processors (CPUs)</a>
-    <a href="{% url 'products:product_list' %}?category=ram" class="mobile-nav-link">System Memory (RAM)</a>
-    <a href="{% url 'products:product_list' %}?category=storage" class="mobile-nav-link">Solid State Drives (NVMe)</a>
+    <a href="{% url 'products:product_list' %}?category=gpu#catalog" class="mobile-nav-link">Graphics Cards (GPUs)</a>
+    <a href="{% url 'products:product_list' %}?category=cpu#catalog" class="mobile-nav-link">Processors (CPUs)</a>
+    <a href="{% url 'products:product_list' %}?category=ram#catalog" class="mobile-nav-link">System Memory (RAM)</a>
+    <a href="{% url 'products:product_list' %}?category=ssd#catalog" class="mobile-nav-link">Solid State Drives (SSD)</a>
   </div>
 
   <div class="mobile-nav-group">

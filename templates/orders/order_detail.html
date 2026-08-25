@@ -20,7 +20,6 @@
         </div>
     </div>
 
-    <!-- Order Lifecycle Tracking Timeline -->
     <div class="invoice-card">
         <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">Delivery Progress</h3>
         <div class="order-timeline">
@@ -47,7 +46,6 @@
         </div>
     </div>
 
-    <!-- Invoice Document Details -->
     <div class="invoice-card">
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 28px; padding-bottom: 24px; border-bottom: 1px solid var(--line-soft);">
             <div>
@@ -56,8 +54,8 @@
                 <div style="color: var(--text-dim); font-size: 13.5px; margin-top: 4px; line-height: 1.5;">
                     {{ order.street_address }}<br>
                     {{ order.city }}, {{ order.state_or_division }} {{ order.postal_code }}<br>
-                    📞 Phone: {{ order.phone }}<br>
-                    ✉️ Email: {{ order.email }}
+                    Phone: {{ order.phone }}<br>
+                    Email: {{ order.email }}
                 </div>
             </div>
 
@@ -65,7 +63,7 @@
                 <h4 style="font-size: 12px; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; font-family: var(--font-mono);">Payment Information:</h4>
                 <div style="font-size: 13.5px; color: var(--text-dim); line-height: 1.6;">
                     Method: <strong style="color: var(--text);">{{ order.get_payment_method_display }}</strong><br>
-                    Status: 
+                    Status:
                     {% if order.payment_status == 'PAID' %}
                         <span class="badge" style="position: static; background: var(--ok); color: #161005;">PAID</span>
                     {% elif order.payment_status == 'PENDING' %}
@@ -81,7 +79,6 @@
             </div>
         </div>
 
-        <!-- Items Table -->
         <table class="cart-table" style="margin-bottom: 24px;">
             <thead>
                 <tr>
@@ -115,7 +112,6 @@
             </tbody>
         </table>
 
-        <!-- Totals Breakdown -->
         <div style="max-width: 320px; margin-left: auto;">
             <div class="summary-row">
                 <span>Subtotal:</span>

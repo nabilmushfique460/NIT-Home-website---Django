@@ -1,9 +1,9 @@
 {% load static %}
-<!-- TRACEFORGE Footer -->
+
 <footer>
   <div class="wrap">
     <div class="footer-grid">
-      <!-- Brand Column -->
+
       <div class="footer-brand">
         <a class="logo" href="{% url 'products:product_list' %}">
           <svg viewBox="0 0 26 26" fill="none" style="width: 24px; height: 24px;" aria-hidden="true">
@@ -13,26 +13,24 @@
           TRACEFORGE
         </a>
         <p>Every component bench-tested before it ships. No box-spec guesswork, no thermal surprises at first boot.</p>
-        
+
         <div style="margin-top: 16px; display: flex; gap: 6px; flex-wrap: wrap;">
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-faint); background: var(--panel-2); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">DHAKA UTC+6</span>
           <span style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--copper); background: var(--panel-2); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">48H BURN-IN</span>
         </div>
       </div>
 
-      <!-- Shop Column -->
       <div class="footer-col">
         <h4>Shop</h4>
         <ul>
-          <li><a href="{% url 'products:product_list' %}?category=graphics-cards">Graphics Cards</a></li>
-          <li><a href="{% url 'products:product_list' %}?category=processors">Processors</a></li>
-          <li><a href="{% url 'products:product_list' %}?category=ram">System Memory</a></li>
-          <li><a href="{% url 'products:product_list' %}?category=storage">Fast Storage</a></li>
-          <li><a href="{% url 'products:product_list' %}">All Hardware Catalog</a></li>
+          <li><a href="{% url 'products:product_list' %}?category=gpu#catalog">Graphics Cards (GPUs)</a></li>
+          <li><a href="{% url 'products:product_list' %}?category=cpu#catalog">Processors (CPUs)</a></li>
+          <li><a href="{% url 'products:product_list' %}?category=ram#catalog">System Memory (RAM)</a></li>
+          <li><a href="{% url 'products:product_list' %}?category=ssd#catalog">Fast Storage (SSD)</a></li>
+          <li><a href="{% url 'products:product_list' %}#catalog">All Hardware Catalog</a></li>
         </ul>
       </div>
 
-      <!-- Support Column -->
       <div class="footer-col">
         <h4>Support</h4>
         <ul>
@@ -43,7 +41,6 @@
         </ul>
       </div>
 
-      <!-- Company Column -->
       <div class="footer-col">
         <h4>Company</h4>
         <ul>
@@ -54,7 +51,6 @@
         </ul>
       </div>
 
-      <!-- Newsletter Column -->
       <div class="news">
         <h4>Restock Alerts</h4>
         <p style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 12px;">Get instant ping when high-demand GPU or CPU batches clear burn-in testing.</p>
@@ -66,17 +62,17 @@
 
         <div style="margin-top: 18px;">
           <div style="font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--text-faint); margin-bottom: 8px;">Accepted Payments</div>
-          <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-            <span style="font-size: 11px; font-weight: 600; color: var(--text-dim); background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">bKash</span>
-            <span style="font-size: 11px; font-weight: 600; color: var(--text-dim); background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">Nagad</span>
-            <span style="font-size: 11px; font-weight: 600; color: var(--text-dim); background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">Cash on Delivery</span>
-            <span style="font-size: 11px; font-weight: 600; color: var(--text-dim); background: var(--panel); border: 1px solid var(--line); padding: 3px 8px; border-radius: 4px;">Cards</span>
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--copper-bright); background: var(--panel); border: 1px solid var(--copper); padding: 3px 8px; border-radius: 4px;">Cash on Delivery (COD)</span>
           </div>
+          <p style="font-size: 12px; color: var(--text-faint); line-height: 1.5; margin: 0;">
+            Online payment systems will be available soon. For direct orders or questions, WhatsApp us at
+            <a href="https://wa.me/8801797529625" target="_blank" rel="noopener noreferrer" style="color: var(--copper-bright); font-family: var(--font-mono); font-weight: 600; text-decoration: underline;">+8801797529625</a>
+          </p>
         </div>
       </div>
     </div>
 
-    <!-- Footer Bottom -->
     <div class="footer-bottom">
       <span>© 2026 TRACEFORGE Hardware Co. (N-IT Home). All rights reserved.</span>
       <div class="legal">

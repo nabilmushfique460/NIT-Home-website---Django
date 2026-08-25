@@ -31,5 +31,5 @@ class SessionAdmin(admin.ModelAdmin):
                 return f"User ID: {user_id} | Cart items: {len(data.get('nit_cart', {}))}"
             return f"Guest session | Cart items: {len(data.get('nit_cart', {}))}"
         except Exception:
-            return "Encrypted session"
+            return 'Encrypted session'
     get_decoded_data.short_description = 'Session Summary'

@@ -1,9 +1,3 @@
-/* ==========================================================================
-   TRACEFORGE — Hardware Benchmark & E-Commerce Theme
-   Tokens, Typography, Hero Schematic, Grid, Catalog & Cards
-   ========================================================================== */
-
-/* ===== Tokens ===== */
 :root {
   --bg: #0E1013;
   --bg-alt: #0A0B0D;
@@ -26,7 +20,6 @@
   --radius-full: 999px;
   --maxw: 1240px;
 
-  /* Typography */
   --font-sans: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-display: 'Space Grotesk', system-ui, sans-serif;
   --font-mono: 'IBM Plex Mono', monospace;
@@ -52,7 +45,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Ambient schematic grid */
+
   background-image:
     linear-gradient(var(--line-soft) 1px, transparent 1px),
     linear-gradient(90deg, var(--line-soft) 1px, transparent 1px);
@@ -113,7 +106,6 @@ img, svg {
   outline-offset: 3px;
 }
 
-/* ===== Buttons (Traceforge Design System) ===== */
 .btn-solid, .btn-outline, .btn-ghost, .btn-primary, .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -199,7 +191,6 @@ img, svg {
   transform: scale(0.94);
 }
 
-/* ===== Sticky Top Navigation Bar ===== */
 .nav {
   position: sticky;
   top: 0;
@@ -384,7 +375,6 @@ img, svg {
   cursor: pointer;
 }
 
-/* Mega Menu Dropdown */
 .mega {
   max-width: var(--maxw);
   margin: 0 auto;
@@ -440,7 +430,6 @@ img, svg {
   color: var(--text-faint);
 }
 
-/* ===== Hero Section ===== */
 .hero {
   position: relative;
   padding: 76px 0 40px;
@@ -553,7 +542,6 @@ img, svg {
   }
 }
 
-/* Hero Schematic Visual */
 .hero-visual {
   position: relative;
   display: flex;
@@ -668,7 +656,6 @@ img, svg {
   filter: drop-shadow(0 0 4px rgba(245, 166, 107, 0.8));
 }
 
-/* ===== Section Shell ===== */
 section {
   padding: 80px 0;
 }
@@ -717,7 +704,6 @@ section {
 .js .reveal:nth-child(5) { transition-delay: 0.32s; }
 .js .reveal:nth-child(6) { transition-delay: 0.4s; }
 
-/* ===== Categories Grid ===== */
 .cat-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -805,7 +791,6 @@ section {
   transform: translateX(4px);
 }
 
-/* Category Filter Pills Bar */
 .cat-filter-pills-bar {
   display: flex;
   align-items: center;
@@ -839,7 +824,6 @@ section {
   border-color: var(--copper);
 }
 
-/* ===== Products Grid & Cards ===== */
 .prod-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -978,7 +962,6 @@ section {
   color: var(--text);
 }
 
-/* ===== Stats Band ===== */
 .stats-band {
   background: var(--panel);
   border-top: 1px solid var(--line-soft);
@@ -1020,7 +1003,6 @@ section {
   font-size: 13px;
 }
 
-/* ===== CTA Compatibility Banner ===== */
 .cta-banner {
   max-width: var(--maxw);
   margin: 0 auto;
@@ -1070,7 +1052,6 @@ section {
   position: relative;
 }
 
-/* ===== Flash Alerts & Messages ===== */
 .messages-container {
   margin-top: 20px;
   margin-bottom: 20px;
@@ -1112,7 +1093,6 @@ section {
   background: rgba(224, 137, 79, 0.1);
 }
 
-/* ===== Footer ===== */
 footer {
   border-top: 1px solid var(--line-soft);
   padding-top: 64px;
