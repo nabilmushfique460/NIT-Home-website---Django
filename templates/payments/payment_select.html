@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="wrap" style="padding-top: 40px; padding-bottom: 64px;">
+    <div style="max-width: 680px; margin: 0 auto;">
+        
+        <div style="text-align: center; margin-bottom: 32px;">
+            <span class="eyebrow mono" style="margin-bottom: 8px;">Order Manifest #{{ order.order_number }}</span>
+            <h1 style="font-size: 2.2rem; font-weight: 700; color: var(--text); margin-bottom: 8px;">
+                Select Payment Option
+            </h1>
+            <p style="color: var(--text-dim); font-size: 15px;">
+                Total Payable: <strong class="mono" style="color: var(--copper-bright); font-size: 18px;">${{ order.total_amount }}</strong>
+            </p>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+
+            <form method="post" action="{% url 'payments:choose_payment' order_number=order.order_number %}">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" value="BKASH">
+                <button type="submit" style="width: 100%; background: var(--panel); border: 2px solid #e11471; border-radius: var(--radius); padding: 24px; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #e11471; margin-bottom: 4px;">
+                            1. bKash
+                        </div>
+                        <div style="color: var(--text-dim); font-size: 13.5px;">
+                            Pay using your bKash digital wallet
+                        </div>
+                    </div>
+                    <div style="background: #e11471; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm);">
+                        Select &rarr;
+                    </div>
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'payments:choose_payment' order_number=order.order_number %}">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" value="NAGAD">
+                <button type="submit" style="width: 100%; background: var(--panel); border: 2px solid #f7941d; border-radius: var(--radius); padding: 24px; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: #f7941d; margin-bottom: 4px;">
+                            2. Nagad
+                        </div>
+                        <div style="color: var(--text-dim); font-size: 13.5px;">
+                            Pay using your Nagad digital financial account
+                        </div>
+                    </div>
+                    <div style="background: #f7941d; color: #fff; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm);">
+                        Select &rarr;
+                    </div>
+                </button>
+            </form>
+
+            <form method="post" action="{% url 'payments:choose_payment' order_number=order.order_number %}">
+                {% csrf_token %}
+                <input type="hidden" name="payment_method" value="COD">
+                <button type="submit" style="width: 100%; background: var(--panel); border: 2px solid var(--copper); border-radius: var(--radius); padding: 24px; text-align: left; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: space-between;">
+                    <div>
+                        <div style="font-size: 1.4rem; font-weight: 800; color: var(--copper-bright); margin-bottom: 4px;">
+                            3. Cash on Delivery
+                        </div>
+                        <div style="color: var(--text-dim); font-size: 13.5px;">
+                            Pay with cash upon order arrival and hardware unboxing
+                        </div>
+                    </div>
+                    <div style="background: var(--copper); color: #000; font-weight: 700; font-size: 13px; padding: 8px 16px; border-radius: var(--radius-sm);">
+                        Select &rarr;
+                    </div>
+                </button>
+            </form>
+
+        </div>
+
+        <div style="text-align: center; margin-top: 28px;">
+            <a href="{% url 'products:product_list' %}" style="color: var(--text-faint); font-size: 13.5px; text-decoration: underline;">
+                Continue Shopping
+            </a>
+        </div>
+
+    </div>
+</div>
+{% endblock %}
