@@ -1,0 +1,13 @@
+services:
+  web:
+    build: .
+    image: nit-store:latest
+    container_name: nit-store-app
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+    volumes:
+      - ./media:/app/media
