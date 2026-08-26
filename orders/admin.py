@@ -79,9 +79,9 @@ class OrderAdmin(admin.ModelAdmin):
                 url
             )
         elif obj.status == 'DELIVERED':
-            return format_html('<span style="color:#10b981;font-weight:700;">Delivered</span>')
+            return format_html('<span style="color:#10b981;font-weight:700;">{}</span>', 'Delivered')
         elif obj.status == 'CANCELLED':
-            return format_html('<span style="color:#ef4444;font-weight:700;">Cancelled</span>')
+            return format_html('<span style="color:#ef4444;font-weight:700;">{}</span>', 'Cancelled')
         return obj.get_status_display()
     step_action.short_description = 'Next Step Action'
 

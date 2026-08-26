@@ -498,9 +498,25 @@ class NITHomeECommerceTests(TestCase):
         res_logentry_search = self.client.get(reverse('admin:admin_logentry_changelist') + '?q=admin')
         self.assertEqual(res_logentry_search.status_code, 200)
 
-        # Verify Orders changelist
+        # Verify Orders changelist with all order status states
+        for status_code, _ in Order.STATUS_CHOICES:
+            Order.objects.create(
+                order_number=f'NIT-TST-{status_code}',
+                full_name='Test Buyer',
+                email='buyer@nithome.com',
+                phone='+8801700000000',
+                street_address='123 Tech Lane',
+                city='Dhaka',
+                postal_code='1200',
+                subtotal=500.00,
+                shipping_fee=50.00,
+                total_amount=550.00,
+                status=status_code
+            )
         res_orders = self.client.get(reverse('admin:orders_order_changelist'))
         self.assertEqual(res_orders.status_code, 200)
+        self.assertContains(res_orders, 'Delivered')
+        self.assertContains(res_orders, 'Cancelled')
 
 
     # Test product detail page rendering
