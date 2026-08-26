@@ -3,11 +3,12 @@ from .views import (
     PaymentSelectView,
     ChoosePaymentView,
     BkashGatewaySimulateView,
-    NagadGatewaySimulateView
+    NagadGatewaySimulateView,
 )
 
 app_name = 'payments'
 
+# Payments URL patterns
 urlpatterns = [
     path('select/<str:order_number>/', PaymentSelectView.as_view(), name='payment_select'),
     path('choose/<str:order_number>/', ChoosePaymentView.as_view(), name='choose_payment'),

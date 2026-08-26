@@ -1,5 +1,6 @@
 from django.db import models
 
+# Model representing user inquiries submitted through the contact form
 class ContactMessage(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField()
@@ -10,6 +11,8 @@ class ContactMessage(models.Model):
 
     class Meta:
         ordering = ['-created_at']
+        verbose_name = 'Contact Message'
+        verbose_name_plural = 'Contact Messages'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name} - {self.subject}"

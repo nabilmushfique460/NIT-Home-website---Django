@@ -1,46 +1,89 @@
 from django.contrib import admin
 from .models import Category, Product, ProductImage, ProductSpecification, PromotionBanner, ProductReview
+
 admin.site.site_header = 'N-IT Home Management Portal'
 admin.site.site_title = 'N-IT Home Admin'
 admin.site.index_title = 'Hardware Store Administration & Operations'
 
+# Admin configuration for PromotionBanner
 @admin.register(PromotionBanner)
 class PromotionBannerAdmin(admin.ModelAdmin):
     list_display = ('title', 'card_title', 'card_price', 'is_active', 'order', 'updated_at')
     list_editable = ('is_active', 'order')
     list_filter = ('is_active', 'created_at')
     search_fields = ('title', 'lead_text', 'card_title')
-    fieldsets = (('Banner Status & Ordering', {'fields': ('is_active', 'order')}), ('Main Headline & Text Content', {'fields': ('title', 'title_highlight', 'badge_1', 'badge_2', 'lead_text')}), ('Key Highlight Perks', {'fields': ('perk_1', 'perk_2', 'perk_3')}), ('Featured Promo Card Box (Right Side)', {'fields': ('card_tag', 'card_title', 'card_price', 'card_link', 'card_button_text')}))
+    fieldsets = (
+        ('Banner Status & Ordering', {
+            'fields': ('is_active', 'order')
+        }),
+        ('Main Headline & Text Content', {
+            'fields': ('title', 'title_highlight', 'badge_1', 'badge_2', 'lead_text')
+        }),
+        ('Key Highlight Perks', {
+            'fields': ('perk_1', 'perk_2', 'perk_3')
+        }),
+        ('Featured Promo Card Box (Right Side)', {
+            'fields': ('card_tag', 'card_title', 'card_price', 'card_link', 'card_button_text')
+        }),
+    )
 
+# Inline configuration for ProductReview in Product Admin
 class ProductReviewInline(admin.StackedInline):
     model = ProductReview
     extra = 1
     fields = ('author_name', 'author_email', 'rating', 'title', 'comment', 'is_approved', 'is_verified_purchase')
 
+# Inline configuration for ProductImage gallery in Product Admin
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
     extra = 3
     fields = ('image', 'image_url', 'caption', 'is_4k', 'order')
 
+# Inline configuration for ProductSpecification table in Product Admin
 class ProductSpecificationInline(admin.TabularInline):
     model = ProductSpecification
     extra = 3
     fields = ('group', 'spec_name', 'spec_value', 'order')
 
+# Admin configuration for Category
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug', 'product_count')
     prepopulated_fields = {'slug': ('name',)}
     search_fields = ('name',)
 
-    def product_count(self, obj):
+    def product_count(self, obj: Category) -> int:
         return obj.products.count()
     product_count.short_description = 'Products'
 
+# Admin configuration for Product
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category', 'price', 'stock_qty', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'cpu_series', 'generation', 'is_featured', 'updated_at')
-    list_filter = ('category', 'brand', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'generation', 'cpu_series', 'is_featured', 'created_at')
+    list_display = (
+        'name',
+        'brand',
+        'category',
+        'price',
+        'stock_qty',
+        'ram_capacity',
+        'gpu_vram',
+        'ssd_capacity',
+        'cpu_series',
+        'generation',
+        'is_featured',
+        'updated_at'
+    )
+    list_filter = (
+        'category',
+        'brand',
+        'ram_capacity',
+        'gpu_vram',
+        'ssd_capacity',
+        'generation',
+        'cpu_series',
+        'is_featured',
+        'created_at'
+    )
     search_fields = ('name', 'brand', 'short_description', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'cpu_series')
     prepopulated_fields = {'slug': ('brand', 'name')}
     inlines = [ProductImageInline, ProductSpecificationInline, ProductReviewInline]
@@ -79,6 +122,7 @@ class ProductAdmin(admin.ModelAdmin):
         self.message_user(request, 'Selected products stock set to 20 units.')
     set_in_stock.short_description = 'Set stock to 20 units for selected products'
 
+# Admin configuration for ProductReview
 @admin.register(ProductReview)
 class ProductReviewAdmin(admin.ModelAdmin):
     list_display = ('product', 'author_name', 'rating', 'title', 'is_approved', 'is_verified_purchase', 'created_at')
@@ -97,12 +141,14 @@ class ProductReviewAdmin(admin.ModelAdmin):
         self.message_user(request, 'Selected reviews have been hidden.')
     unapprove_reviews.short_description = 'Hide selected reviews from public view'
 
+# Admin configuration for ProductImage
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = ('product', 'caption', 'is_4k', 'order')
     list_filter = ('is_4k', 'product__category')
     search_fields = ('product__name', 'caption')
 
+# Admin configuration for ProductSpecification
 @admin.register(ProductSpecification)
 class ProductSpecificationAdmin(admin.ModelAdmin):
     list_display = ('product', 'group', 'spec_name', 'spec_value', 'order')

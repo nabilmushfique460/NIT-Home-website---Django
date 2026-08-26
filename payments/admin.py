@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Payment
 
+# Admin configuration for reviewing payment records and transaction logs
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
     list_display = ('transaction_id', 'order', 'method', 'amount', 'currency', 'status', 'created_at')

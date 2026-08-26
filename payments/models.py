@@ -2,8 +2,15 @@ import uuid
 from django.db import models
 from orders.models import Order
 
+# Model representing financial transactions and gateway logs for customer orders
 class Payment(models.Model):
-    STATUS_CHOICES = (('PENDING', 'Pending'), ('SUCCESS', 'Successful / Completed'), ('FAILED', 'Failed'), ('CANCELLED', 'Cancelled by User'))
+    STATUS_CHOICES = (
+        ('PENDING', 'Pending'),
+        ('SUCCESS', 'Successful / Completed'),
+        ('FAILED', 'Failed'),
+        ('CANCELLED', 'Cancelled by User'),
+    )
+
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='payments')
     method = models.CharField(max_length=20)
     transaction_id = models.CharField(max_length=64, unique=True, default=uuid.uuid4)
@@ -19,4 +26,4 @@ class Payment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self) -> str:
-        return f'{self.method} Payment ({self.transaction_id}) - ${self.amount} [{self.status}]'
+        return f"{self.method} Payment ({self.transaction_id}) - ${self.amount} [{self.status}]"

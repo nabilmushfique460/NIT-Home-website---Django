@@ -23,7 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy project files
 COPY . /app/
 
-# Run database migrations and collect static files
+# object oriented programming
 RUN python manage.py collectstatic --noinput
 
 # Expose web application port

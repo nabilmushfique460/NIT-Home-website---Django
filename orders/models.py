@@ -3,6 +3,7 @@ from django.db import models
 from django.conf import settings
 from products.models import Product
 
+# Model representing customer hardware orders and delivery status
 class Order(models.Model):
     STATUS_CHOICES = (
         ('PENDING', 'Placed'),
@@ -13,13 +14,21 @@ class Order(models.Model):
         ('CANCEL_REQUESTED', 'Cancellation Requested'),
         ('CANCELLED', 'Cancelled'),
     )
+
     PAYMENT_METHOD_CHOICES = (
         ('COD', 'Cash on Delivery (COD)'),
         ('BKASH', 'bKash Mobile Financial Service'),
         ('NAGAD', 'Nagad Mobile Financial Service'),
     )
+
     order_number = models.CharField(max_length=32, unique=True, editable=False)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='orders'
+    )
     full_name = models.CharField(max_length=120)
     email = models.EmailField()
     phone = models.CharField(max_length=20)
@@ -42,8 +51,9 @@ class Order(models.Model):
         ordering = ['-created_at']
 
     def save(self, *args, **kwargs):
+        # Automatically generate unique alphanumeric order reference
         if not self.order_number:
-            self.order_number = f'NIT-{uuid.uuid4().hex[:8].upper()}'
+            self.order_number = f"NIT-{uuid.uuid4().hex[:8].upper()}"
         super().save(*args, **kwargs)
 
     @property
@@ -59,7 +69,7 @@ class Order(models.Model):
             'SHIPPED': 4,
             'DELIVERED': 5,
             'CANCEL_REQUESTED': 0,
-            'CANCELLED': 0
+            'CANCELLED': 0,
         }
         return steps.get(self.status, 1)
 
@@ -72,7 +82,7 @@ class Order(models.Model):
             'SHIPPED': 75,
             'DELIVERED': 100,
             'CANCEL_REQUESTED': 0,
-            'CANCELLED': 0
+            'CANCELLED': 0,
         }
         return percentages.get(self.status, 0)
 
@@ -81,8 +91,9 @@ class Order(models.Model):
         return self.status in ['PENDING', 'CONFIRMED', 'PACKAGING']
 
     def __str__(self) -> str:
-        return f'Order #{self.order_number} - {self.full_name} (${self.total_amount})'
+        return f"Order #{self.order_number} - {self.full_name} (${self.total_amount})"
 
+# Model representing individual line items within an order
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='order_items')
@@ -100,4 +111,4 @@ class OrderItem(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f'{self.quantity}× {self.product_name} in #{self.order.order_number}'
+        return f"{self.quantity}× {self.product_name} in #{self.order.order_number}"

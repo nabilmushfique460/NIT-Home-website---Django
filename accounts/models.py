@@ -1,5 +1,6 @@
 import secrets
 from datetime import timedelta
+from typing import Optional
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseUserManager
 from django.contrib.auth.hashers import make_password, check_password
@@ -8,9 +9,10 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# Custom manager providing helpers for creating standard users and superusers
 class UserManager(BaseUserManager):
 
-    def create_user(self, email, password=None, **extra_fields):
+    def create_user(self, email: str, password: Optional[str] = None, **extra_fields) -> 'User':
         if not email:
             raise ValueError('Email address is required')
         email = self.normalize_email(email)
@@ -19,17 +21,20 @@ class UserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-    def create_superuser(self, email, password=None, **extra_fields):
+    def create_superuser(self, email: str, password: Optional[str] = None, **extra_fields) -> 'User':
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         extra_fields.setdefault('is_verified', True)
         extra_fields.setdefault('is_active', True)
+
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
         if extra_fields.get('is_superuser') is not True:
             raise ValueError('Superuser must have is_superuser=True.')
+
         return self.create_user(email, password, **extra_fields)
 
+# Custom user model using email as the primary unique identifier
 class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True, db_index=True)
     first_name = models.CharField(max_length=50, blank=True)
@@ -38,7 +43,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+
     objects = UserManager()
+
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
@@ -51,14 +58,18 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.email
 
     def get_full_name(self) -> str:
-        full = f'{self.first_name} {self.last_name}'.strip()
+        full = f"{self.first_name} {self.last_name}".strip()
         return full if full else self.email
 
     def get_short_name(self) -> str:
         return self.first_name if self.first_name else self.email.split('@')[0]
 
+# Model storing hashed OTP tokens and managing verification attempts and rate limits
 class EmailVerification(models.Model):
     COOLDOWN_SECONDS = 60
+    MAX_ATTEMPTS = 5
+    EXPIRY_MINUTES = 10
+
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='verifications')
     otp_hash = models.CharField(max_length=255)
     expires_at = models.DateTimeField()
@@ -71,7 +82,7 @@ class EmailVerification(models.Model):
         verbose_name_plural = 'Email Verifications'
 
     @classmethod
-    def can_resend_otp(cls, user) -> tuple[bool, int]:
+    def can_resend_otp(cls, user: User) -> tuple[bool, int]:
         last_record = cls.objects.filter(user=user).order_by('-created_at').first()
         if not last_record:
             return (True, 0)
@@ -81,16 +92,17 @@ class EmailVerification(models.Model):
         return (True, 0)
 
     @classmethod
-    def generate_otp(cls, user):
+    def generate_otp(cls, user: User) -> tuple[str, 'EmailVerification']:
+        # Invalidate previous unverified tokens for user
         cls.objects.filter(user=user).delete()
         plain_otp = str(secrets.randbelow(900000) + 100000)
         otp_hash = make_password(plain_otp)
-        expires_at = timezone.now() + timedelta(minutes=10)
+        expires_at = timezone.now() + timedelta(minutes=cls.EXPIRY_MINUTES)
         record = cls.objects.create(user=user, otp_hash=otp_hash, expires_at=expires_at)
         return (plain_otp, record)
 
     def check_otp(self, plain_otp: str) -> bool:
-        if self.attempts >= 5:
+        if self.attempts >= self.MAX_ATTEMPTS:
             return False
         self.attempts += 1
         self.save(update_fields=['attempts'])
@@ -99,11 +111,12 @@ class EmailVerification(models.Model):
         return check_password(plain_otp.strip(), self.otp_hash)
 
     def is_valid(self) -> bool:
-        return timezone.now() <= self.expires_at and self.attempts < 5
+        return timezone.now() <= self.expires_at and self.attempts < self.MAX_ATTEMPTS
 
     def __str__(self) -> str:
-        return f'OTP verification for {self.user.email} (Expires {self.expires_at})'
+        return f"OTP verification for {self.user.email} (Expires {self.expires_at})"
 
+# Model storing extended user profile details
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     phone = models.CharField(max_length=20, blank=True, null=True, help_text='Contact telephone/mobile number')
@@ -114,8 +127,10 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
-        return f"{self.user.email}'s Profile ({('Verified' if self.user.is_verified else 'Unverified')})"
+        status = 'Verified' if self.user.is_verified else 'Unverified'
+        return f"{self.user.email}'s Profile ({status})"
 
+# Signal ensuring profile creation whenever a user account is created
 @receiver(post_save, sender=User)
 def create_or_update_user_profile(sender, instance, created, **kwargs):
     if created:
@@ -123,6 +138,7 @@ def create_or_update_user_profile(sender, instance, created, **kwargs):
     elif hasattr(instance, 'profile'):
         instance.profile.save()
 
+# Model storing saved customer shipping addresses
 class Address(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='addresses')
     full_name = models.CharField(max_length=120)
@@ -140,13 +156,15 @@ class Address(models.Model):
         ordering = ['-is_default', '-created_at']
 
     def save(self, *args, **kwargs):
+        # Ensure only one address is set as default per user
         if self.is_default:
             Address.objects.filter(user=self.user, is_default=True).exclude(pk=self.pk).update(is_default=False)
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f'{self.full_name} - {self.street_address}, {self.city}'
+        return f"{self.full_name} - {self.street_address}, {self.city}"
 
+# Model storing in-app notifications for users
 class Notification(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='notifications')
     title = models.CharField(max_length=200)

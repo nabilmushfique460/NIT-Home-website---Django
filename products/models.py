@@ -1,14 +1,19 @@
+from decimal import Decimal
 from django.db import models
 from django.urls import reverse
 from django.utils.text import slugify
 from django.conf import settings
 
+# Model storing homepage promotional hero banners and featured showcase hardware
 class PromotionBanner(models.Model):
     title = models.CharField(max_length=200, default='Unleash Peak Performance with N-IT Home')
     title_highlight = models.CharField(max_length=100, default='N-IT Home', blank=True, help_text='Part of the title to highlight')
     badge_1 = models.CharField(max_length=80, default='Next-Gen Components')
     badge_2 = models.CharField(max_length=80, default='In Stock & Ready to Ship')
-    lead_text = models.TextField(default='Explore authentic high-performance desktop hardware — flagship NVIDIA & AMD graphics cards, AMD Ryzen 3D V-Cache processors, PCIe Gen5 NVMe storage, and low-latency DDR5 memory kits.')
+    lead_text = models.TextField(
+        default='Explore authentic high-performance desktop hardware — flagship NVIDIA & AMD graphics cards, '
+                'AMD Ryzen 3D V-Cache processors, PCIe Gen5 NVMe storage, and low-latency DDR5 memory kits.'
+    )
     perk_1 = models.CharField(max_length=80, default='Official Warranty')
     perk_2 = models.CharField(max_length=80, default='Same-Day Processing')
     perk_3 = models.CharField(max_length=80, default='bKash / Nagad / COD')
@@ -28,8 +33,10 @@ class PromotionBanner(models.Model):
         verbose_name_plural = 'Promotion Banners'
 
     def __str__(self) -> str:
-        return f"{self.title} ({('Active' if self.is_active else 'Hidden')})"
+        status = 'Active' if self.is_active else 'Hidden'
+        return f"{self.title} ({status})"
 
+# Model representing hardware categories (e.g. GPUs, Processors, Memory, Storage)
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
     slug = models.SlugField(max_length=120, unique=True)
@@ -45,12 +52,13 @@ class Category(models.Model):
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('products:product_list') + f'?category={self.slug}'
 
     def __str__(self) -> str:
         return self.name
 
+# Model representing hardware products and their core technical specifications
 class Product(models.Model):
     RAM_CAPACITY_CHOICES = [
         ('8gb', '8GB'),
@@ -114,7 +122,7 @@ class Product(models.Model):
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.9)
     review_count = models.PositiveIntegerField(default=48)
 
-    # Granular Hardware Specification Fields (Admin controlled)
+    # Granular hardware specification fields for filtering and sorting
     ram_capacity = models.CharField(max_length=20, choices=RAM_CAPACITY_CHOICES, blank=True, null=True, help_text='RAM capacity e.g. 8GB, 16GB, 32GB, 64GB')
     gpu_vram = models.CharField(max_length=20, choices=GPU_VRAM_CHOICES, blank=True, null=True, help_text='GPU dedicated VRAM e.g. 8GB, 12GB, 16GB, 24GB, 32GB, 64GB, 96GB')
     ssd_capacity = models.CharField(max_length=20, choices=SSD_CAPACITY_CHOICES, blank=True, null=True, help_text='SSD storage capacity e.g. 512GB, 1TB, 2TB, 4TB')
@@ -131,10 +139,10 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(f'{self.brand}-{self.name}')
+            self.slug = slugify(f"{self.brand}-{self.name}")
         super().save(*args, **kwargs)
 
-    def get_absolute_url(self):
+    def get_absolute_url(self) -> str:
         return reverse('products:product_detail', kwargs={'slug': self.slug})
 
     @property
@@ -156,8 +164,9 @@ class Product(models.Model):
         return 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80'
 
     def __str__(self) -> str:
-        return f'{self.brand} {self.name} (${self.price})'
+        return f"{self.brand} {self.name} (${self.price})"
 
+# Model storing gallery images for products
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/4k/', blank=True, null=True)
@@ -178,8 +187,9 @@ class ProductImage(models.Model):
         return 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80'
 
     def __str__(self) -> str:
-        return f'Image for {self.product.name} (#{self.order})'
+        return f"Image for {self.product.name} (#{self.order})"
 
+# Model storing detailed technical specifications table for a product
 class ProductSpecification(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='specifications')
     group = models.CharField(max_length=60, default='Key Specifications')
@@ -191,10 +201,18 @@ class ProductSpecification(models.Model):
         ordering = ['order', 'id']
 
     def __str__(self) -> str:
-        return f'{self.product.name} - {self.spec_name}: {self.spec_value}'
+        return f"{self.product.name} - {self.spec_name}: {self.spec_value}"
 
+# Model storing customer reviews, ratings, and feedback
 class ProductReview(models.Model):
-    RATING_CHOICES = [(5, '5 Stars - Excellent'), (4, '4 Stars - Very Good'), (3, '3 Stars - Average / Good'), (2, '2 Stars - Fair'), (1, '1 Star - Poor')]
+    RATING_CHOICES = [
+        (5, '5 Stars - Excellent'),
+        (4, '4 Stars - Very Good'),
+        (3, '3 Stars - Average / Good'),
+        (2, '2 Stars - Fair'),
+        (1, '1 Star - Poor'),
+    ]
+
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
     author_name = models.CharField(max_length=100, help_text='Reviewer name')
@@ -213,13 +231,14 @@ class ProductReview(models.Model):
         verbose_name_plural = 'Product Reviews & Comments'
 
     def __str__(self) -> str:
-        return f'{self.author_name} ({self.rating}★) on {self.product.name}'
+        return f"{self.author_name} ({self.rating}★) on {self.product.name}"
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
+        # Recalculate average rating and review count from approved reviews
         approved = self.product.reviews.filter(is_approved=True)
         if approved.exists():
-            avg_rating = sum((r.rating for r in approved)) / approved.count()
-            self.product.rating = round(avg_rating, 1)
+            avg_rating = sum(r.rating for r in approved) / approved.count()
+            self.product.rating = round(Decimal(str(avg_rating)), 1)
             self.product.review_count = approved.count()
             self.product.save(update_fields=['rating', 'review_count'])

@@ -1,19 +1,22 @@
 from decimal import Decimal
+from typing import Iterator, Any
 from django.conf import settings
+from django.http import HttpRequest
 from products.models import Product
 
+# OOP shopping cart implementation managing session cart state, quantities, and totals
 class Cart:
     FREE_SHIPPING_THRESHOLD = Decimal('500.00')
     STANDARD_SHIPPING_FEE = Decimal('15.00')
 
-    def __init__(self, request):
+    def __init__(self, request: HttpRequest) -> None:
         self.session = request.session
         cart = self.session.get(settings.CART_SESSION_ID)
         if not cart:
             cart = self.session[settings.CART_SESSION_ID] = {}
-        self.cart = cart
+        self.cart: dict[str, dict[str, Any]] = cart
 
-    def add(self, product: Product, quantity: int=1, override_quantity: bool=False) -> None:
+    def add(self, product: Product, quantity: int = 1, override_quantity: bool = False) -> None:
         product_id = str(product.id)
         if product.stock_qty <= 0:
             return
@@ -23,6 +26,7 @@ class Cart:
             new_qty = quantity
         else:
             new_qty = self.cart[product_id]['quantity'] + quantity
+        # Clamp quantity between 1 and available stock
         self.cart[product_id]['quantity'] = max(1, min(new_qty, product.stock_qty))
         self.save()
 
@@ -39,13 +43,13 @@ class Cart:
         self.session[settings.CART_SESSION_ID] = {}
         self.save()
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[dict[str, Any]]:
         product_ids = self.cart.keys()
         products = Product.objects.filter(id__in=product_ids)
-        cart = self.cart.copy()
+        cart_copy = self.cart.copy()
         for product in products:
-            cart[str(product.id)]['product'] = product
-        for item in cart.values():
+            cart_copy[str(product.id)]['product'] = product
+        for item in cart_copy.values():
             if 'product' not in item:
                 continue
             item['price'] = Decimal(item['price'])
@@ -53,10 +57,10 @@ class Cart:
             yield item
 
     def __len__(self) -> int:
-        return sum((item['quantity'] for item in self.cart.values()))
+        return sum(item['quantity'] for item in self.cart.values())
 
     def get_subtotal(self) -> Decimal:
-        return sum((Decimal(item['price']) * item['quantity'] for item in self.cart.values()))
+        return sum(Decimal(item['price']) * item['quantity'] for item in self.cart.values())
 
     def get_shipping_fee(self) -> Decimal:
         subtotal = self.get_subtotal()

@@ -3,6 +3,7 @@ from django.contrib.admin.models import LogEntry
 from django.contrib.sessions.models import Session
 from .models import ContactMessage
 
+# Admin view for inspecting Django audit logs
 @admin.register(LogEntry)
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
@@ -17,6 +18,7 @@ class LogEntryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
+# Admin view for inspecting active user sessions
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
     list_display = ('session_key', 'get_decoded_data', 'expire_date')
@@ -35,6 +37,7 @@ class SessionAdmin(admin.ModelAdmin):
             return 'Encrypted session'
     get_decoded_data.short_description = 'Session Summary'
 
+# Admin view for managing customer support contact inquiries
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
     list_display = ('name', 'email', 'subject', 'created_at', 'is_resolved')

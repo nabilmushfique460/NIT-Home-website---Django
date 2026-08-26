@@ -11,11 +11,12 @@ from .views import (
     ProfileView,
     AddressDeleteView,
     NotificationListView,
-    NotificationMarkReadView
+    NotificationMarkReadView,
 )
 
 app_name = 'accounts'
 
+# Accounts URL patterns
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', LoginView.as_view(), name='login'),

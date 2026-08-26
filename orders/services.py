@@ -1,25 +1,32 @@
-from decimal import Decimal
+from typing import Optional
 from django.db import transaction
 from django.core.exceptions import ValidationError
 from django.core.mail import send_mail
 from django.conf import settings
 from .models import Order, OrderItem
 from products.models import Product
-from accounts.models import Notification
+from accounts.models import Notification, User
 from cart.cart import Cart
 
+# Service class handling order creation, status workflows, cancellations, and notifications
 class OrderService:
 
     @classmethod
     @transaction.atomic
-    def create_order_from_cart(cls, cart: Cart, cleaned_data: dict, user=None) -> Order:
+    def create_order_from_cart(cls, cart: Cart, cleaned_data: dict, user: Optional[User] = None) -> Order:
         if cart.is_empty():
             raise ValidationError('Cannot create an order with an empty cart.')
+
+        # Lock and validate inventory availability before creating order
         cart_items_data = list(cart)
         for item in cart_items_data:
             product = Product.objects.select_for_update().get(id=item['product'].id)
             if product.stock_qty < item['quantity']:
-                raise ValidationError(f"Insufficient stock for '{product.name}'. Available: {product.stock_qty}, Requested: {item['quantity']}.")
+                raise ValidationError(
+                    f"Insufficient stock for '{product.name}'. Available: {product.stock_qty}, Requested: {item['quantity']}."
+                )
+
+        # Create order record
         order = Order.objects.create(
             user=user if user and user.is_authenticated else None,
             full_name=cleaned_data['full_name'],
@@ -38,6 +45,8 @@ class OrderService:
             status='PENDING',
             is_paid=False
         )
+
+        # Deduct stock and persist individual order line items
         for item in cart_items_data:
             product = Product.objects.select_for_update().get(id=item['product'].id)
             product.stock_qty -= item['quantity']
@@ -50,6 +59,8 @@ class OrderService:
                 quantity=item['quantity'],
                 line_total=item['total_price']
             )
+
+        # Create in-app notification for authenticated buyers
         if order.user:
             Notification.objects.create(
                 user=order.user,
@@ -57,6 +68,7 @@ class OrderService:
                 message=f"Your order #{order.order_number} for ${order.total_amount} has been placed successfully.",
                 link=f"/orders/invoice/{order.order_number}/"
             )
+
         return order
 
     @classmethod
@@ -99,6 +111,7 @@ class OrderService:
         items_summary = "\n".join([f"- {item.quantity}x {item.product_name}" for item in order.items.all()])
         from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
 
+        # Status: Confirmed
         if new_status == 'CONFIRMED':
             if order.user:
                 Notification.objects.create(
@@ -126,6 +139,7 @@ class OrderService:
             except Exception:
                 pass
 
+        # Status: Packaging
         elif new_status == 'PACKAGING':
             if order.user:
                 Notification.objects.create(
@@ -149,6 +163,7 @@ class OrderService:
             except Exception:
                 pass
 
+        # Status: Shipped
         elif new_status == 'SHIPPED':
             if order.user:
                 Notification.objects.create(
@@ -172,6 +187,7 @@ class OrderService:
             except Exception:
                 pass
 
+        # Status: Delivered
         elif new_status == 'DELIVERED':
             if order.user:
                 Notification.objects.create(
@@ -196,9 +212,11 @@ class OrderService:
                 pass
 
     @classmethod
-    def request_order_cancellation(cls, order: Order, user=None) -> None:
+    def request_order_cancellation(cls, order: Order, user: Optional[User] = None) -> None:
         if not order.can_be_cancelled:
-            raise ValidationError(f"Order #{order.order_number} cannot be cancelled because it is already '{order.get_status_display()}'.")
+            raise ValidationError(
+                f"Order #{order.order_number} cannot be cancelled because it is already '{order.get_status_display()}'."
+            )
         order.status = 'CANCEL_REQUESTED'
         order.save(update_fields=['status'])
 
@@ -236,10 +254,12 @@ class OrderService:
     def approve_order_cancellation(cls, order: Order) -> None:
         if order.status == 'CANCELLED':
             return
+        # Restore reserved product inventory back to stock
         for item in order.items.all():
             product = Product.objects.select_for_update().get(id=item.product_id)
             product.stock_qty += item.quantity
             product.save(update_fields=['stock_qty'])
+
         order.status = 'CANCELLED'
         order.save(update_fields=['status'])
 
