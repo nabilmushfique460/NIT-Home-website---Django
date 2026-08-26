@@ -481,6 +481,28 @@ class NITHomeECommerceTests(TestCase):
         self.assertContains(res_page, 'cpu_cores')
         self.assertContains(res_page, 'cpu_threads')
 
+    # Test admin changelists and search functionality
+    def test_admin_views_and_logentry_search(self):
+        admin_user = User.objects.create_superuser(
+            email='admin_dash@nithome.com',
+            password='AdminPassword123!',
+            is_verified=True
+        )
+        self.client.force_login(admin_user)
+
+        # Verify main admin index
+        res_index = self.client.get(reverse('admin:index'))
+        self.assertEqual(res_index.status_code, 200)
+
+        # Verify LogEntry changelist and search (ensuring user__email lookup works without user__username error)
+        res_logentry_search = self.client.get(reverse('admin:admin_logentry_changelist') + '?q=admin')
+        self.assertEqual(res_logentry_search.status_code, 200)
+
+        # Verify Orders changelist
+        res_orders = self.client.get(reverse('admin:orders_order_changelist'))
+        self.assertEqual(res_orders.status_code, 200)
+
+
     # Test product detail page rendering
     def test_product_detail_view(self):
         response = self.client.get(reverse('products:product_detail', kwargs={'slug': self.product.slug}))

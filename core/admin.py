@@ -8,7 +8,7 @@ from .models import ContactMessage
 class LogEntryAdmin(admin.ModelAdmin):
     list_display = ('action_time', 'user', 'content_type', 'object_repr', 'action_flag', 'change_message')
     list_filter = ('action_flag', 'content_type', 'action_time')
-    search_fields = ('object_repr', 'change_message', 'user__username')
+    search_fields = ('object_repr', 'change_message', 'user__email')
     date_hierarchy = 'action_time'
     readonly_fields = ('action_time', 'user', 'content_type', 'object_id', 'object_repr', 'action_flag', 'change_message')
 
