@@ -23,12 +23,17 @@
       <a href="{% url 'products:product_list' %}?category=ssd#catalog">Storage</a>
     </nav>
 
-    <form action="{% url 'products:product_list' %}" method="get" class="nav-search" role="search">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-        <circle cx="11" cy="11" r="7"/>
-        <path d="M21 21L16.5 16.5"/>
-      </svg>
-      <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search part number, model, or spec…">
+    <form action="{% url 'products:product_list' %}#catalog" method="get" class="nav-search" role="search">
+      <button type="submit" class="nav-search-btn" aria-label="Search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <circle cx="11" cy="11" r="7"/>
+          <path d="M21 21L16.5 16.5"/>
+        </svg>
+      </button>
+      <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search part number, model, or spec…" autocomplete="off">
+      {% if search_query %}
+        <a href="{% url 'products:product_list' %}#catalog" class="nav-search-clear" title="Clear search" aria-label="Clear search">✕</a>
+      {% endif %}
     </form>
 
     <div class="nav-actions">
@@ -143,8 +148,17 @@
     <label for="mobile-nav-toggle" class="mobile-drawer-close" aria-label="Close menu">✕</label>
   </div>
 
-  <form action="{% url 'products:product_list' %}" method="get" class="nav-search mobile-search-form">
-    <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search hardware specs…">
+  <form action="{% url 'products:product_list' %}#catalog" method="get" class="nav-search mobile-search-form" role="search">
+    <button type="submit" class="nav-search-btn" aria-label="Search">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/>
+        <path d="M21 21L16.5 16.5"/>
+      </svg>
+    </button>
+    <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search hardware specs…" autocomplete="off">
+    {% if search_query %}
+      <a href="{% url 'products:product_list' %}#catalog" class="nav-search-clear" title="Clear search" aria-label="Clear search">✕</a>
+    {% endif %}
   </form>
 
   <div class="mobile-nav-group">

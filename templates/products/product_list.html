@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static product_tags %}
 
 {% block content %}
 
@@ -200,23 +200,909 @@
       </p>
     </div>
 
+    <!-- Quick Category Filter Pills (preserves active search & other filters) -->
     <div class="cat-filter-pills-bar">
-      <a href="{% url 'products:product_list' %}#catalog" class="filter-pill {% if not selected_category %}active{% endif %}">
+      <a href="{% url_replace category='' %}#catalog" class="filter-pill {% if not selected_category %}active{% endif %}">
         All Hardware
       </a>
       {% for cat in categories %}
-        <a href="{% url 'products:product_list' %}?category={{ cat.slug }}#catalog" class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">
+        <a href="{% url_replace category=cat.slug %}#catalog" class="filter-pill {% if selected_category == cat.slug %}active{% endif %}">
           {{ cat.name }}
         </a>
       {% endfor %}
     </div>
 
-    {% if search_query %}
-      <div style="margin-bottom: 24px; color: var(--text-dim); font-size: 14px;">
-        Showing search results for "<strong style="color: var(--copper-bright);">{{ search_query }}</strong>" ({{ products|length }} matched):
-        <a href="{% url 'products:product_list' %}#catalog" style="margin-left: 12px; color: var(--copper); text-decoration: underline;">Clear Search</a>
+    <!-- ==========================================================================
+         Bold & Professional Hardware Search & Specification Matrix
+         ========================================================================== -->
+    <style>
+      .nit-search-matrix-card {
+        position: relative;
+        background: linear-gradient(180deg, #13171C 0%, #0D1013 100%) !important;
+        border: 1px solid #232A32 !important;
+        border-radius: 16px !important;
+        padding: 26px 30px !important;
+        margin-bottom: 28px !important;
+        box-shadow: 0 20px 45px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(224, 137, 79, 0.08) !important;
+        overflow: hidden !important;
+        transition: border-color 0.25s ease, box-shadow 0.25s ease !important;
+      }
+      .nit-search-matrix-card:hover {
+        border-color: rgba(224, 137, 79, 0.25) !important;
+        box-shadow: 0 24px 50px -15px rgba(0, 0, 0, 0.8), 0 0 24px -6px rgba(224, 137, 79, 0.12) !important;
+      }
+      .matrix-card-glow-bar {
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 2px;
+        background: linear-gradient(90deg, transparent 0%, var(--copper) 30%, var(--copper-bright) 50%, var(--copper) 70%, transparent 100%);
+        opacity: 0.9;
+      }
+      .matrix-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 22px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .matrix-title-wrap {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .matrix-icon-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: rgba(224, 137, 79, 0.12);
+        border: 1px solid rgba(224, 137, 79, 0.28);
+        color: var(--copper-bright);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+      }
+      .matrix-heading {
+        font-family: var(--font-display);
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: #FFFFFF !important;
+        margin: 0;
+      }
+      .matrix-subheading {
+        font-size: 12.5px;
+        color: var(--text-dim) !important;
+        margin-top: 2px;
+      }
+      .matrix-status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 14px;
+        border-radius: 999px;
+        background: rgba(143, 191, 159, 0.08);
+        border: 1px solid rgba(143, 191, 159, 0.24);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--ok);
+        flex-shrink: 0;
+      }
+      .matrix-status-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--ok);
+        box-shadow: 0 0 8px var(--ok);
+        animation: blink 2.2s infinite ease-in-out;
+      }
+      .matrix-search-bar {
+        display: flex;
+        align-items: stretch;
+        gap: 12px;
+        margin-bottom: 22px;
+      }
+      .matrix-search-input-wrap {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        background: #0B0D10 !important;
+        border: 1.5px solid #232A32 !important;
+        border-radius: 12px !important;
+        padding: 0 16px !important;
+        transition: all 0.2s ease;
+        min-height: 50px;
+      }
+      .matrix-search-input-wrap:focus-within {
+        border-color: var(--copper) !important;
+        background: #0E1115 !important;
+        box-shadow: 0 0 0 3.5px rgba(224, 137, 79, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.8) !important;
+      }
+      .matrix-search-prefix-icon {
+        color: var(--copper);
+        display: flex;
+        align-items: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+      }
+      .matrix-search-input {
+        flex: 1;
+        background: transparent !important;
+        border: none !important;
+        outline: none !important;
+        color: #FFFFFF !important;
+        font-family: var(--font-sans) !important;
+        font-size: 14.5px !important;
+        font-weight: 500 !important;
+        width: 100% !important;
+      }
+      .matrix-search-input::placeholder {
+        color: #6C737D !important;
+      }
+      .matrix-search-clear {
+        color: #7A828E;
+        font-size: 14px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+        line-height: 1;
+      }
+      .matrix-search-clear:hover {
+        color: #FFFFFF;
+        background: rgba(224, 137, 79, 0.2);
+      }
+      .matrix-search-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 50px;
+        padding: 0 26px;
+        background: linear-gradient(135deg, var(--copper) 0%, #C46E35 100%) !important;
+        color: #120C05 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        font-family: var(--font-sans);
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.05em;
+        white-space: nowrap;
+        cursor: pointer;
+        box-shadow: 0 6px 18px -4px rgba(224, 137, 79, 0.35) !important;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      .matrix-search-btn:hover {
+        background: linear-gradient(135deg, var(--copper-bright) 0%, var(--copper) 100%) !important;
+        transform: translateY(-1.5px);
+        box-shadow: 0 10px 24px -4px rgba(224, 137, 79, 0.5) !important;
+        color: #000000 !important;
+      }
+      .matrix-section-title {
+        margin: 18px 0 12px;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        color: var(--copper);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .matrix-section-title::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: rgba(255, 255, 255, 0.06);
+      }
+      .matrix-grid-controls {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 14px;
+      }
+      .matrix-grid-specs {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 12px;
+      }
+      .matrix-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+      }
+      .matrix-label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        color: #8C94A0 !important;
+        text-transform: uppercase;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .matrix-select-wrap {
+        position: relative;
+        width: 100%;
+      }
+      .matrix-select {
+        width: 100%;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-color: #0E1216 !important;
+        color: #ECEDEF !important;
+        border: 1px solid #232A32 !important;
+        border-radius: 9px !important;
+        padding: 10px 30px 10px 12px !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        font-family: var(--font-sans) !important;
+        outline: none !important;
+        cursor: pointer !important;
+        transition: all 0.2s ease !important;
+        height: 42px !important;
+        box-sizing: border-box !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .matrix-select:hover {
+        border-color: #38424E !important;
+        background-color: #12161B !important;
+      }
+      .matrix-select:focus {
+        border-color: var(--copper) !important;
+        box-shadow: 0 0 0 2.5px rgba(224, 137, 79, 0.15) !important;
+        background-color: #14181D !important;
+      }
+      .matrix-select-wrap::after {
+        content: '';
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 5px solid #8C94A0;
+        pointer-events: none;
+      }
+      .matrix-select option,
+      .matrix-select optgroup {
+        background-color: #14181D !important;
+        color: #ECEDEF !important;
+        padding: 8px 10px;
+      }
+      .matrix-select optgroup {
+        font-weight: 700;
+        color: var(--copper) !important;
+      }
+      .matrix-bottom-bar {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 22px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+      }
+      .matrix-price-container {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 220px;
+      }
+      .matrix-price-inputs {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .price-input-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+        flex: 1;
+      }
+      .currency-tag {
+        position: absolute;
+        left: 10px;
+        color: var(--copper);
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 600;
+        pointer-events: none;
+      }
+      .matrix-number-input {
+        width: 100%;
+        background-color: #0E1216 !important;
+        color: #ECEDEF !important;
+        border: 1px solid #232A32 !important;
+        border-radius: 9px !important;
+        padding: 9px 8px 9px 24px !important;
+        font-family: var(--font-mono) !important;
+        font-size: 13px !important;
+        outline: none !important;
+        transition: all 0.2s ease !important;
+        height: 42px !important;
+        box-sizing: border-box !important;
+      }
+      .matrix-number-input:hover {
+        border-color: #38424E !important;
+      }
+      .matrix-number-input:focus {
+        border-color: var(--copper) !important;
+        box-shadow: 0 0 0 2.5px rgba(224, 137, 79, 0.15) !important;
+      }
+      .price-dash {
+        color: #5C6370;
+        font-weight: 700;
+      }
+      .matrix-stock-toggle {
+        display: flex;
+        align-items: center;
+        padding-bottom: 2px;
+      }
+      .stock-toggle-label {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .stock-checkbox {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .stock-switch {
+        width: 38px;
+        height: 22px;
+        background: #1B2026;
+        border: 1px solid #2F3742;
+        border-radius: 999px;
+        position: relative;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      .stock-switch::after {
+        content: '';
+        position: absolute;
+        left: 3px;
+        top: 2px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #7A828E;
+        transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+      .stock-checkbox:checked + .stock-switch {
+        background: rgba(143, 191, 159, 0.2);
+        border-color: var(--ok);
+      }
+      .stock-checkbox:checked + .stock-switch::after {
+        left: 17px;
+        background: var(--ok);
+        box-shadow: 0 0 8px var(--ok);
+      }
+      .stock-text {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+      }
+      .stock-title {
+        font-size: 13px;
+        font-weight: 600;
+        color: #ECEDEF;
+      }
+      .stock-desc {
+        font-size: 11px;
+        color: var(--text-dim);
+      }
+      .matrix-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: auto;
+      }
+      .matrix-apply-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+        padding: 0 22px;
+        background: linear-gradient(135deg, var(--copper) 0%, #C46E35 100%) !important;
+        color: #120C05 !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 9px !important;
+        font-family: var(--font-sans);
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 14px -3px rgba(224, 137, 79, 0.35) !important;
+      }
+      .matrix-apply-btn:hover {
+        background: linear-gradient(135deg, var(--copper-bright) 0%, var(--copper) 100%) !important;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px -3px rgba(224, 137, 79, 0.5) !important;
+        color: #000000 !important;
+      }
+      .matrix-reset-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 42px;
+        padding: 0 16px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid #232A32;
+        border-radius: 9px;
+        color: #A4ACB9;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.18s ease;
+      }
+      .matrix-reset-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #38424E;
+        color: #FFFFFF;
+      }
+      .nit-matrix-results-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 16px;
+        padding: 16px 22px;
+        margin-bottom: 28px;
+        background: #101418 !important;
+        border: 1px solid #1F252C !important;
+        border-radius: 12px !important;
+      }
+      .matrix-results-count {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 13.5px;
+        color: #B4BCC8;
+        font-weight: 500;
+      }
+      .count-badge {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 700;
+        color: #120C05 !important;
+        background: var(--copper) !important;
+        padding: 3px 9px;
+        border-radius: 6px;
+      }
+      .query-highlight {
+        color: var(--copper-bright);
+      }
+      .matrix-active-chips {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .chips-label {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: #6C737D;
+      }
+      .matrix-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: rgba(224, 137, 79, 0.12) !important;
+        border: 1px solid rgba(224, 137, 79, 0.3) !important;
+        color: #F0A56E !important;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: all 0.15s ease;
+      }
+      .matrix-chip:hover {
+        background: rgba(224, 137, 79, 0.22) !important;
+        border-color: var(--copper) !important;
+        color: #FFFFFF !important;
+        transform: translateY(-1px);
+      }
+      .chip-x {
+        color: rgba(240, 165, 110, 0.7);
+        font-size: 11px;
+      }
+      .matrix-chips-clear-all {
+        font-size: 12px;
+        font-weight: 600;
+        color: #8C94A0;
+        text-decoration: underline;
+        padding: 4px 6px;
+        transition: color 0.15s ease;
+      }
+      .matrix-chips-clear-all:hover {
+        color: var(--copper-bright);
+      }
+      @media (max-width: 1024px) {
+        .matrix-grid-controls { grid-template-columns: repeat(2, 1fr); }
+        .matrix-grid-specs { grid-template-columns: repeat(3, 1fr); }
+      }
+      @media (max-width: 768px) {
+        .nit-search-matrix-card { padding: 18px 16px !important; }
+        .matrix-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+        .matrix-search-bar { flex-direction: column; align-items: stretch; }
+        .matrix-search-btn { width: 100%; min-height: 46px; }
+        .matrix-grid-controls, .matrix-grid-specs { grid-template-columns: 1fr; gap: 10px; }
+        .matrix-bottom-bar { flex-direction: column; align-items: stretch; gap: 16px; }
+        .matrix-price-container { width: 100%; min-width: 100%; }
+        .matrix-actions { margin-left: 0; width: 100%; flex-direction: column; gap: 8px; }
+        .matrix-apply-btn, .matrix-reset-btn { width: 100%; text-align: center; }
+        .nit-matrix-results-bar { flex-direction: column; align-items: flex-start; padding: 14px 16px; gap: 12px; }
+      }
+    </style>
+
+    <div class="nit-search-matrix-card">
+      <div class="matrix-card-glow-bar"></div>
+      
+      <div class="matrix-header">
+        <div class="matrix-title-wrap">
+          <div class="matrix-icon-badge">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+              <polyline points="2 17 12 22 22 17"/>
+              <polyline points="2 12 12 17 22 12"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="matrix-heading">HARDWARE SEARCH &amp; SPEC MATRIX</h2>
+            <p class="matrix-subheading">Filter factory-sealed GPUs, processors, low-latency RAM kits, and Gen5 NVMe drives.</p>
+          </div>
+        </div>
+        <div class="matrix-status-pill">
+          <span class="matrix-status-dot"></span>
+          <span>DIAGNOSTIC ENGINE</span>
+        </div>
       </div>
-    {% endif %}
+
+      <form method="get" action="{% url 'products:product_list' %}#catalog" class="nit-matrix-form" id="catalogFilterForm">
+        {% if selected_category %}
+          <input type="hidden" name="category" value="{{ selected_category }}">
+        {% endif %}
+
+        <!-- Command-Bar Search Input -->
+        <div class="matrix-search-bar">
+          <div class="matrix-search-input-wrap">
+            <div class="matrix-search-prefix-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="M21 21L16.5 16.5"/>
+              </svg>
+            </div>
+            <input type="text" name="q" value="{{ search_query }}" placeholder="Search hardware by model, spec, brand (e.g. RTX 4090, Ryzen 7, DDR5 32GB, Gen5 SSD)..." class="matrix-search-input" id="catalogSearchInput" autocomplete="off" spellcheck="false">
+            {% if search_query %}
+              <a href="{% url_replace q='' %}#catalog" class="matrix-search-clear" title="Clear search text" aria-label="Clear search">✕</a>
+            {% endif %}
+          </div>
+          <button type="submit" class="matrix-search-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M21 21L16.5 16.5"/>
+            </svg>
+            <span>SEARCH HARDWARE</span>
+          </button>
+        </div>
+
+        <!-- Section 1: Core Parameters Grid -->
+        <div class="matrix-section-title">
+          <span>01 / CORE PARAMETERS</span>
+        </div>
+        <div class="matrix-grid-controls">
+          <!-- Category -->
+          <div class="matrix-field">
+            <label for="filterCategorySelect" class="matrix-label">Category</label>
+            <div class="matrix-select-wrap">
+              <select name="category" id="filterCategorySelect" class="matrix-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Brand -->
+          <div class="matrix-field">
+            <label for="filterBrandSelect" class="matrix-label">Brand / Manufacturer</label>
+            <div class="matrix-select-wrap">
+              <select name="brand" id="filterBrandSelect" class="matrix-select">
+                <option value="">All Brands</option>
+                {% for b in available_brands %}
+                  <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Generation -->
+          <div class="matrix-field">
+            <label for="filterGenSelect" class="matrix-label">Generation</label>
+            <div class="matrix-select-wrap">
+              <select name="generation" id="filterGenSelect" class="matrix-select">
+                <option value="">All Generations</option>
+                {% for val, label in generation_choices %}
+                  <option value="{{ val }}" {% if selected_generation == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Sort Order -->
+          <div class="matrix-field">
+            <label for="filterSortSelect" class="matrix-label">Sort Priority</label>
+            <div class="matrix-select-wrap">
+              <select name="sort" id="filterSortSelect" class="matrix-select">
+                <option value="" {% if not selected_sort %}selected{% endif %}>Featured &amp; Recommended</option>
+                <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name (A–Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Hardware Specifications Matrix -->
+        <div class="matrix-section-title">
+          <span>02 / HARDWARE SPECIFICATION MATRIX</span>
+        </div>
+        <div class="matrix-grid-specs">
+          <!-- RAM Capacity -->
+          <div class="matrix-field">
+            <label for="filterRamSelect" class="matrix-label">RAM Capacity</label>
+            <div class="matrix-select-wrap">
+              <select name="ram" id="filterRamSelect" class="matrix-select">
+                <option value="">All RAM Sizes</option>
+                {% for val, label in ram_choices %}
+                  <option value="{{ val }}" {% if selected_ram == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- GPU VRAM -->
+          <div class="matrix-field">
+            <label for="filterGpuVramSelect" class="matrix-label">GPU VRAM</label>
+            <div class="matrix-select-wrap">
+              <select name="gpu_vram" id="filterGpuVramSelect" class="matrix-select">
+                <option value="">All VRAM Sizes</option>
+                {% for val, label in gpu_vram_choices %}
+                  <option value="{{ val }}" {% if selected_gpu_vram == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- SSD Storage -->
+          <div class="matrix-field">
+            <label for="filterSsdSelect" class="matrix-label">SSD Capacity</label>
+            <div class="matrix-select-wrap">
+              <select name="ssd" id="filterSsdSelect" class="matrix-select">
+                <option value="">All SSD Sizes</option>
+                {% for val, label in ssd_choices %}
+                  <option value="{{ val }}" {% if selected_ssd == val %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- CPU Family -->
+          <div class="matrix-field">
+            <label for="filterCpuSeriesSelect" class="matrix-label">CPU Family / Series</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_series" id="filterCpuSeriesSelect" class="matrix-select">
+                <option value="">All CPU Families</option>
+                <optgroup label="Intel Core Series">
+                  <option value="i3" {% if selected_cpu_series == 'i3' %}selected{% endif %}>Intel Core i3</option>
+                  <option value="i5" {% if selected_cpu_series == 'i5' %}selected{% endif %}>Intel Core i5</option>
+                  <option value="i7" {% if selected_cpu_series == 'i7' %}selected{% endif %}>Intel Core i7</option>
+                  <option value="i9" {% if selected_cpu_series == 'i9' %}selected{% endif %}>Intel Core i9</option>
+                </optgroup>
+                <optgroup label="AMD Ryzen Series">
+                  <option value="ryzen3" {% if selected_cpu_series == 'ryzen3' %}selected{% endif %}>AMD Ryzen 3</option>
+                  <option value="ryzen5" {% if selected_cpu_series == 'ryzen5' %}selected{% endif %}>AMD Ryzen 5</option>
+                  <option value="ryzen7" {% if selected_cpu_series == 'ryzen7' %}selected{% endif %}>AMD Ryzen 7</option>
+                  <option value="ryzen9" {% if selected_cpu_series == 'ryzen9' %}selected{% endif %}>AMD Ryzen 9</option>
+                </optgroup>
+                <optgroup label="Workstation / Other">
+                  <option value="snapdragon" {% if selected_cpu_series == 'snapdragon' %}selected{% endif %}>Qualcomm Snapdragon</option>
+                  <option value="other" {% if selected_cpu_series == 'other' %}selected{% endif %}>Other / Workstation</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- Min Cores -->
+          <div class="matrix-field">
+            <label for="filterCpuCoresSelect" class="matrix-label">Min Physical Cores</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_cores" id="filterCpuCoresSelect" class="matrix-select">
+                <option value="">Any Cores</option>
+                {% for c in cpu_cores_options %}
+                  <option value="{{ c }}" {% if selected_cpu_cores == c|stringformat:"i" %}selected{% endif %}>{{ c }}+ Cores</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Min Threads -->
+          <div class="matrix-field">
+            <label for="filterCpuThreadsSelect" class="matrix-label">Min Threads</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_threads" id="filterCpuThreadsSelect" class="matrix-select">
+                <option value="">Any Threads</option>
+                {% for t in cpu_threads_options %}
+                  <option value="{{ t }}" {% if selected_cpu_threads == t|stringformat:"i" %}selected{% endif %}>{{ t }}+ Threads</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Price Range, Stock Filter & Action Bar -->
+        <div class="matrix-bottom-bar">
+          <!-- Price Range Dual Inputs -->
+          <div class="matrix-price-container">
+            <label class="matrix-label">Price Range ($ USD)</label>
+            <div class="matrix-price-inputs">
+              <div class="price-input-box">
+                <span class="currency-tag">$</span>
+                <input type="number" name="min_price" value="{{ min_price }}" placeholder="0" min="0" step="10" class="matrix-number-input" aria-label="Minimum Price">
+              </div>
+              <span class="price-dash">–</span>
+              <div class="price-input-box">
+                <span class="currency-tag">$</span>
+                <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" min="0" step="10" class="matrix-number-input" aria-label="Maximum Price">
+              </div>
+            </div>
+          </div>
+
+          <!-- In Stock Toggle -->
+          <div class="matrix-stock-toggle">
+            <label class="stock-toggle-label">
+              <input type="checkbox" name="in_stock" value="1" {% if in_stock_only %}checked{% endif %} class="stock-checkbox">
+              <span class="stock-switch"></span>
+              <span class="stock-text">
+                <span class="stock-title">In Stock Only</span>
+                <span class="stock-desc">Ready to ship immediately</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="matrix-actions">
+            <button type="submit" class="matrix-apply-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Apply Matrix
+            </button>
+            {% if has_active_filters %}
+              <a href="{% url 'products:product_list' %}#catalog" class="matrix-reset-btn" title="Reset all filters">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                Reset All
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Active Filters & Results Count Summary Bar -->
+    <div class="nit-matrix-results-bar">
+      <div class="matrix-results-count">
+        <span class="count-badge">{{ products|length }}</span>
+        <span>Matching Components Found</span>
+        {% if search_query %}
+          <span class="query-highlight">for "<strong>{{ search_query }}</strong>"</span>
+        {% endif %}
+      </div>
+
+      {% if has_active_filters %}
+        <div class="matrix-active-chips">
+          <span class="chips-label">Active Filters:</span>
+          {% if search_query %}
+            <a href="{% url_replace q='' %}#catalog" class="matrix-chip" title="Remove search filter">
+              Search: "{{ search_query }}" <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_category %}
+            <a href="{% url_replace category='' %}#catalog" class="matrix-chip" title="Remove category filter">
+              Category: {{ current_category_obj.name|default:selected_category|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_brand %}
+            <a href="{% url_replace brand='' %}#catalog" class="matrix-chip" title="Remove brand filter">
+              Brand: {{ selected_brand }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_ram %}
+            <a href="{% url_replace ram='' %}#catalog" class="matrix-chip" title="Remove RAM filter">
+              RAM: {{ selected_ram|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_gpu_vram %}
+            <a href="{% url_replace gpu_vram='' %}#catalog" class="matrix-chip" title="Remove VRAM filter">
+              VRAM: {{ selected_gpu_vram|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_ssd %}
+            <a href="{% url_replace ssd='' %}#catalog" class="matrix-chip" title="Remove SSD filter">
+              SSD: {{ selected_ssd|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_generation %}
+            <a href="{% url_replace generation='' %}#catalog" class="matrix-chip" title="Remove generation filter">
+              Gen: {{ selected_generation|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_cpu_series %}
+            <a href="{% url_replace cpu_series='' %}#catalog" class="matrix-chip" title="Remove CPU series filter">
+              CPU: {{ selected_cpu_series|title }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_cpu_cores %}
+            <a href="{% url_replace cpu_cores='' %}#catalog" class="matrix-chip" title="Remove cores filter">
+              Cores: {{ selected_cpu_cores }}+ <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_cpu_threads %}
+            <a href="{% url_replace cpu_threads='' %}#catalog" class="matrix-chip" title="Remove threads filter">
+              Threads: {{ selected_cpu_threads }}+ <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if min_price %}
+            <a href="{% url_replace min_price='' %}#catalog" class="matrix-chip" title="Remove min price">
+              Min: ${{ min_price }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if max_price %}
+            <a href="{% url_replace max_price='' %}#catalog" class="matrix-chip" title="Remove max price">
+              Max: ${{ max_price }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if in_stock_only %}
+            <a href="{% url_replace in_stock='' %}#catalog" class="matrix-chip" title="Remove in-stock filter">
+              In Stock <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_sort and selected_sort != 'featured' %}
+            <a href="{% url_replace sort='' %}#catalog" class="matrix-chip" title="Remove sort filter">
+              Sort: {{ selected_sort|title }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          <a href="{% url 'products:product_list' %}#catalog" class="matrix-chips-clear-all">Reset All</a>
+        </div>
+      {% endif %}
+    </div>
 
     {% if products %}
       <div class="prod-grid">
@@ -281,11 +1167,40 @@
           </article>
         {% endfor %}
       </div>
+
+      {% if is_paginated %}
+        <div class="catalog-pagination">
+          {% if page_obj.has_previous %}
+            <a href="{% url_replace page=page_obj.previous_page_number %}#catalog" class="btn-outline page-btn">&laquo; Previous</a>
+          {% endif %}
+          <span class="page-indicator mono">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+          {% if page_obj.has_next %}
+            <a href="{% url_replace page=page_obj.next_page_number %}#catalog" class="btn-outline page-btn">Next &raquo;</a>
+          {% endif %}
+        </div>
+      {% endif %}
+
     {% else %}
-      <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 56px 24px; text-align: center;">
-        <h3 style="font-size: 1.3rem; margin-bottom: 8px;">No hardware components match this criteria</h3>
-        <p style="color: var(--text-dim); margin-bottom: 20px;">Try adjusting your category filter or view all catalog products.</p>
-        <a href="{% url 'products:product_list' %}#catalog" class="btn-solid">View All Products</a>
+      <div class="catalog-empty-state">
+        <div class="empty-icon-wrap">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+            <circle cx="11" cy="11" r="7"/>
+            <path d="M21 21L16.5 16.5"/>
+            <path d="M8 11h6"/>
+          </svg>
+        </div>
+        <h3>No hardware components match your criteria</h3>
+        <p>
+          {% if search_query %}
+            We couldn't find any components matching "<strong style="color: var(--copper-bright);">{{ search_query }}</strong>".
+          {% else %}
+            No components match the selected filter combination.
+          {% endif %}
+          Try adjusting your search terms, removing filters, or view all catalog products.
+        </p>
+        <div class="empty-state-actions">
+          <a href="{% url 'products:product_list' %}#catalog" class="btn-solid">Reset All Filters</a>
+        </div>
       </div>
     {% endif %}
   </div>

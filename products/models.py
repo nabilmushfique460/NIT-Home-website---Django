@@ -52,6 +52,51 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    RAM_CAPACITY_CHOICES = [
+        ('8gb', '8GB'),
+        ('16gb', '16GB'),
+        ('32gb', '32GB'),
+        ('64gb', '64GB'),
+        ('128gb', '128GB'),
+    ]
+
+    GPU_VRAM_CHOICES = [
+        ('8gb', '8GB'),
+        ('12gb', '12GB'),
+        ('16gb', '16GB'),
+        ('24gb', '24GB'),
+        ('32gb', '32GB'),
+        ('64gb', '64GB'),
+        ('96gb', '96GB'),
+    ]
+
+    SSD_CAPACITY_CHOICES = [
+        ('512gb', '512GB'),
+        ('1tb', '1TB'),
+        ('2tb', '2TB'),
+        ('4tb', '4TB'),
+        ('8tb', '8TB'),
+    ]
+
+    GENERATION_CHOICES = [
+        ('gen3', 'Gen 3 (PCIe 3.0 / DDR3)'),
+        ('gen4', 'Gen 4 (PCIe 4.0 / DDR4)'),
+        ('gen5', 'Gen 5 (PCIe 5.0 / DDR5)'),
+    ]
+
+    CPU_SERIES_CHOICES = [
+        ('i3', 'Intel Core i3'),
+        ('i5', 'Intel Core i5'),
+        ('i7', 'Intel Core i7'),
+        ('i9', 'Intel Core i9'),
+        ('ryzen3', 'AMD Ryzen 3'),
+        ('ryzen5', 'AMD Ryzen 5'),
+        ('ryzen7', 'AMD Ryzen 7'),
+        ('ryzen9', 'AMD Ryzen 9'),
+        ('snapdragon', 'Qualcomm Snapdragon'),
+        ('other', 'Other / Workstation'),
+    ]
+
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=280, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
@@ -68,6 +113,16 @@ class Product(models.Model):
     warranty = models.CharField(max_length=100, default='3 Years Manufacturer Warranty')
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.9)
     review_count = models.PositiveIntegerField(default=48)
+
+    # Granular Hardware Specification Fields (Admin controlled)
+    ram_capacity = models.CharField(max_length=20, choices=RAM_CAPACITY_CHOICES, blank=True, null=True, help_text='RAM capacity e.g. 8GB, 16GB, 32GB, 64GB')
+    gpu_vram = models.CharField(max_length=20, choices=GPU_VRAM_CHOICES, blank=True, null=True, help_text='GPU dedicated VRAM e.g. 8GB, 12GB, 16GB, 24GB, 32GB, 64GB, 96GB')
+    ssd_capacity = models.CharField(max_length=20, choices=SSD_CAPACITY_CHOICES, blank=True, null=True, help_text='SSD storage capacity e.g. 512GB, 1TB, 2TB, 4TB')
+    generation = models.CharField(max_length=20, choices=GENERATION_CHOICES, blank=True, null=True, help_text='Hardware generation e.g. Gen3, Gen4, Gen5')
+    cpu_series = models.CharField(max_length=30, choices=CPU_SERIES_CHOICES, blank=True, null=True, help_text='CPU series e.g. Intel Core i3/i5/i7/i9 or AMD Ryzen 3/5/7/9')
+    cpu_cores = models.PositiveSmallIntegerField(blank=True, null=True, help_text='CPU physical core count (e.g. 4, 6, 8, 12, 16, 24)')
+    cpu_threads = models.PositiveSmallIntegerField(blank=True, null=True, help_text='CPU thread count (e.g. 8, 12, 16, 24, 32)')
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

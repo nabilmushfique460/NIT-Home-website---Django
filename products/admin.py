@@ -39,13 +39,30 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category', 'price', 'original_price', 'stock_qty', 'rating', 'review_count', 'is_featured', 'updated_at')
-    list_filter = ('category', 'brand', 'is_featured', 'created_at')
-    search_fields = ('name', 'brand', 'short_description')
+    list_display = ('name', 'brand', 'category', 'price', 'stock_qty', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'cpu_series', 'generation', 'is_featured', 'updated_at')
+    list_filter = ('category', 'brand', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'generation', 'cpu_series', 'is_featured', 'created_at')
+    search_fields = ('name', 'brand', 'short_description', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'cpu_series')
     prepopulated_fields = {'slug': ('brand', 'name')}
     inlines = [ProductImageInline, ProductSpecificationInline, ProductReviewInline]
     list_editable = ('price', 'stock_qty', 'is_featured')
     actions = ['mark_featured', 'unmark_featured', 'set_in_stock']
+
+    fieldsets = (
+        ('Basic Information', {
+            'fields': ('name', 'slug', 'category', 'brand', 'price', 'original_price', 'stock_qty', 'is_featured', 'warranty')
+        }),
+        ('Hardware Specifications & Options', {
+            'description': 'Admin-controlled hardware spec options used for store search, category filters, and product details.',
+            'fields': (
+                ('ram_capacity', 'gpu_vram'),
+                ('ssd_capacity', 'generation'),
+                ('cpu_series', 'cpu_cores', 'cpu_threads'),
+            )
+        }),
+        ('Media & Descriptions', {
+            'fields': ('short_description', 'long_description', 'thumbnail', 'thumbnail_url', 'video_url', 'rating', 'review_count')
+        }),
+    )
 
     def mark_featured(self, request, queryset):
         queryset.update(is_featured=True)

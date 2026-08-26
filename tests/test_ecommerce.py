@@ -2,7 +2,7 @@ from decimal import Decimal
 from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
-from products.models import Category, Product, ProductReview
+from products.models import Category, Product, ProductReview, ProductSpecification
 from orders.models import Order
 from orders.services import OrderService
 from payments.models import Payment
@@ -15,7 +15,95 @@ class NITHomeECommerceTests(TestCase):
     def setUp(self):
         self.client = Client()
         self.category = Category.objects.create(name='Graphics Card', slug='gpu')
-        self.product = Product.objects.create(category=self.category, name='NVIDIA GeForce RTX 4090', slug='nvidia-geforce-rtx-4090', brand='NVIDIA', price=Decimal('1599.99'), stock_qty=10, short_description='Flagship gaming graphics card.', long_description='In-depth specifications with Ada Lovelace architecture.', warranty='3 Years')
+        self.cpu_category = Category.objects.create(name='Processor', slug='cpu')
+        self.ram_category = Category.objects.create(name='Memory', slug='ram')
+
+        self.ssd_category = Category.objects.create(name='Storage', slug='ssd')
+
+        self.product = Product.objects.create(
+            category=self.category,
+            name='NVIDIA GeForce RTX 4090',
+            slug='nvidia-geforce-rtx-4090',
+            brand='NVIDIA',
+            price=Decimal('1599.99'),
+            stock_qty=10,
+            gpu_vram='24gb',
+            generation='gen4',
+            short_description='Flagship gaming graphics card.',
+            long_description='In-depth specifications with Ada Lovelace architecture.',
+            warranty='3 Years'
+        )
+        ProductSpecification.objects.create(
+            product=self.product,
+            spec_name='VRAM',
+            spec_value='24GB GDDR6X'
+        )
+
+        self.cpu_product = Product.objects.create(
+            category=self.cpu_category,
+            name='AMD Ryzen 7 7800X3D',
+            slug='amd-ryzen-7-7800x3d',
+            brand='AMD',
+            price=Decimal('449.99'),
+            stock_qty=5,
+            cpu_series='ryzen7',
+            cpu_cores=8,
+            cpu_threads=16,
+            generation='gen5',
+            short_description='Zen 4 gaming processor with 3D V-Cache.',
+            long_description='Unmatched gaming efficiency with 104MB cache.',
+            warranty='3 Years'
+        )
+        ProductSpecification.objects.create(
+            product=self.cpu_product,
+            spec_name='Socket',
+            spec_value='AM5'
+        )
+
+        self.intel_product = Product.objects.create(
+            category=self.cpu_category,
+            name='Intel Core i9-14900K 24-Core',
+            slug='intel-core-i9-14900k',
+            brand='Intel',
+            price=Decimal('549.99'),
+            stock_qty=15,
+            cpu_series='i9',
+            cpu_cores=24,
+            cpu_threads=32,
+            generation='gen5',
+            short_description='24 cores Intel flagship desktop CPU.',
+            long_description='Raptor Lake Refresh processor.',
+            warranty='3 Years'
+        )
+
+        self.ram_product = Product.objects.create(
+            category=self.ram_category,
+            name='Corsair Vengeance DDR5 32GB 6000MHz',
+            slug='corsair-vengeance-ddr5-32gb',
+            brand='Corsair',
+            price=Decimal('124.99'),
+            stock_qty=0,  # Out of stock
+            ram_capacity='32gb',
+            generation='gen5',
+            short_description='Low latency DDR5 memory kit.',
+            long_description='High speed overclocking RAM with XMP profile.',
+            warranty='Lifetime'
+        )
+
+        self.ssd_product = Product.objects.create(
+            category=self.ssd_category,
+            name='Samsung 990 PRO 2TB NVMe SSD',
+            slug='samsung-990-pro-2tb',
+            brand='Samsung',
+            price=Decimal('179.99'),
+            stock_qty=20,
+            ssd_capacity='2tb',
+            generation='gen4',
+            short_description='Fast PCIe 4.0 NVMe SSD.',
+            long_description='Sequential read speeds up to 7450 MB/s.',
+            warranty='5 Years'
+        )
+
         self.user = User.objects.create_user(email='testuser@example.com', password='StrongPassword123!', first_name='Test', last_name='User', is_verified=True)
 
     def test_custom_user_creation_and_superuser(self):
@@ -164,6 +252,146 @@ class NITHomeECommerceTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'NVIDIA GeForce RTX 4090')
         self.assertContains(response, 'N-IT HOME')
+
+    def test_product_search_by_name_and_brand(self):
+        url = reverse('products:product_list')
+        # Search by name
+        res = self.client.get(url, {'q': 'GeForce'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'AMD Ryzen 7 7800X3D')
+
+        # Search by brand
+        res = self.client.get(url, {'q': 'AMD'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'AMD Ryzen 7 7800X3D')
+        self.assertNotContains(res, 'NVIDIA GeForce RTX 4090')
+
+    def test_product_search_by_multi_word_query(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'q': 'NVIDIA 4090'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'AMD Ryzen 7 7800X3D')
+
+    def test_product_search_by_specifications(self):
+        url = reverse('products:product_list')
+        # Search by spec value (VRAM: 24GB GDDR6X)
+        res = self.client.get(url, {'q': 'GDDR6X'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'AMD Ryzen 7 7800X3D')
+
+        # Search by socket AM5
+        res = self.client.get(url, {'q': 'AM5'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'AMD Ryzen 7 7800X3D')
+
+    def test_product_filter_by_category(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'category': 'gpu'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'AMD Ryzen 7 7800X3D')
+
+    def test_product_filter_by_brand(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'brand': 'Corsair'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Corsair Vengeance DDR5')
+        self.assertNotContains(res, 'NVIDIA GeForce RTX 4090')
+
+    def test_product_filter_by_price_range(self):
+        url = reverse('products:product_list')
+        # Min price 400, Max price 600 -> should match AMD Ryzen ($449.99)
+        res = self.client.get(url, {'min_price': '400', 'max_price': '600'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'AMD Ryzen 7 7800X3D')
+        self.assertNotContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'Corsair Vengeance DDR5')
+
+    def test_product_filter_by_in_stock(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'in_stock': '1'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertContains(res, 'AMD Ryzen 7 7800X3D')
+        self.assertNotContains(res, 'Corsair Vengeance DDR5')
+
+    def test_product_sorting(self):
+        url = reverse('products:product_list')
+        res_low = self.client.get(url, {'sort': 'price_low'})
+        self.assertEqual(res_low.status_code, 200)
+        products_low = list(res_low.context['products'])
+        self.assertEqual(products_low[0].name, 'Corsair Vengeance DDR5 32GB 6000MHz')
+        self.assertEqual(products_low[-1].name, 'NVIDIA GeForce RTX 4090')
+
+        res_high = self.client.get(url, {'sort': 'price_high'})
+        self.assertEqual(res_high.status_code, 200)
+        products_high = list(res_high.context['products'])
+        self.assertEqual(products_high[0].name, 'NVIDIA GeForce RTX 4090')
+
+    def test_combined_search_and_filter(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {
+            'q': 'GeForce',
+            'category': 'gpu',
+            'brand': 'NVIDIA',
+            'min_price': '1000',
+            'in_stock': '1',
+            'sort': 'price_low'
+        })
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertEqual(res.context['active_filters_count'], 6)
+
+    def test_product_filter_by_ram_capacity(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'ram': '32gb'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Corsair Vengeance DDR5 32GB')
+        self.assertNotContains(res, 'NVIDIA GeForce RTX 4090')
+
+    def test_product_filter_by_gpu_vram(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'gpu_vram': '24gb'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'NVIDIA GeForce RTX 4090')
+        self.assertNotContains(res, 'AMD Ryzen 7 7800X3D')
+
+    def test_product_filter_by_ssd_capacity_and_generation(self):
+        url = reverse('products:product_list')
+        res = self.client.get(url, {'ssd': '2tb', 'generation': 'gen4'})
+        self.assertEqual(res.status_code, 200)
+        self.assertContains(res, 'Samsung 990 PRO 2TB')
+        self.assertNotContains(res, 'Intel Core i9-14900K')
+
+    def test_product_filter_by_cpu_series_cores_threads(self):
+        url = reverse('products:product_list')
+        # Filter for Intel i9
+        res_i9 = self.client.get(url, {'cpu_series': 'i9', 'cpu_cores': '24', 'cpu_threads': '32'})
+        self.assertEqual(res_i9.status_code, 200)
+        self.assertContains(res_i9, 'Intel Core i9-14900K')
+        self.assertNotContains(res_i9, 'AMD Ryzen 7 7800X3D')
+
+        # Filter for AMD Ryzen 7
+        res_ryzen = self.client.get(url, {'cpu_series': 'ryzen7', 'cpu_cores': '8'})
+        self.assertEqual(res_ryzen.status_code, 200)
+        self.assertContains(res_ryzen, 'AMD Ryzen 7 7800X3D')
+        self.assertNotContains(res_ryzen, 'Intel Core i9-14900K')
+
+    def test_admin_product_creation_with_specs(self):
+        admin_user = User.objects.create_superuser(email='admin_specs@nithome.com', password='AdminPassword123!', is_verified=True)
+        self.client.force_login(admin_user)
+        add_url = reverse('admin:products_product_add')
+        res_page = self.client.get(add_url)
+        self.assertEqual(res_page.status_code, 200)
+        self.assertContains(res_page, 'ram_capacity')
+        self.assertContains(res_page, 'gpu_vram')
+        self.assertContains(res_page, 'ssd_capacity')
+        self.assertContains(res_page, 'cpu_series')
+        self.assertContains(res_page, 'cpu_cores')
+        self.assertContains(res_page, 'cpu_threads')
 
     def test_product_detail_view(self):
         response = self.client.get(reverse('products:product_detail', kwargs={'slug': self.product.slug}))

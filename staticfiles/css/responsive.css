@@ -42,6 +42,14 @@
   .cart-layout, .checkout-layout {
     grid-template-columns: 1fr;
   }
+
+  .matrix-grid-controls {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .matrix-grid-specs {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 @media (max-width: 640px) {
@@ -52,6 +60,68 @@
 
   .cat-grid, .prod-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* Matrix Search & Specs Responsive */
+  .nit-search-matrix-card {
+    padding: 18px 16px;
+  }
+
+  .matrix-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .matrix-status-pill {
+    align-self: flex-start;
+  }
+
+  .matrix-search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .matrix-search-btn {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .matrix-grid-controls,
+  .matrix-grid-specs {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .matrix-bottom-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .matrix-price-container {
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .matrix-actions {
+    margin-left: 0;
+    width: 100%;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .matrix-apply-btn,
+  .matrix-reset-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .nit-matrix-results-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 14px 16px;
+    gap: 12px;
   }
 
   .stats-grid {
