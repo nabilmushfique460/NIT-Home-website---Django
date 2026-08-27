@@ -50,6 +50,12 @@
   .matrix-grid-specs {
     grid-template-columns: repeat(3, 1fr);
   }
+
+  .nav-filter-btn {
+    padding: 0 10px;
+    height: 36px;
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -63,14 +69,27 @@
   }
 
   /* Matrix Search & Specs Responsive */
+  .filter-matrix-overlay {
+    padding: 12px;
+  }
+
+  .filter-matrix-dialog {
+    max-height: 94vh;
+  }
+
   .nit-search-matrix-card {
-    padding: 18px 16px;
+    padding: 18px 16px !important;
   }
 
   .matrix-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
+  }
+
+  .matrix-header-right {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .matrix-status-pill {
@@ -122,6 +141,15 @@
     align-items: flex-start;
     padding: 14px 16px;
     gap: 12px;
+  }
+
+  .matrix-results-controls {
+    width: 100%;
+  }
+
+  .matrix-open-filter-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .stats-grid {

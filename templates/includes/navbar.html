@@ -36,6 +36,27 @@
       {% endif %}
     </form>
 
+    <!-- Filter Button placed between Search Bar and Cart Option -->
+    <button type="button" class="nav-filter-btn" id="navFilterBtn" aria-label="Hardware Filter Matrix" title="Filter Hardware Matrix" aria-expanded="false">
+      <span class="nav-filter-icon-badge">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="4" y1="21" x2="4" y2="14"></line>
+          <line x1="4" y1="10" x2="4" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12" y2="3"></line>
+          <line x1="20" y1="21" x2="20" y2="16"></line>
+          <line x1="20" y1="12" x2="20" y2="3"></line>
+          <line x1="1" y1="14" x2="7" y2="14"></line>
+          <line x1="9" y1="8" x2="15" y2="8"></line>
+          <line x1="17" y1="16" x2="23" y2="16"></line>
+        </svg>
+      </span>
+      <span class="nav-filter-label">Filters</span>
+      {% if has_active_filters %}
+        <span class="nav-filter-active-dot" title="Active filters applied"></span>
+      {% endif %}
+    </button>
+
     <div class="nav-actions">
 
       <a href="{% url 'cart:cart_detail' %}" class="icon-btn" id="cartBtn" aria-label="Shopping Cart">
@@ -161,6 +182,26 @@
     {% endif %}
   </form>
 
+  <button type="button" class="mobile-filter-btn" id="mobileFilterBtn">
+    <span class="nav-filter-icon-badge">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="4" y1="21" x2="4" y2="14"></line>
+        <line x1="4" y1="10" x2="4" y2="3"></line>
+        <line x1="12" y1="21" x2="12" y2="12"></line>
+        <line x1="12" y1="8" x2="12" y2="3"></line>
+        <line x1="20" y1="21" x2="20" y2="16"></line>
+        <line x1="20" y1="12" x2="20" y2="3"></line>
+        <line x1="1" y1="14" x2="7" y2="14"></line>
+        <line x1="9" y1="8" x2="15" y2="8"></line>
+        <line x1="17" y1="16" x2="23" y2="16"></line>
+      </svg>
+    </span>
+    <span class="nav-filter-label">Filter Hardware Matrix</span>
+    {% if has_active_filters %}
+      <span class="nav-filter-active-dot"></span>
+    {% endif %}
+  </button>
+
   <div class="mobile-nav-group">
     <div class="mobile-group-title">Hardware Categories</div>
     <a href="{% url 'products:product_list' %}?category=gpu#catalog" class="mobile-nav-link">Graphics Cards (GPUs)</a>
@@ -186,3 +227,124 @@
     {% endif %}
   </div>
 </aside>
+
+{% include 'includes/filter_modal.html' %}
+
+<style>
+/* Scoped Navbar Filter Button Styling (Guaranteed to render dark & styled immediately) */
+.nav-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-direction: row !important;
+  gap: 8px !important;
+  background: #12161B !important;
+  background: linear-gradient(180deg, #161C22 0%, #0F1317 100%) !important;
+  border: 1px solid #242D38 !important;
+  color: #DDE2EC !important;
+  border-radius: 999px !important;
+  padding: 6px 14px 6px 8px !important;
+  height: 38px !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.02em !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35) !important;
+  outline: none !important;
+  user-select: none !important;
+}
+
+.nav-filter-btn:hover {
+  background: linear-gradient(180deg, #1C232B 0%, #13181E 100%) !important;
+  border-color: #E0894F !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px -2px rgba(224, 137, 79, 0.4) !important;
+  transform: translateY(-1px) !important;
+}
+
+.nav-filter-btn.is-active,
+.nav-filter-btn:active {
+  background: rgba(224, 137, 79, 0.18) !important;
+  border-color: #E0894F !important;
+  color: #FF9E5C !important;
+}
+
+.nav-filter-icon-badge {
+  width: 24px !important;
+  height: 24px !important;
+  border-radius: 50% !important;
+  background: rgba(224, 137, 79, 0.14) !important;
+  border: 1px solid rgba(224, 137, 79, 0.32) !important;
+  color: #E0894F !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.22s ease !important;
+}
+
+.nav-filter-btn:hover .nav-filter-icon-badge {
+  background: #E0894F !important;
+  color: #120C05 !important;
+  border-color: #FF9E5C !important;
+  transform: rotate(90deg) scale(1.08) !important;
+}
+
+.nav-filter-label {
+  display: inline-block !important;
+  color: inherit !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 1 !important;
+}
+
+.nav-filter-active-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #FF9E5C !important;
+  box-shadow: 0 0 8px #E0894F !important;
+  margin-left: 2px !important;
+  display: inline-block !important;
+  animation: navFilterDotPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes navFilterDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.mobile-filter-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 10px !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  background: #14181D !important;
+  border: 1px solid #232A32 !important;
+  border-radius: 999px !important;
+  color: #ECEDEF !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+}
+
+.mobile-filter-btn:hover {
+  background: rgba(224, 137, 79, 0.15) !important;
+  border-color: #E0894F !important;
+  color: #FF9E5C !important;
+}
+
+.mobile-filter-btn .nav-filter-icon-badge {
+  width: 22px !important;
+  height: 22px !important;
+}
+</style>
+

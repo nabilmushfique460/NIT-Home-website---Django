@@ -1,0 +1,500 @@
+{% load static %}
+<!-- ==========================================================================
+     Hardware Search & Specification Matrix - Pop-Up Modal
+     ========================================================================== -->
+<div class="filter-matrix-overlay" id="filterMatrixOverlay" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle">
+  <div class="filter-matrix-backdrop" id="filterMatrixBackdrop"></div>
+  
+  <div class="filter-matrix-dialog">
+    <div class="nit-search-matrix-card popup-card">
+      <div class="matrix-card-glow-bar"></div>
+      
+      <div class="matrix-header">
+        <div class="matrix-title-wrap">
+          <div class="matrix-icon-badge">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div>
+            <h2 class="matrix-heading" id="filterModalTitle">HARDWARE SEARCH &amp; SPEC MATRIX</h2>
+            <p class="matrix-subheading">Filter factory-sealed GPUs, processors, low-latency RAM kits, and Gen5 NVMe drives.</p>
+          </div>
+        </div>
+
+        <div class="matrix-header-right">
+          <div class="matrix-status-pill">
+            <span class="matrix-status-dot"></span>
+            <span>DIAGNOSTIC ENGINE</span>
+          </div>
+          <button type="button" class="filter-modal-close" id="filterModalCloseBtn" aria-label="Close Filter Modal" title="Close (ESC)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <form method="get" action="{% url 'products:product_list' %}#catalog" class="nit-matrix-form" id="catalogFilterFormModal">
+        <!-- Command-Bar Search Input -->
+        <div class="matrix-search-bar">
+          <div class="matrix-search-input-wrap">
+            <div class="matrix-search-prefix-icon">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#E0894F" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="11" cy="11" r="7"/>
+                <path d="M21 21L16.5 16.5"/>
+              </svg>
+            </div>
+            <input type="text" name="q" value="{{ search_query|default:'' }}" placeholder="Search hardware by model, spec, brand (e.g. RTX 4090, Ryzen 7, DDR5 32GB, Gen5 SSD)..." class="matrix-search-input" id="modalCatalogSearchInput" autocomplete="off" spellcheck="false">
+            {% if search_query %}
+              <button type="button" class="matrix-search-clear" onclick="document.getElementById('modalCatalogSearchInput').value='';" title="Clear search text" aria-label="Clear search">✕</button>
+            {% endif %}
+          </div>
+          <button type="submit" class="matrix-search-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="11" cy="11" r="7"/>
+              <path d="M21 21L16.5 16.5"/>
+            </svg>
+            <span>SEARCH HARDWARE</span>
+          </button>
+        </div>
+
+        <!-- Section 1: Core Parameters Grid -->
+        <div class="matrix-section-title">
+          <span>01 / CORE PARAMETERS</span>
+        </div>
+        <div class="matrix-grid-controls">
+          <!-- Category -->
+          <div class="matrix-field">
+            <label for="modalFilterCategorySelect" class="matrix-label">Category</label>
+            <div class="matrix-select-wrap">
+              <select name="category" id="modalFilterCategorySelect" class="matrix-select">
+                <option value="">All Categories</option>
+                {% for cat in nav_categories %}
+                  <option value="{{ cat.slug }}" {% if selected_category == cat.slug %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Brand -->
+          <div class="matrix-field">
+            <label for="modalFilterBrandSelect" class="matrix-label">Brand / Manufacturer</label>
+            <div class="matrix-select-wrap">
+              <select name="brand" id="modalFilterBrandSelect" class="matrix-select">
+                <option value="">All Brands</option>
+                {% if available_brands %}
+                  {% for b in available_brands %}
+                    <option value="{{ b }}" {% if selected_brand == b %}selected{% endif %}>{{ b }}</option>
+                  {% endfor %}
+                {% else %}
+                  <option value="ASUS" {% if selected_brand == 'ASUS' %}selected{% endif %}>ASUS</option>
+                  <option value="MSI" {% if selected_brand == 'MSI' %}selected{% endif %}>MSI</option>
+                  <option value="Gigabyte" {% if selected_brand == 'Gigabyte' %}selected{% endif %}>Gigabyte</option>
+                  <option value="Intel" {% if selected_brand == 'Intel' %}selected{% endif %}>Intel</option>
+                  <option value="AMD" {% if selected_brand == 'AMD' %}selected{% endif %}>AMD</option>
+                  <option value="NVIDIA" {% if selected_brand == 'NVIDIA' %}selected{% endif %}>NVIDIA</option>
+                  <option value="Corsair" {% if selected_brand == 'Corsair' %}selected{% endif %}>Corsair</option>
+                  <option value="Kingston" {% if selected_brand == 'Kingston' %}selected{% endif %}>Kingston</option>
+                  <option value="Samsung" {% if selected_brand == 'Samsung' %}selected{% endif %}>Samsung</option>
+                  <option value="Crucial" {% if selected_brand == 'Crucial' %}selected{% endif %}>Crucial</option>
+                  <option value="G.Skill" {% if selected_brand == 'G.Skill' %}selected{% endif %}>G.Skill</option>
+                  <option value="Western Digital" {% if selected_brand == 'Western Digital' %}selected{% endif %}>Western Digital</option>
+                  <option value="Seagate" {% if selected_brand == 'Seagate' %}selected{% endif %}>Seagate</option>
+                  <option value="PNY" {% if selected_brand == 'PNY' %}selected{% endif %}>PNY</option>
+                  <option value="Zotac" {% if selected_brand == 'Zotac' %}selected{% endif %}>Zotac</option>
+                {% endif %}
+              </select>
+            </div>
+          </div>
+
+          <!-- Generation -->
+          <div class="matrix-field">
+            <label for="modalFilterGenSelect" class="matrix-label">Generation</label>
+            <div class="matrix-select-wrap">
+              <select name="generation" id="modalFilterGenSelect" class="matrix-select">
+                <option value="">All Generations</option>
+                <option value="gen3" {% if selected_generation == 'gen3' %}selected{% endif %}>Gen 3 (PCIe 3.0 / DDR3)</option>
+                <option value="gen4" {% if selected_generation == 'gen4' %}selected{% endif %}>Gen 4 (PCIe 4.0 / DDR4)</option>
+                <option value="gen5" {% if selected_generation == 'gen5' %}selected{% endif %}>Gen 5 (PCIe 5.0 / DDR5)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Sort Priority -->
+          <div class="matrix-field">
+            <label for="modalFilterSortSelect" class="matrix-label">Sort Priority</label>
+            <div class="matrix-select-wrap">
+              <select name="sort" id="modalFilterSortSelect" class="matrix-select">
+                <option value="" {% if not selected_sort %}selected{% endif %}>Featured &amp; Recommended</option>
+                <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                <option value="rating" {% if selected_sort == 'rating' %}selected{% endif %}>Highest Rated</option>
+                <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                <option value="name_asc" {% if selected_sort == 'name_asc' %}selected{% endif %}>Name (A–Z)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 2: Hardware Specifications Matrix -->
+        <div class="matrix-section-title">
+          <span>02 / HARDWARE SPECIFICATION MATRIX</span>
+        </div>
+        <div class="matrix-grid-specs">
+          <!-- RAM Capacity -->
+          <div class="matrix-field">
+            <label for="modalFilterRamSelect" class="matrix-label">RAM Capacity</label>
+            <div class="matrix-select-wrap">
+              <select name="ram" id="modalFilterRamSelect" class="matrix-select">
+                <option value="">All RAM Sizes</option>
+                <option value="8gb" {% if selected_ram == '8gb' %}selected{% endif %}>8GB</option>
+                <option value="16gb" {% if selected_ram == '16gb' %}selected{% endif %}>16GB</option>
+                <option value="32gb" {% if selected_ram == '32gb' %}selected{% endif %}>32GB</option>
+                <option value="64gb" {% if selected_ram == '64gb' %}selected{% endif %}>64GB</option>
+                <option value="128gb" {% if selected_ram == '128gb' %}selected{% endif %}>128GB</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- GPU VRAM -->
+          <div class="matrix-field">
+            <label for="modalFilterGpuVramSelect" class="matrix-label">GPU VRAM</label>
+            <div class="matrix-select-wrap">
+              <select name="gpu_vram" id="modalFilterGpuVramSelect" class="matrix-select">
+                <option value="">All VRAM Sizes</option>
+                <option value="8gb" {% if selected_gpu_vram == '8gb' %}selected{% endif %}>8GB</option>
+                <option value="12gb" {% if selected_gpu_vram == '12gb' %}selected{% endif %}>12GB</option>
+                <option value="16gb" {% if selected_gpu_vram == '16gb' %}selected{% endif %}>16GB</option>
+                <option value="24gb" {% if selected_gpu_vram == '24gb' %}selected{% endif %}>24GB</option>
+                <option value="32gb" {% if selected_gpu_vram == '32gb' %}selected{% endif %}>32GB</option>
+                <option value="64gb" {% if selected_gpu_vram == '64gb' %}selected{% endif %}>64GB</option>
+                <option value="96gb" {% if selected_gpu_vram == '96gb' %}selected{% endif %}>96GB</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SSD Storage -->
+          <div class="matrix-field">
+            <label for="modalFilterSsdSelect" class="matrix-label">SSD Capacity</label>
+            <div class="matrix-select-wrap">
+              <select name="ssd" id="modalFilterSsdSelect" class="matrix-select">
+                <option value="">All SSD Sizes</option>
+                <option value="512gb" {% if selected_ssd == '512gb' %}selected{% endif %}>512GB</option>
+                <option value="1tb" {% if selected_ssd == '1tb' %}selected{% endif %}>1TB</option>
+                <option value="2tb" {% if selected_ssd == '2tb' %}selected{% endif %}>2TB</option>
+                <option value="4tb" {% if selected_ssd == '4tb' %}selected{% endif %}>4TB</option>
+                <option value="8tb" {% if selected_ssd == '8tb' %}selected{% endif %}>8TB</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- CPU Family -->
+          <div class="matrix-field">
+            <label for="modalFilterCpuSeriesSelect" class="matrix-label">CPU Family / Series</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_series" id="modalFilterCpuSeriesSelect" class="matrix-select">
+                <option value="">All CPU Families</option>
+                <optgroup label="Intel Core Series">
+                  <option value="i3" {% if selected_cpu_series == 'i3' %}selected{% endif %}>Intel Core i3</option>
+                  <option value="i5" {% if selected_cpu_series == 'i5' %}selected{% endif %}>Intel Core i5</option>
+                  <option value="i7" {% if selected_cpu_series == 'i7' %}selected{% endif %}>Intel Core i7</option>
+                  <option value="i9" {% if selected_cpu_series == 'i9' %}selected{% endif %}>Intel Core i9</option>
+                </optgroup>
+                <optgroup label="AMD Ryzen Series">
+                  <option value="ryzen3" {% if selected_cpu_series == 'ryzen3' %}selected{% endif %}>AMD Ryzen 3</option>
+                  <option value="ryzen5" {% if selected_cpu_series == 'ryzen5' %}selected{% endif %}>AMD Ryzen 5</option>
+                  <option value="ryzen7" {% if selected_cpu_series == 'ryzen7' %}selected{% endif %}>AMD Ryzen 7</option>
+                  <option value="ryzen9" {% if selected_cpu_series == 'ryzen9' %}selected{% endif %}>AMD Ryzen 9</option>
+                </optgroup>
+                <optgroup label="Workstation / Other">
+                  <option value="snapdragon" {% if selected_cpu_series == 'snapdragon' %}selected{% endif %}>Qualcomm Snapdragon</option>
+                  <option value="other" {% if selected_cpu_series == 'other' %}selected{% endif %}>Other / Workstation</option>
+                </optgroup>
+              </select>
+            </div>
+          </div>
+
+          <!-- Min Cores -->
+          <div class="matrix-field">
+            <label for="modalFilterCpuCoresSelect" class="matrix-label">Min Physical Cores</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_cores" id="modalFilterCpuCoresSelect" class="matrix-select">
+                <option value="">Any Cores</option>
+                <option value="4" {% if selected_cpu_cores == '4' %}selected{% endif %}>4+ Cores</option>
+                <option value="6" {% if selected_cpu_cores == '6' %}selected{% endif %}>6+ Cores</option>
+                <option value="8" {% if selected_cpu_cores == '8' %}selected{% endif %}>8+ Cores</option>
+                <option value="12" {% if selected_cpu_cores == '12' %}selected{% endif %}>12+ Cores</option>
+                <option value="16" {% if selected_cpu_cores == '16' %}selected{% endif %}>16+ Cores</option>
+                <option value="24" {% if selected_cpu_cores == '24' %}selected{% endif %}>24+ Cores</option>
+                <option value="32" {% if selected_cpu_cores == '32' %}selected{% endif %}>32+ Cores</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Min Threads -->
+          <div class="matrix-field">
+            <label for="modalFilterCpuThreadsSelect" class="matrix-label">Min Threads</label>
+            <div class="matrix-select-wrap">
+              <select name="cpu_threads" id="modalFilterCpuThreadsSelect" class="matrix-select">
+                <option value="">Any Threads</option>
+                <option value="8" {% if selected_cpu_threads == '8' %}selected{% endif %}>8+ Threads</option>
+                <option value="12" {% if selected_cpu_threads == '12' %}selected{% endif %}>12+ Threads</option>
+                <option value="16" {% if selected_cpu_threads == '16' %}selected{% endif %}>16+ Threads</option>
+                <option value="20" {% if selected_cpu_threads == '20' %}selected{% endif %}>20+ Threads</option>
+                <option value="24" {% if selected_cpu_threads == '24' %}selected{% endif %}>24+ Threads</option>
+                <option value="32" {% if selected_cpu_threads == '32' %}selected{% endif %}>32+ Threads</option>
+                <option value="64" {% if selected_cpu_threads == '64' %}selected{% endif %}>64+ Threads</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section 3: Price Range, Stock Filter & Action Bar -->
+        <div class="matrix-bottom-bar">
+          <!-- Price Range Dual Inputs -->
+          <div class="matrix-price-container">
+            <label class="matrix-label">Price Range ($ USD)</label>
+            <div class="matrix-price-inputs">
+              <div class="price-input-box">
+                <span class="currency-tag">$</span>
+                <input type="number" name="min_price" value="{{ min_price|default:'' }}" placeholder="0" min="0" step="10" class="matrix-number-input" aria-label="Minimum Price">
+              </div>
+              <span class="price-dash">–</span>
+              <div class="price-input-box">
+                <span class="currency-tag">$</span>
+                <input type="number" name="max_price" value="{{ max_price|default:'' }}" placeholder="Max" min="0" step="10" class="matrix-number-input" aria-label="Maximum Price">
+              </div>
+            </div>
+          </div>
+
+          <!-- In Stock Toggle -->
+          <div class="matrix-stock-toggle">
+            <label class="stock-toggle-label">
+              <input type="checkbox" name="in_stock" value="1" {% if in_stock_only %}checked{% endif %} class="stock-checkbox">
+              <span class="stock-switch"></span>
+              <span class="stock-text">
+                <span class="stock-title">In Stock Only</span>
+                <span class="stock-desc">Ready to ship immediately</span>
+              </span>
+            </label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="matrix-actions">
+            <button type="submit" class="matrix-apply-btn">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right: 6px;">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+              Apply Matrix
+            </button>
+            {% if has_active_filters %}
+              <a href="{% url 'products:product_list' %}#catalog" class="matrix-reset-btn" title="Reset all filters">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 5px;">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+                  <path d="M3 3v5h5"/>
+                </svg>
+                Reset All
+              </a>
+            {% endif %}
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+/* ==========================================================================
+   Hardware Filter Matrix Modal & Navbar Button Styles (Embedded for Zero Cache Issues)
+   ========================================================================== */
+.nav-filter-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  background: #11151A !important;
+  background: linear-gradient(180deg, #151A20 0%, #0F1216 100%) !important;
+  border: 1px solid #232A32 !important;
+  color: #D1D7E0 !important;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 0 14px !important;
+  height: 38px !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative !important;
+  user-select: none !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+  outline: none !important;
+}
+
+.nav-filter-btn:hover {
+  background: linear-gradient(180deg, #1A2129 0%, #13171D 100%) !important;
+  border-color: #E0894F !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 16px -2px rgba(224, 137, 79, 0.35) !important;
+  transform: translateY(-1px) !important;
+}
+
+.nav-filter-btn.is-active,
+.nav-filter-btn:active {
+  background: rgba(224, 137, 79, 0.15) !important;
+  border-color: #E0894F !important;
+  color: #FF9E5C !important;
+}
+
+.nav-filter-icon {
+  color: #E0894F !important;
+  flex-shrink: 0 !important;
+  transition: transform 0.25s ease !important;
+}
+
+.nav-filter-btn:hover .nav-filter-icon {
+  transform: rotate(90deg) scale(1.1) !important;
+}
+
+.nav-filter-dot {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #FF9E5C !important;
+  box-shadow: 0 0 8px #E0894F !important;
+  display: inline-block !important;
+  animation: filterDotPulse 2s infinite ease-in-out !important;
+}
+
+@keyframes filterDotPulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.8); }
+}
+
+.mobile-filter-btn {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  background: #151A20 !important;
+  border: 1px solid #232A32 !important;
+  border-radius: 8px !important;
+  color: #ECEDEF !important;
+  font-family: inherit !important;
+  font-size: 13.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.18s ease !important;
+}
+
+.mobile-filter-btn:hover {
+  background: rgba(224, 137, 79, 0.15) !important;
+  border-color: #E0894F !important;
+  color: #FF9E5C !important;
+}
+
+/* ==========================================================================
+   Overlay Modal Control
+   ========================================================================== */
+.filter-matrix-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 9999 !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 24px !important;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 0.24s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.24s ease !important;
+}
+
+.filter-matrix-overlay.is-open {
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+
+.filter-matrix-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  background: rgba(6, 8, 11, 0.88) !important;
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+  cursor: pointer !important;
+}
+
+.filter-matrix-dialog {
+  position: relative !important;
+  width: 100% !important;
+  max-width: 1120px !important;
+  max-height: 90vh !important;
+  display: flex !important;
+  flex-direction: column !important;
+  z-index: 2 !important;
+  transform: scale(0.96) translateY(12px) !important;
+  transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+.filter-matrix-overlay.is-open .filter-matrix-dialog {
+  transform: scale(1) translateY(0) !important;
+}
+
+body.filter-modal-locked {
+  overflow: hidden !important;
+}
+
+/* Card Styling */
+.nit-search-matrix-card.popup-card {
+  position: relative !important;
+  background: linear-gradient(180deg, #13171C 0%, #0C0F12 100%) !important;
+  border: 1px solid #28303A !important;
+  border-radius: 18px !important;
+  padding: 26px 30px !important;
+  box-shadow: 0 30px 70px -15px rgba(0, 0, 0, 0.95), 0 0 0 1px rgba(224, 137, 79, 0.12) !important;
+  overflow-y: auto !important;
+  max-height: 90vh !important;
+  margin-bottom: 0 !important;
+}
+
+.nit-search-matrix-card.popup-card::-webkit-scrollbar {
+  width: 6px;
+}
+.nit-search-matrix-card.popup-card::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+.nit-search-matrix-card.popup-card::-webkit-scrollbar-thumb {
+  background: #2D3642;
+  border-radius: 999px;
+}
+.nit-search-matrix-card.popup-card::-webkit-scrollbar-thumb:hover {
+  background: #E0894F;
+}
+
+.filter-modal-close {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  height: 36px !important;
+  border-radius: 9px !important;
+  background: #181E25 !important;
+  border: 1px solid #2A333E !important;
+  color: #9AA3AF !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  transition: all 0.18s ease !important;
+}
+
+.filter-modal-close:hover {
+  background: rgba(224, 137, 79, 0.2) !important;
+  border-color: #E0894F !important;
+  color: #FFFFFF !important;
+  transform: scale(1.05) !important;
+}
+</style>
