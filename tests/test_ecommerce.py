@@ -769,3 +769,179 @@ class NITHomeECommerceTests(TestCase):
         self.assertEqual(payment.currency, 'BDT')
         self.assertIn('৳', str(payment))
 
+    # Test anonymous user cannot access checkout page and gets redirected to login
+    def test_anonymous_user_checkout_redirects_to_login(self):
+        # Add item to cart
+        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
+        checkout_url = reverse('orders:checkout')
+        response = self.client.get(checkout_url)
+        self.assertEqual(response.status_code, 302)
+        login_url = reverse('accounts:login')
+        self.assertIn(login_url, response.url)
+        self.assertIn('next=/orders/checkout/', response.url)
+
+    # Test anonymous user cannot submit an order via POST to checkout
+    def test_anonymous_user_cannot_submit_order(self):
+        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
+        checkout_url = reverse('orders:checkout')
+        payload = {
+            'full_name': 'Guest Buyer',
+            'email': 'guest@example.com',
+            'phone': '+880 1800000000',
+            'street_address': 'Road 1, Banani',
+            'city': 'Dhaka',
+            'postal_code': '1213'
+        }
+        response = self.client.post(checkout_url, payload)
+        self.assertEqual(response.status_code, 302)
+        self.assertIn(reverse('accounts:login'), response.url)
+        self.assertFalse(Order.objects.filter(email='guest@example.com').exists())
+
+    # Test anonymous user clicking "Buy Now" adds to cart and redirects to login with next=/orders/checkout/
+    def test_anonymous_user_buy_now_adds_to_cart_and_redirects_to_login(self):
+        buy_now_url = reverse('cart:buy_now', kwargs={'product_id': self.product.id})
+        response = self.client.post(buy_now_url, {'quantity': 1}, follow=False)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('orders:checkout'))
+
+        # Following to checkout redirects to login
+        res_checkout = self.client.get(response.url)
+        self.assertEqual(res_checkout.status_code, 302)
+        self.assertIn(reverse('accounts:login'), res_checkout.url)
+        self.assertIn('next=/orders/checkout/', res_checkout.url)
+
+    # Test sign up with OTP verification preserves next URL and allows immediate checkout
+    def test_signup_and_otp_verification_preserves_next_url_and_completes_order(self):
+        # 1. Anonymous user adds product to cart
+        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.product.id}), {'quantity': 1})
+
+        # 2. User signs up with ?next=/orders/checkout/
+        signup_url = reverse('accounts:signup') + '?next=' + reverse('orders:checkout')
+        signup_payload = {
+            'email': 'shopper@nithome.com',
+            'first_name': 'Shopper',
+            'last_name': 'One',
+            'phone': '+880 1711998877',
+            'password': 'SecurePassword123!',
+            'confirm_password': 'SecurePassword123!',
+            'next': reverse('orders:checkout')
+        }
+        signup_res = self.client.post(signup_url, signup_payload, follow=True)
+        self.assertEqual(signup_res.status_code, 200)
+        self.assertTemplateUsed(signup_res, 'accounts/verify_otp.html')
+
+        shopper = User.objects.get(email='shopper@nithome.com')
+        verification = EmailVerification.objects.filter(user=shopper).first()
+        plain_otp, _ = EmailVerification.generate_otp(shopper)
+
+        # 3. User verifies OTP -> should automatically log in and redirect to /orders/checkout/
+        verify_url = reverse('accounts:verify_otp')
+        verify_res = self.client.post(verify_url, {'otp': plain_otp}, follow=False)
+        self.assertEqual(verify_res.status_code, 302)
+        self.assertEqual(verify_res.url, reverse('orders:checkout'))
+
+        # 4. User is on checkout page, submit order
+        checkout_payload = {
+            'full_name': 'Shopper One',
+            'email': shopper.email,
+            'phone': '+880 1711998877',
+            'street_address': 'Flat 4A, Gulshan 2',
+            'city': 'Dhaka',
+            'state_or_division': 'Dhaka Division',
+            'postal_code': '1212'
+        }
+        order_res = self.client.post(reverse('orders:checkout'), checkout_payload, follow=True)
+        self.assertEqual(order_res.status_code, 200)
+
+        # Verify order was created for shopper
+        order = Order.objects.get(email='shopper@nithome.com')
+        self.assertEqual(order.user, shopper)
+        self.assertEqual(order.subtotal, self.product.price)
+        self.assertEqual(order.total_amount, self.product.price + Decimal('150.00'))
+
+    # Test login preserves next URL and allows checkout with saved cart
+    def test_login_preserves_next_url_and_completes_order(self):
+        # 1. Anonymous user adds CPU to cart
+        self.client.post(reverse('cart:cart_add', kwargs={'product_id': self.cpu_product.id}), {'quantity': 1})
+
+        # 2. User logs in with next=/orders/checkout/
+        login_url = reverse('accounts:login') + '?next=' + reverse('orders:checkout')
+        login_payload = {
+            'email': self.user.email,
+            'password': 'StrongPassword123!',
+            'next': reverse('orders:checkout')
+        }
+        login_res = self.client.post(login_url, login_payload, follow=False)
+        self.assertEqual(login_res.status_code, 302)
+        self.assertEqual(login_res.url, reverse('orders:checkout'))
+
+        # 3. Complete order
+        checkout_payload = {
+            'full_name': 'Test User',
+            'email': self.user.email,
+            'phone': '+880 1812345678',
+            'street_address': 'House 10, Road 4',
+            'city': 'Dhaka',
+            'postal_code': '1213'
+        }
+        order_res = self.client.post(reverse('orders:checkout'), checkout_payload, follow=True)
+        self.assertEqual(order_res.status_code, 200)
+        order = Order.objects.filter(user=self.user).latest('id')
+        self.assertEqual(order.user, self.user)
+
+    # Test unauthenticated user cannot access payment or invoice views
+    def test_anonymous_user_cannot_access_payment_or_invoice_views(self):
+        order = Order.objects.create(
+            order_number='NIT-AUTH-TEST',
+            user=self.user,
+            full_name='Auth Tester',
+            email=self.user.email,
+            phone='+8801700000000',
+            street_address='Banani',
+            city='Dhaka',
+            postal_code='1213',
+            subtotal=Decimal('1000.00'),
+            shipping_fee=Decimal('150.00'),
+            total_amount=Decimal('1150.00'),
+            status='PENDING'
+        )
+
+        # Anonymous GET to payment select redirects to login
+        res_pay = self.client.get(reverse('payments:payment_select', kwargs={'order_number': order.order_number}))
+        self.assertEqual(res_pay.status_code, 302)
+        self.assertIn(reverse('accounts:login'), res_pay.url)
+
+        # Anonymous GET to invoice redirects to login
+        res_inv = self.client.get(reverse('orders:order_detail', kwargs={'order_number': order.order_number}))
+        self.assertEqual(res_inv.status_code, 302)
+        self.assertIn(reverse('accounts:login'), res_inv.url)
+
+    # Test user cannot view or pay for another user's order
+    def test_user_cannot_view_or_pay_another_users_order(self):
+        other_user = User.objects.create_user(email='other@nithome.com', password='OtherPassword123!', is_verified=True)
+        order = Order.objects.create(
+            order_number='NIT-OTHER-TEST',
+            user=other_user,
+            full_name='Other Tester',
+            email=other_user.email,
+            phone='+8801700000000',
+            street_address='Banani',
+            city='Dhaka',
+            postal_code='1213',
+            subtotal=Decimal('1000.00'),
+            shipping_fee=Decimal('150.00'),
+            total_amount=Decimal('1150.00'),
+            status='PENDING'
+        )
+
+        # Log in as self.user (not other_user)
+        self.client.force_login(self.user)
+
+        # Should return 404
+        res_pay = self.client.get(reverse('payments:payment_select', kwargs={'order_number': order.order_number}))
+        self.assertEqual(res_pay.status_code, 404)
+
+        res_inv = self.client.get(reverse('orders:order_detail', kwargs={'order_number': order.order_number}))
+        self.assertEqual(res_inv.status_code, 404)
+
+

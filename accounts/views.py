@@ -48,6 +48,11 @@ class SignUpView(FormView):
         self.request.session['pending_otp_user_id'] = user.id
         self.request.session['pending_otp_email'] = user.email
 
+        # Preserve next URL across OTP verification
+        next_url = self.request.GET.get('next') or self.request.POST.get('next')
+        if next_url:
+            self.request.session['pending_otp_next_url'] = next_url
+
         messages.success(
             self.request,
             f"Account created! We've sent a 6-digit verification code to {user.email}. Please check your email inbox."
@@ -90,7 +95,8 @@ class VerifyOTPView(FormView):
             # Log user into the session
             login(self.request, user, backend='django.contrib.auth.backends.ModelBackend')
 
-            # Clean up pending session state
+            # Clean up pending session state and retrieve next redirection URL
+            next_url = self.request.session.pop('pending_otp_next_url', None) or self.request.GET.get('next') or self.request.POST.get('next')
             self.request.session.pop('pending_otp_user_id', None)
             self.request.session.pop('pending_otp_email', None)
 
@@ -105,6 +111,8 @@ class VerifyOTPView(FormView):
                 self.request,
                 f"Email verified successfully! Welcome to N-IT HOME, {user.get_full_name()}."
             )
+            if next_url:
+                return redirect(next_url)
             return redirect('products:product_list')
         else:
             messages.error(self.request, 'Invalid or expired verification code. Please check and try again.')

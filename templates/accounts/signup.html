@@ -10,8 +10,13 @@
                 <p class="auth-subtitle">Join N-IT HOME for bench-tested hardware and live build tracking</p>
             </div>
 
-            <form method="post" action="{% url 'accounts:signup' %}">
+            <form method="post" action="{% url 'accounts:signup' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">
                 {% csrf_token %}
+                {% if request.GET.next %}
+                    <input type="hidden" name="next" value="{{ request.GET.next }}">
+                {% elif request.POST.next %}
+                    <input type="hidden" name="next" value="{{ request.POST.next }}">
+                {% endif %}
                 {% if form.non_field_errors %}
                     <div class="alert alert-error">{{ form.non_field_errors.0 }}</div>
                 {% endif %}
@@ -63,7 +68,7 @@
 
             <div class="auth-footer-links">
                 Already have an account?
-                <a href="{% url 'accounts:login' %}">Sign in</a>
+                <a href="{% url 'accounts:login' %}{% if request.GET.next %}?next={{ request.GET.next|urlencode }}{% endif %}">Sign in</a>
             </div>
         </div>
     </div>

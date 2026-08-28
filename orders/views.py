@@ -13,11 +13,13 @@ from cart.cart import Cart
 from accounts.models import Address
 
 # View handling checkout form presentation, prefill from profile, and order submission
-class CheckoutView(FormView):
+class CheckoutView(LoginRequiredMixin, FormView):
     template_name = 'orders/checkout.html'
     form_class = CheckoutForm
 
     def dispatch(self, request: HttpRequest, *args, **kwargs) -> HttpResponse:
+        if not request.user.is_authenticated:
+            return self.handle_no_permission()
         cart = Cart(request)
         if cart.is_empty():
             messages.warning(request, 'Your cart is empty. Please add items before checkout.')
@@ -26,37 +28,35 @@ class CheckoutView(FormView):
 
     def get_initial(self) -> dict[str, Any]:
         initial = super().get_initial()
-        # Prefill customer details and default shipping address if authenticated
-        if self.request.user.is_authenticated:
-            user = self.request.user
-            initial['full_name'] = f"{user.first_name} {user.last_name}".strip() or user.email
-            initial['email'] = user.email
-            if hasattr(user, 'profile') and user.profile.phone:
-                initial['phone'] = user.profile.phone
+        # Prefill customer details and default shipping address from authenticated user profile
+        user = self.request.user
+        initial['full_name'] = f"{user.first_name} {user.last_name}".strip() or user.email
+        initial['email'] = user.email
+        if hasattr(user, 'profile') and user.profile.phone:
+            initial['phone'] = user.profile.phone
 
-            default_address = Address.objects.filter(user=user, is_default=True).first()
-            if not default_address:
-                default_address = Address.objects.filter(user=user).first()
-            if default_address:
-                initial['street_address'] = default_address.street_address
-                initial['city'] = default_address.city
-                initial['state_or_division'] = default_address.state_or_division
-                initial['postal_code'] = default_address.postal_code
-                initial['country'] = default_address.country
+        default_address = Address.objects.filter(user=user, is_default=True).first()
+        if not default_address:
+            default_address = Address.objects.filter(user=user).first()
+        if default_address:
+            initial['street_address'] = default_address.street_address
+            initial['city'] = default_address.city
+            initial['state_or_division'] = default_address.state_or_division
+            initial['postal_code'] = default_address.postal_code
+            initial['country'] = default_address.country
         return initial
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
         context['title'] = 'Secure Checkout'
-        if self.request.user.is_authenticated:
-            context['saved_addresses'] = Address.objects.filter(user=self.request.user)
+        context['saved_addresses'] = Address.objects.filter(user=self.request.user)
         return context
 
     def form_valid(self, form: CheckoutForm) -> HttpResponse:
         cart = Cart(self.request)
-        user = self.request.user if self.request.user.is_authenticated else None
+        user = self.request.user
 
-        # Create order through OrderService
+        # Create order through OrderService with the authenticated user
         try:
             order = OrderService.create_order_from_cart(cart, form.cleaned_data, user=user)
         except ValidationError as e:
@@ -64,7 +64,7 @@ class CheckoutView(FormView):
             return self.form_invalid(form)
 
         # Save shipping address to user profile if opted in
-        if user and form.cleaned_data.get('save_address_to_profile'):
+        if form.cleaned_data.get('save_address_to_profile'):
             Address.objects.get_or_create(
                 user=user,
                 street_address=form.cleaned_data['street_address'],
@@ -83,12 +83,17 @@ class CheckoutView(FormView):
         return redirect('payments:payment_select', order_number=order.order_number)
 
 # View rendering order placement confirmation page
-class OrderSuccessView(DetailView):
+class OrderSuccessView(LoginRequiredMixin, DetailView):
     model = Order
     template_name = 'orders/order_success.html'
     context_object_name = 'order'
     slug_field = 'order_number'
     slug_url_kwarg = 'order_number'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
@@ -96,12 +101,17 @@ class OrderSuccessView(DetailView):
         return context
 
 # View rendering detailed invoice, item breakdown, and delivery timeline
-class OrderDetailView(DetailView):
+class OrderDetailView(LoginRequiredMixin, DetailView):
     model = Order
     template_name = 'orders/order_detail.html'
     context_object_name = 'order'
     slug_field = 'order_number'
     slug_url_kwarg = 'order_number'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return Order.objects.all()
+        return Order.objects.filter(user=self.request.user)
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
