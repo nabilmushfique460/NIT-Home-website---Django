@@ -43,9 +43,9 @@
                             </td>
                             <td>
                                 {% if ord.payment_status == 'PAID' %}
-                                    <span class="badge" style="position: static; background: var(--ok); color: #161005;">PAID</span>
+                                    <span class="badge" style="position: static; background: var(--ok); color: #ffffff;">PAID</span>
                                 {% else %}
-                                    <span class="badge" style="position: static; background: var(--copper); color: #161005;">{{ ord.get_payment_status_display }}</span>
+                                    <span class="badge" style="position: static; background: var(--copper); color: #ffffff;">{{ ord.get_payment_status_display }}</span>
                                 {% endif %}
                             </td>
                             <td>

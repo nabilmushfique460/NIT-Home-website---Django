@@ -219,7 +219,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(10, 11, 13, 0.8);
+  background: rgba(17, 18, 21, 0.6);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 199;
@@ -242,7 +242,7 @@
   flex-direction: column;
   gap: 20px;
   overflow-y: auto;
-  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  box-shadow: -10px 0 30px rgba(35, 25, 15, 0.12);
 }
 
 .mobile-drawer-header {
@@ -299,5 +299,5 @@
 
 .mobile-nav-link:hover {
   background-color: var(--panel-2);
-  color: var(--copper-bright);
+  color: var(--copper);
 }

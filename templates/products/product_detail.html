@@ -41,6 +41,9 @@
                 <div style="display: flex; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                     <span class="badge" style="position: static;">{{ product.category.name }}</span>
                     <span class="badge value" style="position: static;">{{ product.brand }}</span>
+                    {% if product.is_featured %}
+                        <span class="badge" style="position: static; background: var(--copper); color: #fff;">Featured</span>
+                    {% endif %}
                     {% if product.discount_percent > 0 %}
                         <span class="badge" style="position: static; background: #ef4444; color: #fff;">-{{ product.discount_percent }}% OFF</span>
                     {% endif %}
