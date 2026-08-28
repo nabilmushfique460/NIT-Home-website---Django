@@ -6,8 +6,8 @@ from products.models import Product
 
 # OOP shopping cart implementation managing session cart state, quantities, and totals
 class Cart:
-    FREE_SHIPPING_THRESHOLD = Decimal('500.00')
-    STANDARD_SHIPPING_FEE = Decimal('15.00')
+    FREE_SHIPPING_THRESHOLD = Decimal('60000.00')
+    STANDARD_SHIPPING_FEE = Decimal('150.00')
 
     def __init__(self, request: HttpRequest) -> None:
         self.session = request.session

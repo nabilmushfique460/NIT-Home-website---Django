@@ -109,15 +109,15 @@
             </div>
           </div>
 
-          <!-- Generation -->
+          <!-- SSD Generation -->
           <div class="matrix-field">
-            <label for="modalFilterGenSelect" class="matrix-label">Generation</label>
+            <label for="modalFilterGenSelect" class="matrix-label">SSD Generation</label>
             <div class="matrix-select-wrap">
               <select name="generation" id="modalFilterGenSelect" class="matrix-select">
-                <option value="">All Generations</option>
-                <option value="gen3" {% if selected_generation == 'gen3' %}selected{% endif %}>Gen 3 (PCIe 3.0 / DDR3)</option>
-                <option value="gen4" {% if selected_generation == 'gen4' %}selected{% endif %}>Gen 4 (PCIe 4.0 / DDR4)</option>
-                <option value="gen5" {% if selected_generation == 'gen5' %}selected{% endif %}>Gen 5 (PCIe 5.0 / DDR5)</option>
+                <option value="">All SSD Generations</option>
+                <option value="gen3" {% if selected_generation == 'gen3' %}selected{% endif %}>Gen 3</option>
+                <option value="gen4" {% if selected_generation == 'gen4' %}selected{% endif %}>Gen 4</option>
+                <option value="gen5" {% if selected_generation == 'gen5' %}selected{% endif %}>Gen 5</option>
               </select>
             </div>
           </div>
@@ -158,6 +158,19 @@
             </div>
           </div>
 
+          <!-- RAM Generation (DDR) -->
+          <div class="matrix-field">
+            <label for="modalFilterRamTypeSelect" class="matrix-label">RAM Standard (DDR)</label>
+            <div class="matrix-select-wrap">
+              <select name="ram_type" id="modalFilterRamTypeSelect" class="matrix-select">
+                <option value="">All DDR Types</option>
+                <option value="ddr3" {% if selected_ram_type == 'ddr3' %}selected{% endif %}>DDR3</option>
+                <option value="ddr4" {% if selected_ram_type == 'ddr4' %}selected{% endif %}>DDR4</option>
+                <option value="ddr5" {% if selected_ram_type == 'ddr5' %}selected{% endif %}>DDR5</option>
+              </select>
+            </div>
+          </div>
+
           <!-- GPU VRAM -->
           <div class="matrix-field">
             <label for="modalFilterGpuVramSelect" class="matrix-label">GPU VRAM</label>
@@ -171,6 +184,19 @@
                 <option value="32gb" {% if selected_gpu_vram == '32gb' %}selected{% endif %}>32GB</option>
                 <option value="64gb" {% if selected_gpu_vram == '64gb' %}selected{% endif %}>64GB</option>
                 <option value="96gb" {% if selected_gpu_vram == '96gb' %}selected{% endif %}>96GB</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- PCIe Interface -->
+          <div class="matrix-field">
+            <label for="modalFilterPcieSelect" class="matrix-label">PCIe Interface</label>
+            <div class="matrix-select-wrap">
+              <select name="pcie_version" id="modalFilterPcieSelect" class="matrix-select">
+                <option value="">All PCIe Standards</option>
+                <option value="pcie3" {% if selected_pcie_version == 'pcie3' %}selected{% endif %}>PCIe 3.0</option>
+                <option value="pcie4" {% if selected_pcie_version == 'pcie4' %}selected{% endif %}>PCIe 4.0</option>
+                <option value="pcie5" {% if selected_pcie_version == 'pcie5' %}selected{% endif %}>PCIe 5.0</option>
               </select>
             </div>
           </div>
@@ -255,16 +281,16 @@
         <div class="matrix-bottom-bar">
           <!-- Price Range Dual Inputs -->
           <div class="matrix-price-container">
-            <label class="matrix-label">Price Range ($ USD)</label>
+            <label class="matrix-label">Price Range (BDT ৳)</label>
             <div class="matrix-price-inputs">
               <div class="price-input-box">
-                <span class="currency-tag">$</span>
-                <input type="number" name="min_price" value="{{ min_price|default:'' }}" placeholder="0" min="0" step="10" class="matrix-number-input" aria-label="Minimum Price">
+                <span class="currency-tag">৳</span>
+                <input type="number" name="min_price" value="{{ min_price|default:'' }}" placeholder="0" min="0" step="100" class="matrix-number-input" aria-label="Minimum Price">
               </div>
               <span class="price-dash">–</span>
               <div class="price-input-box">
-                <span class="currency-tag">$</span>
-                <input type="number" name="max_price" value="{{ max_price|default:'' }}" placeholder="Max" min="0" step="10" class="matrix-number-input" aria-label="Maximum Price">
+                <span class="currency-tag">৳</span>
+                <input type="number" name="max_price" value="{{ max_price|default:'' }}" placeholder="Max" min="0" step="100" class="matrix-number-input" aria-label="Maximum Price">
               </div>
             </div>
           </div>

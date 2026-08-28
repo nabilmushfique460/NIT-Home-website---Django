@@ -61,18 +61,22 @@
 
             <div class="product-price-hero">
                 <div class="price-box-left">
-                    <span class="price-main">${{ product.price }}</span>
+                    <span class="price-main">৳{{ product.price }}</span>
                     {% if product.original_price %}
-                        <span class="price-strike">${{ product.original_price }}</span>
+                        <span class="price-strike">৳{{ product.original_price }}</span>
                     {% endif %}
                 </div>
-                <div>
+                <div class="price-box-right">
                     {% if product.is_in_stock %}
-                        <span class="badge" style="position: static; background: var(--ok); color: #161005;">
+                        <span class="price-status-badge in-stock">
+                            <span class="badge-dot"></span>
                             Bench Verified &amp; Ready
                         </span>
                     {% else %}
-                        <span class="badge" style="position: static; background: #ef4444; color: #fff;">Out of Stock</span>
+                        <span class="price-status-badge out-of-stock">
+                            <span class="badge-dot"></span>
+                            Out of Stock
+                        </span>
                     {% endif %}
                 </div>
             </div>
@@ -143,7 +147,7 @@
             <div class="product-perks-list">
                 <div class="perk-item">
                     <span style="font-weight: 600; color: var(--copper-bright);">Express:</span>
-                    <span>Free Express Delivery over $500</span>
+                    <span>Free Express Delivery over ৳60,000</span>
                 </div>
                 <div class="perk-item">
                     <span style="font-weight: 600; color: var(--ok);">Warranty:</span>

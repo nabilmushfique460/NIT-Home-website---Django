@@ -66,25 +66,29 @@ class ProductAdmin(admin.ModelAdmin):
         'price',
         'stock_qty',
         'ram_capacity',
+        'ram_type',
         'gpu_vram',
         'ssd_capacity',
-        'cpu_series',
         'generation',
+        'pcie_version',
+        'cpu_series',
         'is_featured',
         'updated_at'
     )
     list_filter = (
         'category',
         'brand',
+        'generation',
+        'ram_type',
+        'pcie_version',
         'ram_capacity',
         'gpu_vram',
         'ssd_capacity',
-        'generation',
         'cpu_series',
         'is_featured',
         'created_at'
     )
-    search_fields = ('name', 'brand', 'short_description', 'ram_capacity', 'gpu_vram', 'ssd_capacity', 'cpu_series')
+    search_fields = ('name', 'brand', 'short_description', 'ram_capacity', 'ram_type', 'gpu_vram', 'ssd_capacity', 'generation', 'pcie_version', 'cpu_series')
     prepopulated_fields = {'slug': ('brand', 'name')}
     inlines = [ProductImageInline, ProductSpecificationInline, ProductReviewInline]
     list_editable = ('price', 'stock_qty', 'is_featured')
@@ -97,8 +101,9 @@ class ProductAdmin(admin.ModelAdmin):
         ('Hardware Specifications & Options', {
             'description': 'Admin-controlled hardware spec options used for store search, category filters, and product details.',
             'fields': (
-                ('ram_capacity', 'gpu_vram'),
+                ('ram_capacity', 'ram_type'),
                 ('ssd_capacity', 'generation'),
+                ('gpu_vram', 'pcie_version'),
                 ('cpu_series', 'cpu_cores', 'cpu_threads'),
             )
         }),

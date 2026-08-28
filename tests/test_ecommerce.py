@@ -92,7 +92,7 @@ class NITHomeECommerceTests(TestCase):
             price=Decimal('124.99'),
             stock_qty=0,
             ram_capacity='32gb',
-            generation='gen5',
+            ram_type='ddr5',
             short_description='Low latency DDR5 memory kit.',
             long_description='High speed overclocking RAM with XMP profile.',
             warranty='Lifetime'
@@ -108,6 +108,7 @@ class NITHomeECommerceTests(TestCase):
             stock_qty=20,
             ssd_capacity='2tb',
             generation='gen4',
+            pcie_version='pcie4',
             short_description='Fast PCIe 4.0 NVMe SSD.',
             long_description='Sequential read speeds up to 7450 MB/s.',
             warranty='5 Years'
@@ -450,6 +451,19 @@ class NITHomeECommerceTests(TestCase):
         self.assertContains(res, 'Samsung 990 PRO 2TB')
         self.assertNotContains(res, 'Intel Core i9-14900K')
 
+    # Test filtering products by RAM type (DDR5) and PCIe interface (PCIe 4.0)
+    def test_product_filter_by_ram_type_and_pcie_version(self):
+        url = reverse('products:product_list')
+        res_ram = self.client.get(url, {'ram_type': 'ddr5'})
+        self.assertEqual(res_ram.status_code, 200)
+        self.assertContains(res_ram, 'Corsair Vengeance DDR5')
+        self.assertNotContains(res_ram, 'Samsung 990 PRO')
+
+        res_pcie = self.client.get(url, {'pcie_version': 'pcie4'})
+        self.assertEqual(res_pcie.status_code, 200)
+        self.assertContains(res_pcie, 'Samsung 990 PRO')
+        self.assertNotContains(res_pcie, 'Corsair Vengeance DDR5')
+
     # Test filtering products by CPU series, cores, and threads
     def test_product_filter_by_cpu_series_cores_threads(self):
         url = reverse('products:product_list')
@@ -475,8 +489,11 @@ class NITHomeECommerceTests(TestCase):
         res_page = self.client.get(add_url)
         self.assertEqual(res_page.status_code, 200)
         self.assertContains(res_page, 'ram_capacity')
+        self.assertContains(res_page, 'ram_type')
         self.assertContains(res_page, 'gpu_vram')
         self.assertContains(res_page, 'ssd_capacity')
+        self.assertContains(res_page, 'generation')
+        self.assertContains(res_page, 'pcie_version')
         self.assertContains(res_page, 'cpu_series')
         self.assertContains(res_page, 'cpu_cores')
         self.assertContains(res_page, 'cpu_threads')
@@ -659,10 +676,96 @@ class NITHomeECommerceTests(TestCase):
         contact = ContactService.submit_contact_message(
             name='Customer John',
             email='john@example.com',
+            phone='+8801711223344',
             subject='GPU Availability Inquiry',
             message='When will the RTX 4090 be restocked in large quantities?'
         )
         self.assertEqual(contact.name, 'Customer John')
         self.assertEqual(contact.subject, 'GPU Availability Inquiry')
+        self.assertEqual(contact.phone, '+8801711223344')
         self.assertFalse(contact.is_resolved)
+        self.assertTrue(contact.ticket_number.startswith('NIT-TKT-'))
         self.assertTrue(ContactMessage.objects.filter(email='john@example.com').exists())
+
+    # Test contact view post submission, ticket generation, and user notifications
+    def test_contact_view_submission_and_ticket_workflow(self):
+        self.client.force_login(self.user)
+        contact_url = reverse('core:contact')
+        payload = {
+            'name': 'Test User',
+            'email': self.user.email,
+            'phone': '+880 1797529625',
+            'subject': 'Power Supply Compatibility',
+            'message': 'Can I run the RTX 4090 on an 850W titanium PSU with a 7800X3D?'
+        }
+        response = self.client.post(contact_url, payload, follow=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'support ticket')
+        self.assertContains(response, 'NIT-TKT-')
+
+        ticket = ContactMessage.objects.filter(email=self.user.email, subject='Power Supply Compatibility').first()
+        self.assertIsNotNone(ticket)
+        self.assertEqual(ticket.user, self.user)
+        self.assertTrue(Notification.objects.filter(user=self.user, title__contains=ticket.ticket_number).exists())
+
+        # Verify ticket appears in contact view for authenticated user
+        res_get = self.client.get(contact_url)
+        self.assertContains(res_get, ticket.ticket_number)
+        self.assertContains(res_get, 'In Review')
+
+    # Test admin reply to support ticket and notification
+    def test_contact_admin_reply_and_resolution(self):
+        contact = ContactService.submit_contact_message(
+            name='Test User',
+            email=self.user.email,
+            subject='RMA Warranty Question',
+            message='How do I claim warranty for my GPU?',
+            user=self.user
+        )
+        self.assertFalse(contact.is_resolved)
+
+        ContactService.send_admin_reply(contact, 'Please send the hardware to our Banani lab for 48H inspection.')
+        contact.refresh_from_db()
+        self.assertTrue(contact.is_resolved)
+        self.assertEqual(contact.admin_reply, 'Please send the hardware to our Banani lab for 48H inspection.')
+        self.assertTrue(Notification.objects.filter(user=self.user, title__contains='Update on Support Ticket').exists())
+
+    # Test BDT currency symbols and models
+    def test_bdt_currency_rendering_and_models(self):
+        from payments.models import Payment
+        from core.context_processors import site_context
+        from django.test import RequestFactory
+
+        # Test context processor
+        factory = RequestFactory()
+        req = factory.get('/')
+        req.user = self.user
+        ctx = site_context(req)
+        self.assertEqual(ctx['currency_symbol'], '৳')
+        self.assertEqual(ctx['currency_code'], 'BDT')
+
+        # Test product string representation
+        self.assertIn('৳', str(self.product))
+
+        # Test payment default currency
+        order = Order.objects.create(
+            order_number='NIT-BDT-TEST',
+            full_name='BDT Tester',
+            email='bdt@nithome.com',
+            phone='+8801700000000',
+            street_address='Banani',
+            city='Dhaka',
+            postal_code='1213',
+            subtotal=Decimal('10000.00'),
+            shipping_fee=Decimal('150.00'),
+            total_amount=Decimal('10150.00'),
+            status='PENDING'
+        )
+        payment = Payment.objects.create(
+            order=order,
+            method='BKASH',
+            amount=Decimal('10150.00')
+        )
+        self.assertEqual(payment.currency, 'BDT')
+        self.assertIn('৳', str(payment))
+

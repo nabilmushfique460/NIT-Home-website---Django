@@ -1616,6 +1616,9 @@ section {
   padding: 4px 9px;
   border-radius: 5px;
   text-transform: uppercase;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
 }
 
 .badge.value {

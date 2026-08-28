@@ -18,7 +18,8 @@ def site_context(request: HttpRequest) -> dict[str, Any]:
     return {
         'site_name': 'N-IT HOME',
         'site_tagline': 'Premium PC Hardware & Components',
-        'currency_symbol': '$',
+        'currency_symbol': '৳',
+        'currency_code': 'BDT',
         'nav_categories': categories,
         'unread_notifications_count': unread_count,
         'recent_notifications': recent_notifications,

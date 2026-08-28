@@ -273,9 +273,19 @@
               RAM: {{ selected_ram|upper }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
+          {% if selected_ram_type %}
+            <a href="{% url_replace ram_type='' %}#catalog" class="matrix-chip" title="Remove DDR filter">
+              DDR: {{ selected_ram_type|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
           {% if selected_gpu_vram %}
             <a href="{% url_replace gpu_vram='' %}#catalog" class="matrix-chip" title="Remove VRAM filter">
               VRAM: {{ selected_gpu_vram|upper }} <span class="chip-x">✕</span>
+            </a>
+          {% endif %}
+          {% if selected_pcie_version %}
+            <a href="{% url_replace pcie_version='' %}#catalog" class="matrix-chip" title="Remove PCIe filter">
+              PCIe: {{ selected_pcie_version|upper }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
           {% if selected_ssd %}
@@ -284,7 +294,7 @@
             </a>
           {% endif %}
           {% if selected_generation %}
-            <a href="{% url_replace generation='' %}#catalog" class="matrix-chip" title="Remove generation filter">
+            <a href="{% url_replace generation='' %}#catalog" class="matrix-chip" title="Remove SSD generation filter">
               Gen: {{ selected_generation|upper }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
@@ -305,12 +315,12 @@
           {% endif %}
           {% if min_price %}
             <a href="{% url_replace min_price='' %}#catalog" class="matrix-chip" title="Remove min price">
-              Min: ${{ min_price }} <span class="chip-x">✕</span>
+              Min: ৳{{ min_price }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
           {% if max_price %}
             <a href="{% url_replace max_price='' %}#catalog" class="matrix-chip" title="Remove max price">
-              Max: ${{ max_price }} <span class="chip-x">✕</span>
+              Max: ৳{{ max_price }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
           {% if in_stock_only %}
@@ -323,6 +333,9 @@
               Sort: {{ selected_sort|title }} <span class="chip-x">✕</span>
             </a>
           {% endif %}
+          <a href="{% url 'products:product_list' %}#catalog" class="matrix-chip reset-all" title="Reset all applied filters">
+            Reset Matrix Filters ↺
+          </a>
         </div>
       {% endif %}
     </div>
@@ -330,12 +343,18 @@
     {% if products %}
       <div class="prod-rows-list">
         {% for product in products %}
-          <article class="product-row-card reveal">
-            <!-- Left: Product Media / Image & Badges -->
+          <article class="product-row-card reveal" data-brand="{{ product.brand }}" data-category="{{ product.category.slug }}">
+
+            <!-- Left: Hardware Media Gallery & Stream Badges -->
             <div class="product-row-media {% if product.category.slug == 'gpu' %}product-visual--gpu{% elif product.category.slug == 'cpu' %}product-visual--cpu{% elif product.category.slug == 'ram' %}product-visual--ram{% else %}product-visual--ssd{% endif %}">
-              <a href="{{ product.get_absolute_url }}" class="product-row-img-link" title="{{ product.name }}">
+              <a href="{{ product.get_absolute_url }}" class="product-row-img-link" title="View {{ product.name }} technical overview">
                 {% if product.primary_image_url %}
-                  <img src="{{ product.primary_image_url }}" alt="{{ product.name }}" class="product-row-img" loading="lazy">
+                  <img
+                    src="{{ product.primary_image_url }}"
+                    alt="{{ product.name }}"
+                    class="product-row-img"
+                    loading="lazy"
+                  >
                 {% else %}
                   <div class="product-img-fallback">
                     {% if product.category.slug == 'gpu' %}
@@ -352,11 +371,9 @@
               </a>
 
               <div class="product-row-badge-stack">
-                {% if product.discount_percent > 0 %}
-                  <span class="row-badge discount">-{{ product.discount_percent }}% OFF</span>
-                {% elif forloop.counter == 1 %}
-                  <span class="row-badge bestseller">Bestseller</span>
-                {% elif forloop.counter == 2 %}
+                {% if product.is_featured %}
+                  <span class="row-badge featured">Featured</span>
+                {% elif product.is_new %}
                   <span class="row-badge new">New</span>
                 {% endif %}
               </div>
@@ -364,118 +381,142 @@
 
             <!-- Center: Title, Description, Technical Specs Matrix -->
             <div class="product-row-content">
-              <div class="product-row-header-meta">
-                <span class="meta-brand-cat">{{ product.category.name }} · {{ product.brand }}</span>
-                {% if product.generation %}
-                  <span class="meta-pill-gen">{{ product.get_generation_display|default:product.generation|upper }}</span>
-                {% endif %}
-                <span class="meta-rating">
-                  <span class="star-gold">★</span> {{ product.rating|default:"4.9" }}
-                  <span class="review-num">({{ product.review_count|default:"32" }} reviews)</span>
-                </span>
-              </div>
+            <div class="product-row-header-meta">
+              <span class="meta-brand-cat">{{ product.category.name }} · {{ product.brand }}</span>
+              {% if product.generation %}
+                <span class="meta-pill-gen">{{ product.get_generation_display }}</span>
+              {% endif %}
+              {% if product.ram_type %}
+                <span class="meta-pill-gen">{{ product.get_ram_type_display }}</span>
+              {% endif %}
+              {% if product.pcie_version %}
+                <span class="meta-pill-gen">{{ product.get_pcie_version_display }}</span>
+              {% endif %}
+              <span class="meta-rating">
+                <span class="star-gold">★</span> {{ product.rating|default:"4.9" }}
+                <span class="review-num">({{ product.review_count|default:"32" }} reviews)</span>
+              </span>
+            </div>
 
-              <h3 class="product-row-title">
-                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
-              </h3>
+            <h3 class="product-row-title">
+              <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+            </h3>
 
-              <p class="product-row-desc">
-                {{ product.short_description|default:product.long_description|truncatewords:38 }}
-              </p>
+            <p class="product-row-desc">
+              {{ product.short_description|default:product.long_description|truncatewords:38 }}
+            </p>
 
-              <!-- Hardware Specs Grid / Tag Chips -->
-              <div class="product-row-specs-wrap">
-                {% if product.gpu_vram %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">VRAM</span>
-                    <span class="spec-v">{{ product.gpu_vram|upper }}</span>
-                  </div>
-                {% endif %}
-                {% if product.ram_capacity %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">Capacity</span>
-                    <span class="spec-v">{{ product.ram_capacity|upper }}</span>
-                  </div>
-                {% endif %}
-                {% if product.ssd_capacity %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">Storage</span>
-                    <span class="spec-v">{{ product.ssd_capacity|upper }}</span>
-                  </div>
-                {% endif %}
-                {% if product.cpu_series %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">Series</span>
-                    <span class="spec-v">{{ product.get_cpu_series_display|default:product.cpu_series|title }}</span>
-                  </div>
-                {% endif %}
-                {% if product.cpu_cores %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">Cores</span>
-                    <span class="spec-v">{{ product.cpu_cores }} Cores</span>
-                  </div>
-                {% endif %}
-                {% if product.cpu_threads %}
-                  <div class="row-spec-item">
-                    <span class="spec-k">Threads</span>
-                    <span class="spec-v">{{ product.cpu_threads }} Threads</span>
-                  </div>
-                {% endif %}
-                <div class="row-spec-item highlight">
-                  <span class="spec-k">Diagnostics</span>
-                  <span class="spec-v">48H Bench-Tested</span>
+            <!-- Hardware Specs Grid / Tag Chips -->
+            <div class="product-row-specs-wrap">
+              {% if product.gpu_vram %}
+                <div class="row-spec-item">
+                  <span class="spec-k">VRAM</span>
+                  <span class="spec-v">{{ product.gpu_vram|upper }}</span>
                 </div>
+              {% endif %}
+              {% if product.ram_capacity %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Capacity</span>
+                  <span class="spec-v">{{ product.ram_capacity|upper }}</span>
+                </div>
+              {% endif %}
+              {% if product.ram_type %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Type</span>
+                  <span class="spec-v">{{ product.get_ram_type_display }}</span>
+                </div>
+              {% endif %}
+              {% if product.ssd_capacity %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Storage</span>
+                  <span class="spec-v">{{ product.ssd_capacity|upper }}</span>
+                </div>
+              {% endif %}
+              {% if product.generation %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Gen</span>
+                  <span class="spec-v">{{ product.get_generation_display }}</span>
+                </div>
+              {% endif %}
+              {% if product.pcie_version %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Interface</span>
+                  <span class="spec-v">{{ product.get_pcie_version_display }}</span>
+                </div>
+              {% endif %}
+              {% if product.cpu_series %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Series</span>
+                  <span class="spec-v">{{ product.get_cpu_series_display|default:product.cpu_series|title }}</span>
+                </div>
+              {% endif %}
+              {% if product.cpu_cores %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Cores</span>
+                  <span class="spec-v">{{ product.cpu_cores }} Cores</span>
+                </div>
+              {% endif %}
+              {% if product.cpu_threads %}
+                <div class="row-spec-item">
+                  <span class="spec-k">Threads</span>
+                  <span class="spec-v">{{ product.cpu_threads }} Threads</span>
+                </div>
+              {% endif %}
+              <div class="row-spec-item highlight">
+                <span class="spec-k">Diagnostics</span>
+                <span class="spec-v">48H Bench-Tested</span>
               </div>
             </div>
+          </div>
 
-            <!-- Right: Pricing, Stock, Warranty, & Add to Cart -->
-            <div class="product-row-side">
-              <div class="row-pricing-box">
-                <div class="row-price-current">${{ product.price }}</div>
-                {% if product.original_price %}
-                  <div class="row-price-original">
-                    <span class="strike">${{ product.original_price }}</span>
-                    <span class="save-tag">Save ${{ product.original_price|floatformat:2 }}</span>
-                  </div>
-                {% endif %}
-              </div>
-
-              <div class="row-stock-status">
-                {% if product.is_in_stock %}
-                  <span class="stock-indicator in-stock">
-                    <span class="stock-dot"></span> In Stock (Ships 24H)
-                  </span>
-                {% else %}
-                  <span class="stock-indicator out-of-stock">
-                    <span class="stock-dot out"></span> Out of Stock
-                  </span>
-                {% endif %}
-                <span class="warranty-badge">✓ {{ product.warranty|default:"3-Year Warranty" }}</span>
-              </div>
-
-              <div class="row-actions-box">
-                <form method="post" action="{% url 'cart:cart_add' product_id=product.id %}" class="row-cart-form">
-                  {% csrf_token %}
-                  <input type="hidden" name="quantity" value="1">
-                  <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                  <button type="submit" class="btn-row-add-cart" {% if not product.is_in_stock %}disabled style="opacity: 0.4; cursor: not-allowed;"{% endif %}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
-                      <path d="M3 4H5L7.5 15H18L20.5 7H6.5"/>
-                      <circle cx="9" cy="20" r="1.4"/>
-                      <circle cx="17" cy="20" r="1.4"/>
-                    </svg>
-                    <span>{% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}</span>
-                  </button>
-                </form>
-
-                <a href="{{ product.get_absolute_url }}" class="btn-row-view-specs">
-                  View Full Specs &rarr;
-                </a>
-              </div>
+          <!-- Right: Pricing, Stock, Warranty, & Add to Cart -->
+          <div class="product-row-side">
+            <div class="row-pricing-box">
+              <div class="row-price-current">৳{{ product.price }}</div>
+              {% if product.original_price %}
+                <div class="row-price-original">
+                  <span class="strike">৳{{ product.original_price }}</span>
+                  <span class="save-tag">Save ৳{{ product.original_price|floatformat:2 }}</span>
+                </div>
+              {% endif %}
             </div>
-          </article>
-        {% endfor %}
-      </div>
+
+            <div class="row-stock-status">
+              {% if product.is_in_stock %}
+                <span class="stock-indicator in-stock">
+                  <span class="stock-dot"></span> In Stock (Ships 24H)
+                </span>
+              {% else %}
+                <span class="stock-indicator out-of-stock">
+                  <span class="stock-dot out"></span> Out of Stock
+                </span>
+              {% endif %}
+              <span class="warranty-badge">✓ {{ product.warranty|default:"3-Year Warranty" }}</span>
+            </div>
+
+            <div class="row-actions-box">
+              <form method="post" action="{% url 'cart:cart_add' product_id=product.id %}" class="row-cart-form">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1">
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <button type="submit" class="btn-row-add-cart" {% if not product.is_in_stock %}disabled style="opacity: 0.4; cursor: not-allowed;"{% endif %}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+                    <path d="M3 4H5L7.5 15H18L20.5 7H6.5"/>
+                    <circle cx="9" cy="20" r="1.4"/>
+                    <circle cx="17" cy="20" r="1.4"/>
+                  </svg>
+                  <span>{% if product.is_in_stock %}Add to Cart{% else %}Out of Stock{% endif %}</span>
+                </button>
+              </form>
+
+              <a href="{{ product.get_absolute_url }}" class="btn-row-view-specs">
+                View Full Specs &rarr;
+              </a>
+            </div>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
 
       {% if is_paginated %}
         <div class="catalog-pagination">

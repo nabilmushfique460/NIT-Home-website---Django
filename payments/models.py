@@ -15,7 +15,7 @@ class Payment(models.Model):
     method = models.CharField(max_length=20)
     transaction_id = models.CharField(max_length=64, unique=True, default=uuid.uuid4)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    currency = models.CharField(max_length=10, default='USD')
+    currency = models.CharField(max_length=10, default='BDT')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     gateway_reference = models.CharField(max_length=100, blank=True, null=True)
     raw_response = models.TextField(blank=True, null=True, help_text='Server-side gateway audit log')
@@ -26,4 +26,4 @@ class Payment(models.Model):
         ordering = ['-created_at']
 
     def __str__(self) -> str:
-        return f"{self.method} Payment ({self.transaction_id}) - ${self.amount} [{self.status}]"
+        return f"{self.method} Payment ({self.transaction_id}) - ৳{self.amount} [{self.status}]"

@@ -43,7 +43,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="mono" style="font-weight: 600;">${{ item.price }}</span>
+                                <span class="mono" style="font-weight: 600;">৳{{ item.price }}</span>
                             </td>
                             <td>
                                 <div class="cart-qty-form">
@@ -64,7 +64,7 @@
                                 </div>
                             </td>
                             <td>
-                                <span class="mono" style="font-weight: 700; color: var(--copper-bright);">${{ item.total_price }}</span>
+                                <span class="mono" style="font-weight: 700; color: var(--copper-bright);">৳{{ item.total_price }}</span>
                             </td>
                             <td>
                                 <form method="post" action="{% url 'cart:cart_remove' product_id=item.product.id %}">
@@ -97,22 +97,22 @@
 
             <div class="cart-summary-row">
                 <span>Items Subtotal</span>
-                <span>${{ cart.get_subtotal_price }}</span>
+                <span>৳{{ cart.get_subtotal }}</span>
             </div>
 
             <div class="cart-summary-row">
                 <span>Estimated Shipping</span>
-                <span style="color: var(--ok);">{% if cart.get_subtotal_price >= 500 %}FREE (Over $500){% else %}$15.00{% endif %}</span>
+                <span style="color: var(--ok);">{% if cart.get_subtotal >= 60000 %}FREE (Over ৳60,000){% else %}৳{{ cart.get_shipping_fee }}{% endif %}</span>
             </div>
 
             <div class="cart-summary-row">
                 <span>Bench Burn-in Verification</span>
-                <span style="color: var(--ok);">INCLUDED ($0)</span>
+                <span style="color: var(--ok);">INCLUDED (৳0)</span>
             </div>
 
             <div class="cart-summary-total">
                 <span>Total Due</span>
-                <span>${{ cart.get_total_price }}</span>
+                <span>৳{{ cart.get_grand_total }}</span>
             </div>
 
             <a href="{% url 'orders:checkout' %}" class="btn-solid btn-block btn-lg" style="margin-top: 24px;">

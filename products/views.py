@@ -28,9 +28,11 @@ class ProductListView(ListView):
         max_price = self.request.GET.get('max_price', '').strip()
 
         selected_ram = self.request.GET.get('ram', '').strip().lower()
+        selected_ram_type = self.request.GET.get('ram_type', '').strip().lower()
         selected_gpu_vram = self.request.GET.get('gpu_vram', '').strip().lower()
         selected_ssd = self.request.GET.get('ssd', '').strip().lower()
         selected_generation = self.request.GET.get('generation', '').strip().lower()
+        selected_pcie_version = self.request.GET.get('pcie_version', '').strip().lower()
         selected_cpu_series = self.request.GET.get('cpu_series', '').strip().lower()
         selected_cpu_cores = self.request.GET.get('cpu_cores', '').strip()
         selected_cpu_threads = self.request.GET.get('cpu_threads', '').strip()
@@ -46,17 +48,21 @@ class ProductListView(ListView):
         context['max_price'] = max_price
 
         context['selected_ram'] = selected_ram
+        context['selected_ram_type'] = selected_ram_type
         context['selected_gpu_vram'] = selected_gpu_vram
         context['selected_ssd'] = selected_ssd
         context['selected_generation'] = selected_generation
+        context['selected_pcie_version'] = selected_pcie_version
         context['selected_cpu_series'] = selected_cpu_series
         context['selected_cpu_cores'] = selected_cpu_cores
         context['selected_cpu_threads'] = selected_cpu_threads
 
         context['ram_choices'] = Product.RAM_CAPACITY_CHOICES
+        context['ram_type_choices'] = Product.RAM_TYPE_CHOICES
         context['gpu_vram_choices'] = Product.GPU_VRAM_CHOICES
         context['ssd_choices'] = Product.SSD_CAPACITY_CHOICES
         context['generation_choices'] = Product.GENERATION_CHOICES
+        context['pcie_version_choices'] = Product.PCIE_VERSION_CHOICES
         context['cpu_series_choices'] = Product.CPU_SERIES_CHOICES
         context['cpu_cores_options'] = [4, 6, 8, 12, 16, 24, 32]
         context['cpu_threads_options'] = [8, 12, 16, 20, 24, 32, 64]
@@ -75,11 +81,15 @@ class ProductListView(ListView):
             active_filters_count += 1
         if selected_ram:
             active_filters_count += 1
+        if selected_ram_type:
+            active_filters_count += 1
         if selected_gpu_vram:
             active_filters_count += 1
         if selected_ssd:
             active_filters_count += 1
         if selected_generation:
+            active_filters_count += 1
+        if selected_pcie_version:
             active_filters_count += 1
         if selected_cpu_series:
             active_filters_count += 1

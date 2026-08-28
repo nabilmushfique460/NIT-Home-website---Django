@@ -65,7 +65,7 @@ class OrderService:
             Notification.objects.create(
                 user=order.user,
                 title=f"Order #{order.order_number} Placed",
-                message=f"Your order #{order.order_number} for ${order.total_amount} has been placed successfully.",
+                message=f"Your order #{order.order_number} for ৳{order.total_amount} has been placed successfully.",
                 link=f"/orders/invoice/{order.order_number}/"
             )
 
@@ -73,7 +73,7 @@ class OrderService:
 
     @classmethod
     def send_admin_new_order_email(cls, order: Order) -> None:
-        items_summary = "\n".join([f"- {item.quantity}x {item.product_name} (${item.line_total})" for item in order.items.all()])
+        items_summary = "\n".join([f"- {item.quantity}x {item.product_name} (৳{item.line_total})" for item in order.items.all()])
         subject = f"[N-IT HOME] New Cash on Delivery Order #{order.order_number} - Review Required"
         message = (
             f"A new Cash on Delivery order has been placed on N-IT HOME:\n\n"
@@ -82,7 +82,7 @@ class OrderService:
             f"Customer Email: {order.email}\n"
             f"Phone: {order.phone}\n"
             f"Delivery Address: {order.street_address}, {order.city} {order.postal_code}\n"
-            f"Total Amount: ${order.total_amount}\n\n"
+            f"Total Amount: ৳{order.total_amount}\n\n"
             f"Items Ordered:\n{items_summary}\n\n"
             f"Please review and approve this order from the Django Admin:\n"
             f"http://127.0.0.1:8000/admin/orders/order/{order.id}/change/"
@@ -126,7 +126,7 @@ class OrderService:
                 f"Your order #{order.order_number} has been confirmed, you will get more update soon.\n\n"
                 f"Order Summary:\n"
                 f"- Order Number: {order.order_number}\n"
-                f"- Total Amount: ${order.total_amount}\n"
+                f"- Total Amount: ৳{order.total_amount}\n"
                 f"- Payment Method: {order.get_payment_method_display()}\n"
                 f"- Delivery Address: {order.street_address}, {order.city} {order.postal_code}\n\n"
                 f"Items:\n{items_summary}\n\n"
@@ -234,7 +234,7 @@ class OrderService:
             f"Customer Name: {order.full_name}\n"
             f"Customer Email: {order.email}\n"
             f"Phone: {order.phone}\n"
-            f"Total Amount: ${order.total_amount}\n\n"
+            f"Total Amount: ৳{order.total_amount}\n\n"
             f"Please review and approve the cancellation in Django Admin:\n"
             f"http://127.0.0.1:8000/admin/orders/order/{order.id}/change/"
         )

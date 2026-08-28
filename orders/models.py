@@ -38,9 +38,9 @@ class Order(models.Model):
     postal_code = models.CharField(max_length=20)
     country = models.CharField(max_length=100, default='Bangladesh')
     order_notes = models.TextField(blank=True, null=True)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    shipping_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
-    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    shipping_fee = models.DecimalField(max_digits=12, decimal_places=2, default=0.0)
+    total_amount = models.DecimalField(max_digits=12, decimal_places=2)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='COD')
     is_paid = models.BooleanField(default=False)
@@ -91,16 +91,16 @@ class Order(models.Model):
         return self.status in ['PENDING', 'CONFIRMED', 'PACKAGING']
 
     def __str__(self) -> str:
-        return f"Order #{self.order_number} - {self.full_name} (${self.total_amount})"
+        return f"Order #{self.order_number} - {self.full_name} (৳{self.total_amount})"
 
 # Model representing individual line items within an order
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name='order_items')
     product_name = models.CharField(max_length=255)
-    unit_price = models.DecimalField(max_digits=10, decimal_places=2)
+    unit_price = models.DecimalField(max_digits=12, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
-    line_total = models.DecimalField(max_digits=10, decimal_places=2)
+    line_total = models.DecimalField(max_digits=12, decimal_places=2)
 
     def save(self, *args, **kwargs):
         if not self.product_name and self.product:

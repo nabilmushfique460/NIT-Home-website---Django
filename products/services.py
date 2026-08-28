@@ -34,8 +34,10 @@ class ProductFilterService:
                     Q(cpu_series__icontains=word) |
                     Q(gpu_vram__icontains=word) |
                     Q(ram_capacity__icontains=word) |
+                    Q(ram_type__icontains=word) |
                     Q(ssd_capacity__icontains=word) |
                     Q(generation__icontains=word) |
+                    Q(pcie_version__icontains=word) |
                     Q(specifications__spec_name__icontains=word) |
                     Q(specifications__spec_value__icontains=word)
                 )
@@ -51,17 +53,27 @@ class ProductFilterService:
         if ram:
             queryset = queryset.filter(ram_capacity=ram)
 
+        # Filter by RAM Type / DDR generation
+        ram_type = params.get('ram_type', '').strip().lower()
+        if ram_type:
+            queryset = queryset.filter(ram_type=ram_type)
+
         # Filter by GPU dedicated VRAM
         gpu_vram = params.get('gpu_vram', '').strip().lower()
         if gpu_vram:
             queryset = queryset.filter(gpu_vram=gpu_vram)
+
+        # Filter by PCIe interface
+        pcie_version = params.get('pcie_version', '').strip().lower()
+        if pcie_version:
+            queryset = queryset.filter(pcie_version=pcie_version)
 
         # Filter by SSD storage capacity
         ssd = params.get('ssd', '').strip().lower()
         if ssd:
             queryset = queryset.filter(ssd_capacity=ssd)
 
-        # Filter by hardware generation
+        # Filter by SSD generation (Gen 3, Gen 4, Gen 5)
         generation = params.get('generation', '').strip().lower()
         if generation:
             queryset = queryset.filter(generation=generation)

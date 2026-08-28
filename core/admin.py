@@ -37,11 +37,40 @@ class SessionAdmin(admin.ModelAdmin):
             return 'Encrypted session'
     get_decoded_data.short_description = 'Session Summary'
 
-# Admin view for managing customer support contact inquiries
+# Admin view for managing customer support tickets and contact inquiries
 @admin.register(ContactMessage)
 class ContactMessageAdmin(admin.ModelAdmin):
-    list_display = ('name', 'email', 'subject', 'created_at', 'is_resolved')
+    list_display = ('ticket_number', 'name', 'email', 'phone', 'subject', 'is_resolved', 'created_at')
     list_filter = ('is_resolved', 'created_at')
-    search_fields = ('name', 'email', 'subject', 'message')
-    readonly_fields = ('name', 'email', 'subject', 'message', 'created_at')
+    search_fields = ('ticket_number', 'name', 'email', 'phone', 'subject', 'message', 'admin_reply')
+    list_editable = ('is_resolved',)
+    readonly_fields = ('ticket_number', 'user', 'name', 'email', 'phone', 'subject', 'message', 'created_at', 'updated_at')
     date_hierarchy = 'created_at'
+    actions = ['mark_as_resolved', 'mark_as_unresolved']
+
+    fieldsets = (
+        ('Support Ticket Identifier', {
+            'fields': ('ticket_number', 'user', 'is_resolved')
+        }),
+        ('Customer Contact Information', {
+            'fields': ('name', 'email', 'phone')
+        }),
+        ('Inquiry Details', {
+            'fields': ('subject', 'message', 'created_at', 'updated_at')
+        }),
+        ('Support Team Response & Resolution', {
+            'fields': ('admin_reply',),
+            'description': 'Add a response note or resolution record for this ticket.'
+        }),
+    )
+
+    def mark_as_resolved(self, request, queryset):
+        queryset.update(is_resolved=True)
+        self.message_user(request, f"{queryset.count()} support tickets marked as Resolved.")
+    mark_as_resolved.short_description = 'Mark selected tickets as Resolved'
+
+    def mark_as_unresolved(self, request, queryset):
+        queryset.update(is_resolved=False)
+        self.message_user(request, f"{queryset.count()} support tickets marked as Open / Pending.")
+    mark_as_unresolved.short_description = 'Mark selected tickets as Open / Pending'
+

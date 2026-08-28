@@ -19,7 +19,7 @@ class PromotionBanner(models.Model):
     perk_3 = models.CharField(max_length=80, default='bKash / Nagad / COD')
     card_tag = models.CharField(max_length=80, default='TOP SELLING FLAGSHIP')
     card_title = models.CharField(max_length=120, default='GeForce RTX 4090 24GB')
-    card_price = models.DecimalField(max_digits=10, decimal_places=2, default=1699.99)
+    card_price = models.DecimalField(max_digits=12, decimal_places=2, default=203999.00)
     card_link = models.CharField(max_length=255, default='/product/nvidia-geforce-rtx-4090-24gb-founders-edition/', help_text='URL or relative link for the promo button')
     card_button_text = models.CharField(max_length=80, default='View Flagship Hardware →')
     is_active = models.BooleanField(default=True, help_text='Check to display this banner on the homepage. Uncheck to hide it.')
@@ -78,6 +78,12 @@ class Product(models.Model):
         ('96gb', '96GB'),
     ]
 
+    RAM_TYPE_CHOICES = [
+        ('ddr3', 'DDR3'),
+        ('ddr4', 'DDR4'),
+        ('ddr5', 'DDR5'),
+    ]
+
     SSD_CAPACITY_CHOICES = [
         ('512gb', '512GB'),
         ('1tb', '1TB'),
@@ -86,10 +92,17 @@ class Product(models.Model):
         ('8tb', '8TB'),
     ]
 
-    GENERATION_CHOICES = [
-        ('gen3', 'Gen 3 (PCIe 3.0 / DDR3)'),
-        ('gen4', 'Gen 4 (PCIe 4.0 / DDR4)'),
-        ('gen5', 'Gen 5 (PCIe 5.0 / DDR5)'),
+    SSD_GENERATION_CHOICES = [
+        ('gen3', 'Gen 3'),
+        ('gen4', 'Gen 4'),
+        ('gen5', 'Gen 5'),
+    ]
+    GENERATION_CHOICES = SSD_GENERATION_CHOICES
+
+    PCIE_VERSION_CHOICES = [
+        ('pcie3', 'PCIe 3.0'),
+        ('pcie4', 'PCIe 4.0'),
+        ('pcie5', 'PCIe 5.0'),
     ]
 
     CPU_SERIES_CHOICES = [
@@ -109,8 +122,8 @@ class Product(models.Model):
     slug = models.SlugField(max_length=280, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
     brand = models.CharField(max_length=100)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    original_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    price = models.DecimalField(max_digits=12, decimal_places=2)
+    original_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
     stock_qty = models.PositiveIntegerField(default=10)
     short_description = models.TextField(max_length=500, help_text='Short teaser shown in listing cards')
     long_description = models.TextField(help_text='Detailed markdown/HTML rich description with performance specs')
@@ -124,9 +137,11 @@ class Product(models.Model):
 
     # Granular hardware specification fields for filtering and sorting
     ram_capacity = models.CharField(max_length=20, choices=RAM_CAPACITY_CHOICES, blank=True, null=True, help_text='RAM capacity e.g. 8GB, 16GB, 32GB, 64GB')
+    ram_type = models.CharField(max_length=20, choices=RAM_TYPE_CHOICES, blank=True, null=True, help_text='RAM standard e.g. DDR3, DDR4, DDR5')
     gpu_vram = models.CharField(max_length=20, choices=GPU_VRAM_CHOICES, blank=True, null=True, help_text='GPU dedicated VRAM e.g. 8GB, 12GB, 16GB, 24GB, 32GB, 64GB, 96GB')
     ssd_capacity = models.CharField(max_length=20, choices=SSD_CAPACITY_CHOICES, blank=True, null=True, help_text='SSD storage capacity e.g. 512GB, 1TB, 2TB, 4TB')
-    generation = models.CharField(max_length=20, choices=GENERATION_CHOICES, blank=True, null=True, help_text='Hardware generation e.g. Gen3, Gen4, Gen5')
+    generation = models.CharField(max_length=20, choices=SSD_GENERATION_CHOICES, blank=True, null=True, help_text='SSD generation e.g. Gen 3, Gen 4, Gen 5')
+    pcie_version = models.CharField(max_length=20, choices=PCIE_VERSION_CHOICES, blank=True, null=True, help_text='PCIe interface e.g. PCIe 3.0, PCIe 4.0, PCIe 5.0')
     cpu_series = models.CharField(max_length=30, choices=CPU_SERIES_CHOICES, blank=True, null=True, help_text='CPU series e.g. Intel Core i3/i5/i7/i9 or AMD Ryzen 3/5/7/9')
     cpu_cores = models.PositiveSmallIntegerField(blank=True, null=True, help_text='CPU physical core count (e.g. 4, 6, 8, 12, 16, 24)')
     cpu_threads = models.PositiveSmallIntegerField(blank=True, null=True, help_text='CPU thread count (e.g. 8, 12, 16, 24, 32)')
@@ -164,7 +179,7 @@ class Product(models.Model):
         return 'https://images.unsplash.com/photo-1591799264318-7e6ef8ddb7ea?w=800&auto=format&fit=crop&q=80'
 
     def __str__(self) -> str:
-        return f"{self.brand} {self.name} (${self.price})"
+        return f"{self.brand} {self.name} (৳{self.price})"
 
 # Model storing gallery images for products
 class ProductImage(models.Model):
