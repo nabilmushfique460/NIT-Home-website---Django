@@ -12,9 +12,9 @@
         </p>
     </div>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start;">
+    <div class="profile-layout-grid">
 
-        <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px;">
+        <div class="profile-main-card" style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px;">
             <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--line);">
                 Personal Information
             </h3>
@@ -23,7 +23,7 @@
                 {% csrf_token %}
                 <input type="hidden" name="action" value="update_profile">
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="form-row-grid-2">
                     <div class="form-group">
                         <label class="form-label">First Name</label>
                         <input type="text" name="first_name" value="{{ user.first_name }}" class="form-input">
@@ -49,7 +49,7 @@
                     <input type="text" name="street_address" value="{{ profile.street_address|default:'' }}" class="form-input">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+                <div class="form-row-grid-2">
                     <div class="form-group">
                         <label class="form-label">City</label>
                         <input type="text" name="city" value="{{ profile.city|default:'' }}" class="form-input">

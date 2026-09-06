@@ -78,28 +78,32 @@
             <span class="cart-badge" style="background: var(--copper); color: #000; font-weight: 700;">{{ unread_notifications_count }}</span>
           {% endif %}
         </a>
-
-        <a href="{% url 'accounts:profile' %}" class="btn-ghost" style="padding: 6px 14px; font-size: 13.5px; background: var(--copper-dim); color: var(--copper); font-weight: 600; border-radius: var(--radius-full);">
-          {{ user.first_name|default:user.email|truncatechars:14 }}
-        </a>
-        <a href="{% url 'orders:order_history' %}" class="btn-outline" style="padding: 6px 14px; font-size: 13px; border-radius: var(--radius-full);">
-          Orders
-        </a>
-        {% if user.is_staff %}
-          <a href="{% url 'admin:index' %}" class="btn-outline" style="padding: 6px 14px; font-size: 12.5px; background: var(--copper-dim); color: var(--copper); border: 1px solid rgba(204, 85, 41, 0.25); border-radius: var(--radius-full); font-weight: 600;">
-            Admin
-          </a>
-        {% endif %}
-        <form method="post" action="{% url 'accounts:logout' %}" style="display: inline; margin: 0;">
-          {% csrf_token %}
-          <button type="submit" class="btn-ghost" style="background: none; border: none; font-size: 13px; padding: 6px 10px;" title="Sign out">
-            Sign Out
-          </button>
-        </form>
-      {% else %}
-        <a class="btn-ghost" href="{% url 'accounts:login' %}">Log In</a>
-        <a class="btn-solid" href="{% url 'accounts:signup' %}" style="padding:8px 18px; font-size: 13.5px;">Sign Up</a>
       {% endif %}
+
+      <div class="nav-auth-desktop">
+        {% if user.is_authenticated %}
+          <a href="{% url 'accounts:profile' %}" class="btn-ghost" style="padding: 6px 14px; font-size: 13.5px; background: var(--copper-dim); color: var(--copper); font-weight: 600; border-radius: var(--radius-full);">
+            {{ user.first_name|default:user.email|truncatechars:14 }}
+          </a>
+          <a href="{% url 'orders:order_history' %}" class="btn-outline" style="padding: 6px 14px; font-size: 13px; border-radius: var(--radius-full);">
+            Orders
+          </a>
+          {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}" class="btn-outline" style="padding: 6px 14px; font-size: 12.5px; background: var(--copper-dim); color: var(--copper); border: 1px solid rgba(204, 85, 41, 0.25); border-radius: var(--radius-full); font-weight: 600;">
+              Admin
+            </a>
+          {% endif %}
+          <form method="post" action="{% url 'accounts:logout' %}" style="display: inline; margin: 0;">
+            {% csrf_token %}
+            <button type="submit" class="btn-ghost" style="background: none; border: none; font-size: 13px; padding: 6px 10px;" title="Sign out">
+              Sign Out
+            </button>
+          </form>
+        {% else %}
+          <a class="btn-ghost" href="{% url 'accounts:login' %}">Log In</a>
+          <a class="btn-solid" href="{% url 'accounts:signup' %}" style="padding:8px 18px; font-size: 13.5px;">Sign Up</a>
+        {% endif %}
+      </div>
 
       <label for="mobile-nav-toggle" class="nav-mobile-toggle" aria-label="Toggle Navigation">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
