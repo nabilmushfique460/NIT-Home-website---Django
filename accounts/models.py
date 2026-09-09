@@ -42,6 +42,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+    is_phone_verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     objects = UserManager()
@@ -115,6 +116,63 @@ class EmailVerification(models.Model):
 
     def __str__(self) -> str:
         return f"OTP verification for {self.user.email} (Expires {self.expires_at})"
+
+
+# Model storing hashed SMS OTP tokens for mobile verification
+class PhoneVerification(models.Model):
+    COOLDOWN_SECONDS = 60
+    MAX_ATTEMPTS = 5
+    EXPIRY_MINUTES = 5
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='phone_verifications')
+    phone = models.CharField(max_length=20)
+    otp_hash = models.CharField(max_length=255)
+    expires_at = models.DateTimeField()
+    attempts = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Phone Verification'
+        verbose_name_plural = 'Phone Verifications'
+
+    @classmethod
+    def can_resend_otp(cls, user) -> tuple[bool, int]:
+        last = cls.objects.filter(user=user).order_by('-created_at').first()
+        if not last:
+            return True, 0
+        elapsed = (timezone.now() - last.created_at).total_seconds()
+        if elapsed < cls.COOLDOWN_SECONDS:
+            return False, max(1, int(cls.COOLDOWN_SECONDS - elapsed))
+        return True, 0
+
+    @classmethod
+    def generate_otp(cls, user, phone: str) -> tuple[str, 'PhoneVerification']:
+        cls.objects.filter(user=user).delete()
+        plain_otp = str(secrets.randbelow(900000) + 100000)
+        record = cls.objects.create(
+            user=user,
+            phone=phone,
+            otp_hash=make_password(plain_otp),
+            expires_at=timezone.now() + timedelta(minutes=cls.EXPIRY_MINUTES),
+        )
+        return plain_otp, record
+
+    def check_otp(self, plain_otp: str) -> bool:
+        if self.attempts >= self.MAX_ATTEMPTS:
+            return False
+        self.attempts += 1
+        self.save(update_fields=['attempts'])
+        if timezone.now() > self.expires_at:
+            return False
+        return check_password(plain_otp.strip(), self.otp_hash)
+
+    def is_valid(self) -> bool:
+        return timezone.now() <= self.expires_at and self.attempts < self.MAX_ATTEMPTS
+
+    def __str__(self) -> str:
+        return f"Phone OTP for {self.user.email} ({self.phone}) - expires {self.expires_at}"
+
 
 # Model storing extended user profile details
 class Profile(models.Model):

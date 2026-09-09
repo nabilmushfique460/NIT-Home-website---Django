@@ -1,3 +1,4 @@
+import logging
 from typing import Optional
 from django.db import transaction
 from django.core.exceptions import ValidationError
@@ -7,6 +8,8 @@ from .models import Order, OrderItem
 from products.models import Product
 from accounts.models import Notification, User
 from cart.cart import Cart
+
+logger = logging.getLogger(__name__)
 
 # Service class handling order creation, status workflows, cancellations, and notifications
 class OrderService:
@@ -69,34 +72,64 @@ class OrderService:
                 link=f"/orders/invoice/{order.order_number}/"
             )
 
+        # Dispatch alert notification email to store administrator
+        cls.send_admin_new_order_email(order)
+
         return order
 
     @classmethod
     def send_admin_new_order_email(cls, order: Order) -> None:
-        items_summary = "\n".join([f"- {item.quantity}x {item.product_name} (৳{item.line_total})" for item in order.items.all()])
-        subject = f"[N-IT HOME] New Cash on Delivery Order #{order.order_number} - Review Required"
+        items_summary = "\n".join([
+            f"  • {item.quantity}x {item.product_name} — ৳{item.line_total} (৳{item.unit_price} each)"
+            for item in order.items.all()
+        ])
+        admin_email = getattr(settings, 'ADMIN_EMAIL', 'nabil29089@gmail.com')
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
+        site_url = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000').rstrip('/')
+
+        payment_method_label = order.get_payment_method_display() if hasattr(order, 'get_payment_method_display') else order.payment_method
+        payment_status_label = "PAID" if order.is_paid else "PENDING / UNPAID"
+
+        subject = f"[N-IT HOME ALERT] New Order #{order.order_number} Placed — ৳{order.total_amount}"
         message = (
-            f"A new Cash on Delivery order has been placed on N-IT HOME:\n\n"
-            f"Order Number: {order.order_number}\n"
-            f"Customer Name: {order.full_name}\n"
-            f"Customer Email: {order.email}\n"
-            f"Phone: {order.phone}\n"
-            f"Delivery Address: {order.street_address}, {order.city} {order.postal_code}\n"
-            f"Total Amount: ৳{order.total_amount}\n\n"
-            f"Items Ordered:\n{items_summary}\n\n"
-            f"Please review and approve this order from the Django Admin:\n"
-            f"http://127.0.0.1:8000/admin/orders/order/{order.id}/change/"
+            f"═════════════════════════════════════════════════════════════════════\n"
+            f"             🔔 NEW CUSTOMER ORDER RECEIVED — N-IT HOME              \n"
+            f"═════════════════════════════════════════════════════════════════════\n\n"
+            f"Order Reference : #{order.order_number}\n"
+            f"Total Payable   : ৳{order.total_amount} (Subtotal: ৳{order.subtotal}, Shipping: ৳{order.shipping_fee})\n"
+            f"Payment Method  : {payment_method_label} [{payment_status_label}]\n"
+            f"Current Status  : {order.get_status_display()}\n\n"
+            f"CUSTOMER DETAILS:\n"
+            f"─────────────────────────────────────────────────────────────────────\n"
+            f"Customer Name   : {order.full_name}\n"
+            f"Customer Email  : {order.email}\n"
+            f"Contact Phone   : {order.phone}\n\n"
+            f"DELIVERY DESTINATION:\n"
+            f"─────────────────────────────────────────────────────────────────────\n"
+            f"Street Address  : {order.street_address}\n"
+            f"City & Postal   : {order.city} {order.postal_code}\n"
+            f"Division/Country: {order.state_or_division}, {order.country}\n"
+            f"{f'Order Notes     : {order.order_notes}' + chr(10) if order.order_notes else ''}\n"
+            f"HARDWARE ITEMS ORDERED:\n"
+            f"─────────────────────────────────────────────────────────────────────\n"
+            f"{items_summary if items_summary else '  (Items being processed)'}\n\n"
+            f"MANAGEMENT SHORTCUTS:\n"
+            f"─────────────────────────────────────────────────────────────────────\n"
+            f"• Django Admin Order Change : {site_url}/admin/orders/order/{order.id}/change/\n"
+            f"• Store Owner Dashboard    : {site_url}/dashboard/\n"
+            f"• Customer Digital Invoice  : {site_url}/orders/invoice/{order.order_number}/\n"
         )
         try:
             send_mail(
                 subject=subject,
                 message=message,
-                from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com'),
-                recipient_list=['nabil29089@gmail.com'],
+                from_email=from_email,
+                recipient_list=[admin_email],
                 fail_silently=False
             )
+            logger.info("Admin alert email dispatched for Order #%s to %s", order.order_number, admin_email)
         except Exception:
-            pass
+            logger.exception("Failed to send admin order alert email for Order #%s", order.order_number)
 
     @classmethod
     @transaction.atomic
@@ -113,6 +146,13 @@ class OrderService:
 
         # Status: Confirmed
         if new_status == 'CONFIRMED':
+            # Automatically book consignment with Steadfast Courier if not already booked
+            try:
+                from courier.services import SteadfastService
+                SteadfastService.create_order(order)
+            except Exception:
+                pass
+
             if order.user:
                 Notification.objects.create(
                     user=order.user,

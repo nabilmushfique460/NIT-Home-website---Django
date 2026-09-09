@@ -40,8 +40,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="form-label">Phone Number</label>
-                    <input type="text" name="phone" value="{{ profile.phone|default:'' }}" class="form-input">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="form-label" style="margin-bottom: 0;">
+                            Phone Number
+                            {% if user.is_phone_verified %}
+                                <span style="background: rgba(22,163,74,0.15); color: #16a34a; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 6px;">Verified ✓</span>
+                            {% else %}
+                                <span style="background: rgba(245,158,11,0.15); color: #f59e0b; font-size: 11px; padding: 2px 8px; border-radius: 4px; font-weight: 600; margin-left: 6px;">Unverified</span>
+                            {% endif %}
+                        </label>
+                    </div>
+                    <input type="text" name="phone" id="id_phone_input" value="{{ profile.phone|default:'' }}" class="form-input" placeholder="e.g. 01712345678">
                 </div>
 
                 <div class="form-group">
@@ -64,12 +73,53 @@
                     Save Profile Changes
                 </button>
             </form>
+
+            <!-- Separate Phone OTP Verification Box if Unverified -->
+            {% if not user.is_phone_verified and profile.phone %}
+            <div style="margin-top: 24px; padding: 18px; background: rgba(245, 158, 11, 0.05); border: 1px dashed rgba(245, 158, 11, 0.3); border-radius: var(--radius-sm);">
+                <div style="font-weight: 700; font-size: 13.5px; color: #f59e0b; margin-bottom: 6px;">
+                    📱 Verify Phone Number (+88 {{ profile.phone }})
+                </div>
+                <p style="font-size: 12.5px; color: var(--text-dim); margin-bottom: 12px;">
+                    Receive SMS notifications on parcel delivery and courier dispatch.
+                </p>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <form method="post" action="{% url 'accounts:profile' %}" style="display: inline;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="send_phone_otp">
+                        <input type="hidden" name="phone" value="{{ profile.phone }}">
+                        <button type="submit" class="btn-outline" style="font-size: 12.5px; padding: 8px 14px;">
+                            Send 6-Digit SMS Code
+                        </button>
+                    </form>
+
+                    {% if phone_verification_active %}
+                    <form method="post" action="{% url 'accounts:profile' %}" style="display: flex; gap: 8px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="confirm_phone_otp">
+                        <input type="text" name="phone_otp" placeholder="Enter 6-digit code" class="form-input mono" style="width: 150px; padding: 6px 10px; font-size: 13px;" required>
+                        <button type="submit" class="btn-solid" style="font-size: 12.5px; padding: 8px 14px;">
+                            Confirm Code
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 24px;">
             <div style="background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 32px;">
                 <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 16px;">Order &amp; Hardware Shortcuts</h3>
                 <div style="display: flex; flex-direction: column; gap: 12px;">
+                    {% if user.is_staff %}
+                        <a href="{% url 'dashboard:overview' %}" class="btn-solid" style="justify-content: space-between; background: var(--copper); color: #fff;">
+                            <span>📊 Owner Business Dashboard</span>
+                            <span>&rarr;</span>
+                        </a>
+                    {% endif %}
                     <a href="{% url 'orders:order_history' %}" class="btn-outline" style="justify-content: space-between;">
                         <span>View Order Invoices &amp; Tracking</span>
                         <span>&rarr;</span>
@@ -83,7 +133,7 @@
                         <span>&rarr;</span>
                     </a>
                     {% if user.is_staff %}
-                        <a href="{% url 'admin:index' %}" target="_blank" class="btn-solid" style="justify-content: space-between; background: var(--panel-2); color: var(--copper-bright); border: 1px solid var(--copper);">
+                        <a href="{% url 'admin:index' %}" target="_blank" class="btn-outline" style="justify-content: space-between; color: var(--copper-bright); border-color: var(--copper);">
                             <span>Open Django Admin Console</span>
                             <span>↗</span>
                         </a>

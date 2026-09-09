@@ -57,12 +57,19 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'core.apps.CoreConfig',
     'accounts.apps.AccountsConfig',
     'products.apps.ProductsConfig',
     'cart.apps.CartConfig',
     'orders.apps.OrdersConfig',
     'payments.apps.PaymentsConfig',
+    'courier.apps.CourierConfig',
+    'dashboard.apps.DashboardConfig',
 ]
 
 # Middleware configuration
@@ -73,6 +80,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -173,3 +181,50 @@ DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com'
 # Cart and session settings
 CART_SESSION_ID = 'nit_cart'
 SESSION_COOKIE_AGE = 86400 * 7
+
+# Site & Admin settings
+SITE_ID = 1
+SITE_URL = os.environ.get('SITE_URL', 'http://127.0.0.1:8000')
+ADMIN_EMAIL = os.environ.get('ADMIN_EMAIL', 'nabil29089@gmail.com')
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+# Allauth configuration (Email only, no username)
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*']
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # Email verification handled by existing custom OTPService
+ACCOUNT_ADAPTER = 'accounts.adapters.NitAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'accounts.adapters.NitSocialAccountAdapter'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'APPS': [
+            {
+                'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'placeholder-google-client-id'),
+                'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'placeholder-google-client-secret'),
+                'key': '',
+            }
+        ],
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'access_type': 'online'},
+    }
+}
+
+# SSLCommerz Payment Gateway Configuration
+SSLCOMMERZ_STORE_ID = os.environ.get('SSLCOMMERZ_STORE_ID', 'testbox')
+SSLCOMMERZ_STORE_PASS = os.environ.get('SSLCOMMERZ_STORE_PASS', 'qwerty')
+SSLCOMMERZ_IS_SANDBOX = os.environ.get('SSLCOMMERZ_IS_SANDBOX', 'True').lower() in ('true', '1', 'yes')
+
+# Steadfast Courier Integration Configuration
+STEADFAST_API_KEY = os.environ.get('STEADFAST_API_KEY', '')
+STEADFAST_SECRET_KEY = os.environ.get('STEADFAST_SECRET_KEY', '')
+STEADFAST_WEBHOOK_TOKEN = os.environ.get('STEADFAST_WEBHOOK_TOKEN', 'nit-courier-webhook-secret-token')
+
+# SMS Gateway Configuration (BulkSMSBD / Alpha SMS)
+SMS_API_KEY = os.environ.get('SMS_API_KEY', '')
+SMS_SENDER_ID = os.environ.get('SMS_SENDER_ID', '')

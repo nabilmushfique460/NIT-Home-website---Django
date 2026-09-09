@@ -1,4 +1,12 @@
-# Byte-compiled / optimized / DLL files
+# Git & Version Control
+.git/
+.gitignore
+
+# Environment & Secrets (Never bake secrets into Docker images)
+.env*
+!.env.example
+
+# Python bytecode & cache
 __pycache__/
 *.py[cod]
 *$py.class
@@ -12,19 +20,38 @@ ENV/
 env.bak/
 venv.bak/
 
-# Git & IDEs
-.git/
-.gitignore
+# Local database & media (mounted via volumes at runtime)
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+/media/
+/staticfiles/
+
+# IDE & Editor files
 .idea/
 .vscode/
 *.swp
 *.swo
 
-# Temporary & Log files
+# Tests & Coverage
+tests/
+.pytest_cache/
+.coverage
+htmlcov/
+coverage/
+
+# Node & Frontend build
+node_modules/
+build/
+dist/
+
+# Logs & Temporary agent files
 *.log
 .system_generated/
 scratch/
+.agents/
 
-# OS specific
+# OS specific files
 .DS_Store
 Thumbs.db
+Desktop.ini

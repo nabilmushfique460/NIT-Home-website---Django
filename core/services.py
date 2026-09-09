@@ -82,7 +82,7 @@ class ContactService:
     @classmethod
     def send_admin_alert(cls, contact: ContactMessage) -> None:
         from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
-        admin_email = 'nabil29089@gmail.com'
+        admin_email = getattr(settings, 'ADMIN_EMAIL', 'nabil29089@gmail.com')
         admin_subject = f"[N-IT HOME Support Ticket #{contact.ticket_number}] {contact.name}: {contact.subject}"
         admin_body = (
             f"A new support ticket has been submitted via the website contact form:\n\n"

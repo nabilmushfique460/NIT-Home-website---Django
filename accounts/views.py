@@ -16,8 +16,8 @@ from .forms import (
     ProfileForm,
     AddressForm
 )
-from .models import Address, EmailVerification, Notification, Profile
-from .services import OTPService
+from .models import Address, EmailVerification, PhoneVerification, Notification, Profile
+from .services import OTPService, SMSOTPService
 
 User = get_user_model()
 
@@ -287,6 +287,8 @@ class ProfileView(LoginRequiredMixin, View):
         addresses = Address.objects.filter(user=user)
         recent_orders = user.orders.all()[:5]
 
+        phone_verification_active = PhoneVerification.objects.filter(user=user).exists()
+
         return render(
             request,
             'accounts/profile.html',
@@ -295,6 +297,7 @@ class ProfileView(LoginRequiredMixin, View):
                 'address_form': address_form,
                 'addresses': addresses,
                 'recent_orders': recent_orders,
+                'phone_verification_active': phone_verification_active,
                 'title': 'My Profile & Account Settings'
             }
         )
@@ -314,6 +317,23 @@ class ProfileView(LoginRequiredMixin, View):
                 messages.success(request, 'Profile updated successfully.')
             else:
                 messages.error(request, 'Failed to update profile. Please check your inputs.')
+
+        elif action == 'send_phone_otp':
+            phone = request.POST.get('phone', '').strip()
+            if not phone:
+                messages.error(request, 'Please enter a valid mobile phone number.')
+            else:
+                SMSOTPService.create_and_send_otp(user, phone)
+                messages.success(request, f"A 6-digit verification code has been dispatched via SMS to {phone}.")
+
+        elif action == 'confirm_phone_otp':
+            code = request.POST.get('phone_otp', '').strip()
+            if not code:
+                messages.error(request, 'Please enter the 6-digit code received on your phone.')
+            elif SMSOTPService.verify_user_otp(user, code):
+                messages.success(request, 'Your mobile phone number has been successfully verified!')
+            else:
+                messages.error(request, 'Invalid or expired phone verification code. Please request a new one.')
 
         elif action == 'add_address':
             address_form = AddressForm(request.POST)
