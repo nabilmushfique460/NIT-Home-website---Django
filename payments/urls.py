@@ -2,8 +2,6 @@ from django.urls import path
 from .views import (
     PaymentSelectView,
     ChoosePaymentView,
-    BkashGatewaySimulateView,
-    NagadGatewaySimulateView,
     SSLCommerzInitiateView,
     SSLCommerzIPNView,
     SSLCommerzSuccessView,
@@ -21,6 +19,4 @@ urlpatterns = [
     path('sslcommerz/success/<str:order_number>/', SSLCommerzSuccessView.as_view(), name='sslcommerz_success'),
     path('sslcommerz/fail/<str:order_number>/', SSLCommerzFailView.as_view(), name='sslcommerz_fail'),
     path('sslcommerz/cancel/<str:order_number>/', SSLCommerzCancelView.as_view(), name='sslcommerz_cancel'),
-    path('bkash/<str:order_number>/', BkashGatewaySimulateView.as_view(), name='bkash_gateway'),
-    path('nagad/<str:order_number>/', NagadGatewaySimulateView.as_view(), name='nagad_gateway'),
 ]

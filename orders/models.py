@@ -17,8 +17,7 @@ class Order(models.Model):
 
     PAYMENT_METHOD_CHOICES = (
         ('COD', 'Cash on Delivery (COD)'),
-        ('BKASH', 'bKash Mobile Financial Service'),
-        ('NAGAD', 'Nagad Mobile Financial Service'),
+        ('SSLCOMMERZ', 'Online Payment (SSLCommerz)'),
     )
 
     order_number = models.CharField(max_length=32, unique=True, editable=False)

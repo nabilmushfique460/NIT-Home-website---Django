@@ -1,0 +1,234 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="wrap" style="padding-top: 36px; padding-bottom: 72px;">
+
+    <!-- Top Header -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div class="eyebrow mono" style="color: var(--copper-bright); margin-bottom: 6px;">INTERNAL EXECUTIVE DASHBOARD</div>
+            <h1 style="font-size: 2.2rem; font-weight: 700; color: var(--text); margin: 0;">Business & Hardware Operations</h1>
+        </div>
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <a href="/admin/" target="_blank" class="btn btn-outline" style="font-size: 13px; padding: 10px 18px;">
+                Django Admin &rarr;
+            </a>
+            <span class="mono" style="font-size: 12.5px; background: rgba(37,99,235,0.1); color: #2563eb; padding: 6px 12px; border-radius: 6px; border: 1px solid rgba(37,99,235,0.2);">
+                Staff: {{ request.user.get_short_name }}
+            </span>
+        </div>
+    </div>
+
+    <!-- KPI Metric Cards Grid -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-bottom: 32px;">
+        
+        <div class="card" style="padding: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid var(--copper);">
+            <div style="color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Revenue (This Month)</div>
+            <div class="mono" style="font-size: 2rem; font-weight: 800; color: var(--copper-bright);">৳{{ monthly_revenue|floatformat:0 }}</div>
+            <div style="font-size: 12px; color: var(--text-faint); margin-top: 4px;">Excludes cancelled orders</div>
+        </div>
+
+        <div class="card" style="padding: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid #2563eb;">
+            <div style="color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Orders Today</div>
+            <div class="mono" style="font-size: 2rem; font-weight: 800; color: #2563eb;">{{ orders_today }}</div>
+            <div style="font-size: 12px; color: var(--text-faint); margin-top: 4px;">Placed in last 24h</div>
+        </div>
+
+        <div class="card" style="padding: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid #16a34a;">
+            <div style="color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Delivered Orders</div>
+            <div class="mono" style="font-size: 2rem; font-weight: 800; color: #16a34a;">{{ orders_delivered }}</div>
+            <div style="font-size: 12px; color: var(--text-faint); margin-top: 4px;">Completed & verified</div>
+        </div>
+
+        <div class="card" style="padding: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid #f59e0b;">
+            <div style="color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Active Processing</div>
+            <div class="mono" style="font-size: 2rem; font-weight: 800; color: #f59e0b;">{{ orders_pending }}</div>
+            <div style="font-size: 12px; color: var(--text-faint); margin-top: 4px;">Pending, packaging or in transit</div>
+        </div>
+
+        <div class="card" style="padding: 22px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); border-left: 4px solid #dc2626;">
+            <div style="color: var(--text-dim); font-size: 13px; font-weight: 600; text-transform: uppercase; margin-bottom: 8px;">Cancelled</div>
+            <div class="mono" style="font-size: 2rem; font-weight: 800; color: #dc2626;">{{ orders_cancelled }}</div>
+            <div style="font-size: 12px; color: var(--text-faint); margin-top: 4px;">Customer or admin cancelled</div>
+        </div>
+
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card" style="padding: 28px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 32px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div>
+                <h2 style="font-size: 1.35rem; font-weight: 700; margin: 0; color: var(--text);">Revenue & Volume Trend (Last 12 Months)</h2>
+                <div style="font-size: 13px; color: var(--text-dim); margin-top: 4px;">Monthly completed and active sales performance</div>
+            </div>
+            <span class="mono" style="font-size: 12px; color: var(--text-faint);">Real-time DB aggregate</span>
+        </div>
+        <div style="position: relative; height: 320px;">
+            <canvas id="salesTrendChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Two-column section: Low Stock Alerts & Recent Orders -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(360px, 1fr)); gap: 24px;">
+
+        <!-- Low Stock Alerts -->
+        <div class="card" style="padding: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text); margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #dc2626;">⚠️</span> Low Inventory Alerts
+                </h3>
+                <span style="font-size: 12px; color: var(--text-dim);">≤ 5 Units In Stock</span>
+            </div>
+
+            {% if low_stock_products %}
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                {% for prod in low_stock_products %}
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm);">
+                    <div>
+                        <a href="{{ prod.get_absolute_url }}" target="_blank" style="font-weight: 600; font-size: 14px; color: var(--text); text-decoration: none;">
+                            {{ prod.brand }} {{ prod.name }}
+                        </a>
+                        <div style="font-size: 12px; color: var(--text-dim); margin-top: 2px;">
+                            {{ prod.category.name }} &bull; ৳{{ prod.price }}
+                        </div>
+                    </div>
+                    <div style="text-align: right;">
+                        <span class="mono" style="font-weight: 700; font-size: 13.5px; color: {% if prod.stock_qty == 0 %}#dc2626{% else %}#f59e0b{% endif %};">
+                            {% if prod.stock_qty == 0 %}OUT OF STOCK{% else %}{{ prod.stock_qty }} left{% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="color: var(--text-dim); font-size: 14px; text-align: center; padding: 24px 0;">All hardware stock levels are optimal (> 5 units).</p>
+            {% endif %}
+        </div>
+
+        <!-- Recent Orders Manifest -->
+        <div class="card" style="padding: 24px; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+                <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text); margin: 0;">Recent Orders</h3>
+                <span style="font-size: 12px; color: var(--text-dim);">Latest 15 Orders</span>
+            </div>
+
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13.5px;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border); color: var(--text-dim); text-align: left;">
+                            <th style="padding: 10px 8px;">Order #</th>
+                            <th style="padding: 10px 8px;">Customer</th>
+                            <th style="padding: 10px 8px;">Amount</th>
+                            <th style="padding: 10px 8px;">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in recent_orders %}
+                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                            <td style="padding: 12px 8px;">
+                                <a href="{% url 'orders:order_detail' order_number=order.order_number %}" class="mono" style="color: var(--copper-bright); text-decoration: none; font-weight: 600;">
+                                    #{{ order.order_number }}
+                                </a>
+                            </td>
+                            <td style="padding: 12px 8px; color: var(--text);">
+                                {{ order.full_name }}
+                            </td>
+                            <td style="padding: 12px 8px; font-weight: 600; color: var(--text);">
+                                ৳{{ order.total_amount }}
+                            </td>
+                            <td style="padding: 12px 8px;">
+                                <span class="badge" style="font-size: 11px; padding: 4px 8px; border-radius: 4px; font-weight: 600;
+                                    {% if order.status == 'DELIVERED' %}background: rgba(22,163,74,0.15); color: #16a34a;
+                                    {% elif order.status == 'CANCELLED' %}background: rgba(220,38,38,0.15); color: #dc2626;
+                                    {% elif order.status == 'SHIPPED' %}background: rgba(37,99,235,0.15); color: #2563eb;
+                                    {% else %}background: rgba(245,158,11,0.15); color: #f59e0b;{% endif %}">
+                                    {{ order.get_status_display }}
+                                </span>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" style="text-align: center; padding: 24px; color: var(--text-dim);">No customer orders recorded yet.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const ctx = document.getElementById('salesTrendChart');
+    if (!ctx) return;
+
+    const labels = {{ monthly_labels|safe }};
+    const totals = {{ monthly_totals|safe }};
+    const counts = {{ monthly_counts|safe }};
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels.length ? labels : ['No Data'],
+            datasets: [
+                {
+                    label: 'Revenue (৳)',
+                    data: totals.length ? totals : [0],
+                    borderColor: '#b45309',
+                    backgroundColor: 'rgba(180, 83, 9, 0.12)',
+                    fill: true,
+                    tension: 0.35,
+                    borderWidth: 2.5,
+                    yAxisID: 'y'
+                },
+                {
+                    label: 'Order Volume',
+                    data: counts.length ? counts : [0],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    borderDash: [5, 5],
+                    fill: false,
+                    tension: 0.35,
+                    borderWidth: 2,
+                    yAxisID: 'y1'
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    grid: { color: 'rgba(255, 255, 255, 0.06)' },
+                    ticks: {
+                        callback: function(val) { return '৳' + Number(val).toLocaleString(); }
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: { drawOnChartArea: false },
+                    ticks: { stepSize: 1 }
+                },
+                x: {
+                    grid: { color: 'rgba(255, 255, 255, 0.04)' }
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

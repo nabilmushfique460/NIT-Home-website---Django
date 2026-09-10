@@ -6,18 +6,27 @@
         <div class="order-success-badge">
             &#10003;
         </div>
-        <h1 class="order-success-title">Order Placed</h1>
-        <p style="color: var(--copper-bright); font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; line-height: 1.5;">
-            We will review your order and confirm you soon with a email.
-        </p>
+        
+        {% if order.is_paid %}
+            <h1 class="order-success-title">Payment Confirmed &amp; Order Placed</h1>
+            <p style="color: #22c55e; font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; line-height: 1.5;">
+                Your online payment was verified successfully.
+            </p>
+        {% else %}
+            <h1 class="order-success-title">Order Placed (Cash on Delivery)</h1>
+            <p style="color: var(--copper-bright); font-size: 1.15rem; font-weight: 700; margin-bottom: 20px; line-height: 1.5;">
+                Please prepare the exact cash amount for handover upon component delivery.
+            </p>
+        {% endif %}
+
         <p class="order-success-desc">
-            Your order reference is <strong>#{{ order.order_number }}</strong>. Our team has received your order manifest and will review it promptly.
+            Your order reference is <strong>#{{ order.order_number }}</strong>. A confirmation email and digital invoice have been dispatched to your inbox.
         </p>
 
         <div class="order-success-details">
             <div class="order-success-row">
                 <span>Order Number</span>
-                <strong>#{{ order.order_number }}</strong>
+                <strong class="mono">#{{ order.order_number }}</strong>
             </div>
             <div class="order-success-row">
                 <span>Recipient</span>
@@ -27,6 +36,20 @@
                 <span>Payment Method</span>
                 <span>{{ order.get_payment_method_display }}</span>
             </div>
+            <div class="order-success-row">
+                <span>Payment Status</span>
+                {% if order.is_paid %}
+                    <span style="color: #22c55e; font-weight: 700;">PAID &amp; VERIFIED</span>
+                {% else %}
+                    <span style="color: var(--copper-bright); font-weight: 700;">PAYABLE ON DELIVERY</span>
+                {% endif %}
+            </div>
+            {% if order.payments.first.bank_tran_id %}
+                <div class="order-success-row">
+                    <span>Gateway Reference</span>
+                    <span class="mono" style="font-size: 12.5px;">{{ order.payments.first.bank_tran_id }}</span>
+                </div>
+            {% endif %}
             <div class="order-success-row">
                 <span>Delivery Address</span>
                 <span>{{ order.street_address }}, {{ order.city }} {{ order.postal_code }}</span>

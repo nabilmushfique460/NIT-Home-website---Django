@@ -14,21 +14,23 @@ if env_file.exists():
                 key, val = line.split('=', 1)
                 os.environ.setdefault(key.strip(), val.strip().strip("'\""))
 
-# Security key configuration
-SECRET_KEY = os.environ.get(
-    'SECRET_KEY',
-    'django-insecure-nit-home-pc-hardware-super-secret-key-2026'
-)
-
 # Debug mode configuration
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
+# Security key configuration
+if not DEBUG:
+    SECRET_KEY = os.environ['SECRET_KEY']
+else:
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-local-only-nit-home-key')
+
 # Allowed hosts configuration
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.environ.get('ALLOWED_HOSTS', '*').split(',')
-    if host.strip()
-]
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
+elif DEBUG:
+    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+else:
+    ALLOWED_HOSTS = []
 
 # Trusted origins for CSRF protection
 csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
@@ -166,17 +168,22 @@ LOGIN_URL = 'accounts:login'
 LOGIN_REDIRECT_URL = 'products:product_list'
 LOGOUT_REDIRECT_URL = 'products:product_list'
 
-# Frame options configuration
-X_FRAME_OPTIONS = 'ALLOWALL'
+# Frame options configuration (protect against clickjacking)
+X_FRAME_OPTIONS = 'DENY'
 
-# Email backend configuration
-EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
+# Email configuration
 EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
 EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', 'True').lower() in ('true', '1', 'yes')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'nabil29089@gmail.com')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', 'hjmerkfanwfudjbq')
-DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'nabil29089@gmail.com')
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'no-reply@nithome.com')
+
+# Use console backend for development if SMTP credentials are not configured
+if not EMAIL_HOST_USER or not EMAIL_HOST_PASSWORD:
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+else:
+    EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.smtp.EmailBackend')
 
 # Cart and session settings
 CART_SESSION_ID = 'nit_cart'
@@ -205,8 +212,8 @@ SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APPS': [
             {
-                'client_id': os.environ.get('GOOGLE_CLIENT_ID', 'placeholder-google-client-id'),
-                'secret': os.environ.get('GOOGLE_CLIENT_SECRET', 'placeholder-google-client-secret'),
+                'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
+                'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
                 'key': '',
             }
         ],
@@ -216,15 +223,26 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 # SSLCommerz Payment Gateway Configuration
-SSLCOMMERZ_STORE_ID = os.environ.get('SSLCOMMERZ_STORE_ID', 'testbox')
-SSLCOMMERZ_STORE_PASS = os.environ.get('SSLCOMMERZ_STORE_PASS', 'qwerty')
+SSLCOMMERZ_STORE_ID = os.environ.get('SSLCOMMERZ_STORE_ID', '')
+SSLCOMMERZ_STORE_PASS = os.environ.get('SSLCOMMERZ_STORE_PASS', '')
 SSLCOMMERZ_IS_SANDBOX = os.environ.get('SSLCOMMERZ_IS_SANDBOX', 'True').lower() in ('true', '1', 'yes')
 
 # Steadfast Courier Integration Configuration
 STEADFAST_API_KEY = os.environ.get('STEADFAST_API_KEY', '')
 STEADFAST_SECRET_KEY = os.environ.get('STEADFAST_SECRET_KEY', '')
-STEADFAST_WEBHOOK_TOKEN = os.environ.get('STEADFAST_WEBHOOK_TOKEN', 'nit-courier-webhook-secret-token')
+STEADFAST_WEBHOOK_TOKEN = os.environ.get('STEADFAST_WEBHOOK_TOKEN', '')
 
 # SMS Gateway Configuration (BulkSMSBD / Alpha SMS)
 SMS_API_KEY = os.environ.get('SMS_API_KEY', '')
 SMS_SENDER_ID = os.environ.get('SMS_SENDER_ID', '')
+
+# Production Security & HTTPS Hardening
+if not DEBUG:
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1', 'yes')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 31536000))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+
