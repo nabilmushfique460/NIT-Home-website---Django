@@ -55,3 +55,7 @@ node_modules/
 .system_generated/
 scratch/
 *.log
+.agents/
+skills-lock.json
+.claude/
+.gemini/
