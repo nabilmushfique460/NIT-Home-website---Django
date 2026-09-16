@@ -18,38 +18,40 @@ if env_file.exists():
 DEBUG = os.environ.get('DEBUG', 'True').lower() in ('true', '1', 'yes')
 
 # Security key configuration
-if not DEBUG:
-    SECRET_KEY = os.environ['SECRET_KEY']
-else:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-dev-local-only-nit-home-key')
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-nit-home-production-key-change-in-env-file')
 
 # Allowed hosts configuration
+default_allowed_hosts = [
+    'localhost',
+    '127.0.0.1',
+    '0.0.0.0',
+    'nabil371.pythonanywhere.com',
+    '.pythonanywhere.com',
+]
 allowed_hosts_env = os.environ.get('ALLOWED_HOSTS')
 if allowed_hosts_env:
-    ALLOWED_HOSTS = [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]
-elif DEBUG:
-    ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+    ALLOWED_HOSTS = list(set(default_allowed_hosts + [host.strip() for host in allowed_hosts_env.split(',') if host.strip()]))
 else:
-    ALLOWED_HOSTS = []
+    ALLOWED_HOSTS = default_allowed_hosts
 
 # Trusted origins for CSRF protection
+default_csrf_origins = [
+    'https://nabil371.pythonanywhere.com',
+    'https://*.pythonanywhere.com',
+    'http://nabil371.pythonanywhere.com',
+    'https://*.run.app',
+    'https://*.cloudrun.app',
+    'http://localhost:3000',
+    'http://127.0.0.1:3000',
+    'http://0.0.0.0:3000',
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
 csrf_origins = os.environ.get('CSRF_TRUSTED_ORIGINS', '')
 if csrf_origins:
-    CSRF_TRUSTED_ORIGINS = [
-        origin.strip()
-        for origin in csrf_origins.split(',')
-        if origin.strip()
-    ]
+    CSRF_TRUSTED_ORIGINS = list(set(default_csrf_origins + [origin.strip() for origin in csrf_origins.split(',') if origin.strip()]))
 else:
-    CSRF_TRUSTED_ORIGINS = [
-        'https://*.run.app',
-        'https://*.cloudrun.app',
-        'http://localhost:3000',
-        'http://127.0.0.1:3000',
-        'http://0.0.0.0:3000',
-        'http://localhost:8000',
-        'http://127.0.0.1:8000',
-    ]
+    CSRF_TRUSTED_ORIGINS = default_csrf_origins
 
 # Installed applications definition
 INSTALLED_APPS = [
@@ -236,11 +238,16 @@ STEADFAST_WEBHOOK_TOKEN = os.environ.get('STEADFAST_WEBHOOK_TOKEN', '')
 SMS_API_KEY = os.environ.get('SMS_API_KEY', '')
 SMS_SENDER_ID = os.environ.get('SMS_SENDER_ID', '')
 
+# Reverse proxy HTTPS header (PythonAnywhere, Cloud Run, Nginx)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Production Security & HTTPS Hardening
 if not DEBUG:
-    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'True').lower() in ('true', '1', 'yes')
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
+    # On PythonAnywhere, Force HTTPS is managed directly in the Web tab switch.
+    # Setting this to True without proper proxy headers can cause redirect loops.
+    SECURE_SSL_REDIRECT = os.environ.get('SECURE_SSL_REDIRECT', 'False').lower() in ('true', '1', 'yes')
+    SESSION_COOKIE_SECURE = os.environ.get('SESSION_COOKIE_SECURE', 'True').lower() in ('true', '1', 'yes')
+    CSRF_COOKIE_SECURE = os.environ.get('CSRF_COOKIE_SECURE', 'True').lower() in ('true', '1', 'yes')
     SECURE_HSTS_SECONDS = int(os.environ.get('SECURE_HSTS_SECONDS', 31536000))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
