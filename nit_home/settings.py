@@ -25,6 +25,7 @@ default_allowed_hosts = [
     'localhost',
     '127.0.0.1',
     '0.0.0.0',
+    'nit.pythonanywhere.com',
     'nabil371.pythonanywhere.com',
     '.pythonanywhere.com',
 ]
@@ -36,9 +37,11 @@ else:
 
 # Trusted origins for CSRF protection
 default_csrf_origins = [
+    'https://nit.pythonanywhere.com',
+    'http://nit.pythonanywhere.com',
     'https://nabil371.pythonanywhere.com',
-    'https://*.pythonanywhere.com',
     'http://nabil371.pythonanywhere.com',
+    'https://*.pythonanywhere.com',
     'https://*.run.app',
     'https://*.cloudrun.app',
     'http://localhost:3000',
