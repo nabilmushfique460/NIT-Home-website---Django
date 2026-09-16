@@ -8,8 +8,9 @@
 import os
 import sys
 
-# Auto-detect project directory path for 'nit' or 'Nabil371'
+# Auto-detect project directory path for 'nithome', 'nit', or 'Nabil371'
 possible_paths = [
+    '/home/nithome/NIT-Home-website---Django',
     '/home/nit/NIT-Home-website---Django',
     '/home/Nabil371/NIT-Home-website---Django',
 ]

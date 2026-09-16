@@ -25,6 +25,7 @@ default_allowed_hosts = [
     'localhost',
     '127.0.0.1',
     '0.0.0.0',
+    'nithome.pythonanywhere.com',
     'nit.pythonanywhere.com',
     'nabil371.pythonanywhere.com',
     '.pythonanywhere.com',
@@ -37,6 +38,8 @@ else:
 
 # Trusted origins for CSRF protection
 default_csrf_origins = [
+    'https://nithome.pythonanywhere.com',
+    'http://nithome.pythonanywhere.com',
     'https://nit.pythonanywhere.com',
     'http://nit.pythonanywhere.com',
     'https://nabil371.pythonanywhere.com',
