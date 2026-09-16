@@ -1,9 +1,11 @@
+import os
 from django.apps import AppConfig
 
 # Configuration for core application
 class CoreConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'core'
+    path = os.path.dirname(os.path.abspath(__file__))
 
     def ready(self):
         # Apply base context duplicate fix if required by template engine
